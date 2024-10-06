@@ -11,6 +11,12 @@
     "type": "A",
     "is_deleted": false
   },
+  "chat_message_list_view.dart": {
+    "old_identifier_name": "ChatMessageListView",
+    "new_identifier_name": "ChatMessageListView",
+    "type": "W",
+    "is_deleted": false
+  },
   "custom_functions.dart": {
     "old_identifier_name": "CustomFunctions",
     "new_identifier_name": "CustomFunctions",
