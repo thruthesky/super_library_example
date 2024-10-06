@@ -18,7 +18,8 @@ void main() async {
   );
 
   SuperLibrary.instance.init(
-    databaseURL: 'https://withcenter-test-4-default-rtdb.firebaseio.com',
+    getDatabaseUrl: () =>
+        'https://withcenter-test-4-default-rtdb.firebaseio.com',
   );
 
   runApp(const MyApp());

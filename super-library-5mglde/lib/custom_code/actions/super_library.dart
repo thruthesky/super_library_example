@@ -39,6 +39,7 @@ class SuperLibrary {
   SuperLibrary._();
 
   String? databaseURL;
+  late final Function getDatabaseUrl;
   FirebaseDatabase? _database;
 
   bool initialized = false;
@@ -46,12 +47,12 @@ class SuperLibrary {
   bool debug = false;
 
   init({
-    required String databaseURL,
+    required Function getDatabaseUrl,
     String userCollectionName = 'users',
     debug = false,
   }) {
     //
-    this.databaseURL = databaseURL;
+    this.getDatabaseUrl = getDatabaseUrl;
     this.debug = debug;
     initialized = true;
     UserService.instance.init(collectionName: userCollectionName);
@@ -61,13 +62,19 @@ class SuperLibrary {
     if (initialized == false) {
       throw Exception('SuperLibrary is not initialized');
     }
+
+    databaseURL ??= getDatabaseUrl();
+
     if (databaseURL == null) {
-      throw Exception('SuperLibrary.getDatabase is not initialized');
+      throw Exception('SuperLibrary.databaseURL is null');
     }
+
     _database ??= FirebaseDatabase.instanceFor(
       app: Firebase.app(),
       databaseURL: databaseURL!,
     );
+
+    dog('databaseURL: $databaseURL');
     return _database!;
   }
 }
@@ -238,13 +245,19 @@ class UserService {
 
   DatabaseReference get usersRef => database.ref().child(collectionName);
 
+  Widget Function(dynamic)? userListTile;
+  bool initialized = false;
+
   init({
     required String collectionName,
     List<String>? mirrorExcludeFields,
+    Widget Function(dynamic)? userListTile,
   }) {
     dog('UserService.init: $collectionName');
     this.collectionName = collectionName;
     mirror();
+    this.userListTile = userListTile;
+    initialized = true;
   }
 
   /// Firestore document reference for the current user

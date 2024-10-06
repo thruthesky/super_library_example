@@ -1,7 +1,4 @@
 // Automatic FlutterFlow imports
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:super_library/custom_code/actions/super_library.dart';
 
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -10,6 +7,10 @@ import '/custom_code/actions/index.dart'; // Imports custom actions
 import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:super_library/custom_code/actions/super_library.dart';
 
 class UserListView extends StatefulWidget {
   const UserListView({
@@ -40,16 +41,18 @@ class _UserListViewState extends State<UserListView> {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
             final User user = User.fromSnapshot(doc);
-            return ListTile(
-              leading: CachedNetworkImage(
-                imageUrl: user.photoUrl,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
-              title: Text(user.displayName),
-              subtitle: Text(user.createdAt.toDateTime.short),
-            );
+
+            return UserService.instance.userListTile?.call(user) ??
+                ListTile(
+                  leading: CachedNetworkImage(
+                    imageUrl: user.photoUrl,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(user.displayName),
+                  subtitle: Text(user.createdAt.toDateTime.short),
+                );
           },
         );
       },
