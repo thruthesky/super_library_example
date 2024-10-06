@@ -73,10 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             .collection('users')
                             .doc(uid)
                             .set({
-                          'name': 'User-$id',
+                          'display_name': 'User-$id',
                           'created_time': FieldValue.serverTimestamp(),
                           'email': email,
-                          'photoUrl': 'https://picsum.photos/id/$id/200/300',
+                          'photo_url': 'https://picsum.photos/id/${i}0/200/300',
                         });
                         print(
                           'User $email created with uid: $uid',
@@ -165,6 +165,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     await FirebaseAuth.instance.signOut();
                   },
                   child: const Text('Sign Out'),
+                ),
+                const SizedBox(height: 20),
+                const SizedBox(
+                  height: 300,
+                  child: UserListView(),
                 ),
               ],
             ),

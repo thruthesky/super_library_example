@@ -1,5 +1,7 @@
 // Automatic FlutterFlow imports
 
+import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
@@ -11,7 +13,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart' as fs;
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fa;
 import 'package:flutter/foundation.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -20,6 +22,15 @@ import 'package:firebase_ui_database/firebase_ui_database.dart';
 
 FirebaseDatabase get database => SuperLibrary.instance.database;
 fs.FirebaseFirestore get firestore => fs.FirebaseFirestore.instance;
+
+const String joinSeparator = '---';
+
+String get myUid {
+  if (fa.FirebaseAuth.instance.currentUser == null) {
+    throw Exception('[myUid] is called but the user is not signed in');
+  }
+  return fa.FirebaseAuth.instance.currentUser!.uid;
+}
 
 class SuperLibrary {
   static SuperLibrary? _instance;
@@ -36,14 +47,14 @@ class SuperLibrary {
 
   init({
     required String databaseURL,
-    String collectionName = 'users',
+    String userCollectionName = 'users',
     debug = false,
   }) {
     //
     this.databaseURL = databaseURL;
     this.debug = debug;
     initialized = true;
-    UserService.instance.init(collectionName: collectionName);
+    UserService.instance.init(collectionName: userCollectionName);
   }
 
   FirebaseDatabase get database {
@@ -94,9 +105,9 @@ class ChatService {
   }
 
   makeChatRoomId(String senderUid, String receiverUid) {
-    return senderUid.hashCode <= receiverUid.hashCode
-        ? '$senderUid-$receiverUid'
-        : '$receiverUid-$senderUid';
+    return [senderUid, receiverUid]
+      ..sort()
+      ..join(joinSeparator);
   }
 }
 
@@ -188,14 +199,14 @@ class Memory {
 class AuthStateChanges extends StatelessWidget {
   const AuthStateChanges({super.key, required this.builder});
 
-  final Widget Function(User?) builder;
+  final Widget Function(fa.User?) builder;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       // To reduce the flickering
-      initialData: FirebaseAuth.instance.currentUser,
-      stream: FirebaseAuth.instance.authStateChanges(),
+      initialData: fa.FirebaseAuth.instance.currentUser,
+      stream: fa.FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting &&
             snapshot.hasData == false) {
@@ -225,11 +236,7 @@ class UserService {
   /// Firestore collection name for users
   String collectionName = 'users';
 
-  /// List of private fields that should not be synced to the database
-  List<String>? _mirrorExcludeFields;
-
-  /// Default private fields
-  List<String> defaultMirrorExcludeFields = ['email', 'phone_number'];
+  DatabaseReference get usersRef => database.ref().child(collectionName);
 
   init({
     required String collectionName,
@@ -237,14 +244,12 @@ class UserService {
   }) {
     dog('UserService.init: $collectionName');
     this.collectionName = collectionName;
-    _mirrorExcludeFields = mirrorExcludeFields ?? defaultMirrorExcludeFields;
-    dog(_mirrorExcludeFields);
     mirror();
   }
 
   /// Firestore document reference for the current user
   fs.DocumentReference get myDoc {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = fa.FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('UserService.myDoc: user is not signed in');
     }
@@ -261,37 +266,37 @@ class UserService {
   }
 
   /// Database reference for the current user
-  DatabaseReference get myData {
-    final user = FirebaseAuth.instance.currentUser;
+  DatabaseReference get myRef {
+    final user = fa.FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('UserService.myRef: user is not signed in');
     }
-    final ref = data(user.uid);
+    final ref = userRef(user.uid);
     return ref;
   }
 
   /// Database reference for the user with [uid]
-  DatabaseReference data(String uid) {
+  DatabaseReference userRef(String uid) {
     final ref = database.ref().child(collectionName).child(uid);
 
     dog('path of ref: ${ref.path}');
     return ref;
   }
 
-  StreamSubscription<User?>? mirrorSubscription;
+  StreamSubscription<fa.User?>? mirrorSubscription;
   StreamSubscription? userDocumentSubscription;
 
-  /// Mirror user's displayName and photoURL from Firestore to Database
+  /// Mirror user's displayName, photoURL, and created_time only from Firestore to Database
   ///
   /// Why?
-  /// The superchat is using Firebase Realtime Database for chat and other
+  /// The super library is using Firebase Realtime Database for chat and other
   /// functionalities. But the user's displayName and photoURL are stored in
   /// Firestore by FlutterFlow.
   mirror() {
     dog('UserService.mirror');
     mirrorSubscription?.cancel();
     mirrorSubscription =
-        FirebaseAuth.instance.authStateChanges().listen((user) {
+        fa.FirebaseAuth.instance.authStateChanges().listen((user) {
       print('User uid: ${user?.uid}');
       if (user != null) {
         userDocumentSubscription?.cancel();
@@ -299,47 +304,162 @@ class UserService {
           if (snapshot.exists == false) {
             return;
           }
-          Map<String, dynamic> newData = {};
-
-          print('Mirror from Firestore to Database');
-          Map<String, dynamic> snapshotData =
-              Map<String, dynamic>.from(snapshot.data() as Map);
-
-          for (dynamic key in snapshotData.keys) {
-            final value = snapshotData[key];
-
-            if (_mirrorExcludeFields!.contains(key) || value == null) {
-              continue;
-            }
-            if (value is String ||
-                value is int ||
-                value is double ||
-                value is bool ||
-                (value is Object && value is List)) {
-              newData[key] = value;
-            } else if (value is Object) {
-              if (value is fs.Timestamp) {
-                newData[key] = value.millisecondsSinceEpoch;
-              } else if (value is fs.GeoPoint) {
-                final geoPoint = value;
-                newData['latitude'] = geoPoint.latitude;
-                newData['longitude'] = geoPoint.longitude;
-              } else if (value is Map) {
-                dog('key $key is Map');
-                newData[key] = value;
-              } else {
-                dog('key $key is unknown object type');
-              }
-            } else {
-              dog('key $key is unknown type');
-            }
+          int stamp;
+          if (snapshot.get('created_time') is Timestamp) {
+            stamp = (snapshot.get('created_time') as Timestamp)
+                .millisecondsSinceEpoch;
+          } else {
+            stamp = DateTime.now().millisecondsSinceEpoch;
           }
-          debugPrint('newData : $newData');
-          data(user.uid).update(newData);
+
+          Map<String, dynamic> data = {
+            User.field.creatAt: stamp,
+            User.field.displayName: snapshot.get('display_name') ?? '',
+            User.field.displayNameLowerCase:
+                (snapshot.get('display_name') ?? '').toLowerCase(),
+            User.field.photoUrl: snapshot.get('photo_url') ?? '',
+          };
+
+          userRef(user.uid).update(data);
         });
       }
     });
   }
+}
+
+/// Realtime database user modeling class
+class User {
+  ///
+  /// Field names used for the Firestore document
+  static const field = (
+    creatAt: 'createdAt',
+    displayName: 'displayName',
+    displayNameLowerCase: 'displayNameLowerCase',
+    photoUrl: 'photoUrl',
+  );
+
+  final String key;
+  final int createdAt;
+  final String displayName;
+  final String displayNameLowerCase;
+  final String photoUrl;
+
+  User({
+    required this.key,
+    required this.createdAt,
+    required this.displayName,
+    required this.displayNameLowerCase,
+    required this.photoUrl,
+  });
+
+  factory User.fromJson(Map<dynamic, dynamic> json, String key) {
+    return User(
+      key: key,
+      createdAt: json[field.creatAt],
+      displayName: json[field.displayName],
+      displayNameLowerCase: json[field.displayNameLowerCase],
+      photoUrl: json[field.photoUrl],
+    );
+  }
+
+  factory User.fromSnapshot(DataSnapshot snapshot) {
+    return User.fromJson(snapshot.value as Map, snapshot.key!);
+  }
+}
+
+extension SuperLibraryIntExtension on int {
+  /// Change the integer of milliseconds to a DateTime object
+  DateTime get toDateTime => DateTime.fromMillisecondsSinceEpoch(this);
+}
+
+/// DateTime extension
+///
+///
+extension SuperLibraryDateTimeExtension on DateTime {
+  /// Returns a string of "yyyy-MM-dd"
+  String get short => shortDateTime;
+
+  /// Returns date if the date is today, otherwise returns time
+  ///
+  String get shortDateTime {
+    return isToday ? jm : md;
+  }
+
+  /// Returns a string of "yyyy-MM-dd"
+  String get yMd {
+    return DateFormat.yMd().format(this);
+  }
+
+  /// Converts a string to a DateTime object and returns it in YYYY-MM-DD HH:mm:ss format.
+  ///
+  /// See also: https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html
+  String get yMdjm {
+    return DateFormat.yM().add_jm().format(this);
+  }
+
+  /// Converts a string to a DateTime object and returns it in MM-DD format.
+  ///
+  /// See also: https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html
+  String get md {
+    return DateFormat.Md().format(this);
+  }
+
+  /// Returns a string of "yyyy-MM-dd HH:mm:ss"
+  String get jm {
+    return DateFormat.jm().format(this);
+  }
+
+  /// Returns in the format of 'jms' (e.g. 5:08:37 PM)
+  ///
+  /// See also: https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html
+  String get jms {
+    return DateFormat.jms().format(this);
+  }
+
+  /// Returns a string of "yy-MM-dd"
+  ///
+  /// from: https://github.com/jayeshpansheriya/awesome_extensions/blob/main/lib/date_extensions/date_extension.dart
+  bool get isToday {
+    final nowDate = DateTime.now();
+    return year == nowDate.year && month == nowDate.month && day == nowDate.day;
+  }
+
+  /// Returns true if the date is tomorrow
+  bool get isTomorrow {
+    final nowDate = DateTime.now();
+    return year == nowDate.year &&
+        month == nowDate.month &&
+        day == nowDate.day + 1;
+  }
+
+  /// Returns true if the date is past.
+  ///
+  /// It returns true even if it is today but the time is past.
+  ///
+  /// It is a simple alias of `isBefore(DateTime.now())`.
+  bool get isPast {
+    final nowDate = DateTime.now();
+    return isBefore(nowDate);
+  }
+
+  /// Returns true if the date is future.
+  ///
+  /// It returns true even if it is today but the time is future.
+  ///
+  /// It is a simple alias of `isAfter(DateTime.now())`.
+  ///
+  /// See also: https://api.flutter.dev/flutter/dart-core/DateTime/isBefore.html
+  /// See also: https://api.flutter.dev/flutter/dart-core/DateTime/compareTo.html
+  bool get isFuture {
+    final nowDate = DateTime.now();
+    return isAfter(nowDate);
+  }
+
+  /// The day after this [DateTime]
+  DateTime get nextDay => add(const Duration(days: 1));
+
+  /// The day previous this [DateTime]
+  DateTime get previousDay => subtract(const Duration(days: 1));
 }
 
 /// Print log message with emoji 🐶

@@ -22,5 +22,11 @@
     "new_identifier_name": "CustomFunctions",
     "type": "F",
     "is_deleted": false
+  },
+  "user_list_view.dart": {
+    "old_identifier_name": "UserListView",
+    "new_identifier_name": "UserListView",
+    "type": "W",
+    "is_deleted": false
   }
 }
