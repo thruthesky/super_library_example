@@ -1,0 +1,20 @@
+{
+  "chat_send_message.dart": {
+    "old_identifier_name": "chatSendMessage",
+    "new_identifier_name": "chatSendMessage",
+    "type": "A",
+    "is_deleted": false
+  },
+  "super_library.dart": {
+    "old_identifier_name": "superLibrary",
+    "new_identifier_name": "superLibrary",
+    "type": "A",
+    "is_deleted": false
+  },
+  "custom_functions.dart": {
+    "old_identifier_name": "CustomFunctions",
+    "new_identifier_name": "CustomFunctions",
+    "type": "F",
+    "is_deleted": false
+  }
+}
