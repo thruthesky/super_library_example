@@ -132,7 +132,7 @@ class ChatService {
     await messagesRef(roomId).push().set(data);
   }
 
-  ///
+  /// TODO should it be make? or get
   String makeSingleChatRoomId(String? loginUid, String? otherUid) {
     if (loginUid == null) {
       throw SuperLibraryException('makeSingleChatRoomId', 'loginUid is null');
@@ -143,6 +143,78 @@ class ChatService {
     final arr = [loginUid, otherUid];
     arr.sort();
     return arr.join(joinSeparator);
+  }
+
+  // TODO where to put this
+  Future<int> getServerTimestamp() async {
+    final ref = FirebaseDatabase.instance
+        .ref()
+        .child('chat')
+        .child('-info')
+        .child('timestamp');
+    await ref.set(ServerValue.timestamp);
+    final snapshot = await ref.get();
+    return snapshot.value as int;
+  }
+
+  /// Join a chat room
+  ///
+  /// This method is used to join a chat room.
+  ///
+  ///
+  /// Where:
+  /// - It is called after the chat room created.
+  /// - It is called after the user accepted the invitation.
+  ///
+  /// Logic:
+  /// - It update the room.users with current user's uid. It's called as
+  /// call-by-reference. So, the parent can use the updated room.users which
+  /// includes the current user's uid.
+  Future<void> join(
+    ChatRoom room, {
+    String? protocol,
+  }) async {
+    dog("Joining");
+
+    if (room.joined) return;
+
+    final timestamp = await getServerTimestamp();
+    final negativeTimestamp = -1 * timestamp;
+
+    // int timestamp = await getServerTimestamp();
+    // final order = timestamp * -1; // int.parse("-1$timestamp");
+    final joinValues = {
+      // Incase there is an invitation, remove the invitation
+      // TODO reimplement
+      // invitedUserRef(myUid!).child(room.id).path: null,
+      // In case, invitation was mistakenly rejected
+      // TODO reimplement
+      // rejectedUserRef(myUid!).child(room.id).path: null,
+      // Add uid in users
+      room.ref.child('users').child(myUid!).path: true,
+      // Add in chat joins
+      'chat/joins/$myUid/${room.id}/joinedAt': ServerValue.timestamp,
+      // Should be in top in order
+      // This will make the newly joined room at top.
+      'chat/joins/$myUid/${room.id}/order': negativeTimestamp,
+      if (room.single)
+        'chat/joins/$myUid/${room.id}/singleOrder': negativeTimestamp,
+      if (room.group)
+        'chat/joins/$myUid/${room.id}/groupOrder': negativeTimestamp,
+      if (room.open)
+        'chat/joins/$myUid/${room.id}/openOrder': negativeTimestamp,
+    };
+
+    /// Add your uid into the user list of the chat room instead of reading from database.
+    /// * This must be here before await. So it can return fast.
+    room.users[myUid] = true;
+    await FirebaseDatabase.instance.ref().update(joinValues);
+
+    // TODO how do we do report things
+    // await sendMessage(
+    //   room,
+    // protocol: protocol ?? ChatProtocol.join,
+    // );
   }
 }
 

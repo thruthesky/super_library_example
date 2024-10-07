@@ -176,10 +176,11 @@ class _ChatRoomCreateScreenState extends State<ChatRoomCreateScreen> {
                     /// Get the chat room
                     chatRoom = await ChatRoom.get(newRoomRef.key!);
                     // TODO join room
-                    // await ChatService.instance.join(
-                    //   chatRoom!,
-                    //   protocol: ChatProtocol.create,
-                    // );
+
+                    await ChatService.instance.join(
+                      chatRoom!,
+                      // protocol: ChatProtocol.create,
+                    );
 
                     // This will prevent the newly Uploaded photo to be deleted
                     // TODO icon URL

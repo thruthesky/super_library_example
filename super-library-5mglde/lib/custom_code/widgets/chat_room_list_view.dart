@@ -1,6 +1,7 @@
 // Automatic FlutterFlow imports
 import 'package:firebase_database/firebase_database.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
+import 'package:super_library/custom_code/widgets/chat_room_screen.dart';
 
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -40,6 +41,18 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
             return ListTile(
               title: Text(doc.key!),
               subtitle: Text(doc.value.toString()),
+              onTap: () async {
+                // Open chat room screen
+                await showGeneralDialog(
+                  context: context,
+                  pageBuilder: (context, a1, a2) {
+                    // TODO customization
+                    return ChatRoomScreen(
+                      roomId: doc.key,
+                    );
+                  },
+                );
+              },
             );
           },
         );

@@ -4,5 +4,11 @@
     "new_identifier_name": "ChatRoomCreateScreen",
     "type": "F",
     "is_deleted": false
+  },
+  "chat_room_screen.dart": {
+    "old_identifier_name": "ChatRoomScreen",
+    "new_identifier_name": "ChatRoomScreen",
+    "type": "F",
+    "is_deleted": false
   }
 }

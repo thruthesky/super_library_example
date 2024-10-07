@@ -44,13 +44,14 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
     return ValueListView(
       query: ChatService.instance.messagesRef(roomId),
       builder: (snapshot, fetchMore) {
-        return ListView.separated(
+        return ListView.builder(
           itemCount: snapshot.docs.length,
-          separatorBuilder: (context, index) => const Divider(),
+          reverse: true,
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
             return ListTile(
+              shape: OutlineInputBorder(),
               title: Text(doc.key!),
               subtitle: Text(doc.value.toString()),
             );
