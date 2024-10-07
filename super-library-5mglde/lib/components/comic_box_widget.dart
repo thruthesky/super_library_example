@@ -1,5 +1,6 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -63,12 +64,9 @@ class _ComicBoxWidgetState extends State<ComicBoxWidget> {
               width: 1.6,
             ),
           ),
-          child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Builder(builder: (_) {
-              return widget.builder!();
-            }),
-          ),
+          child: Builder(builder: (_) {
+            return widget.builder!();
+          }),
         ),
       ),
     );
