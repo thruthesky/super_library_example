@@ -24,8 +24,8 @@
     "is_deleted": false
   },
   "chat_room_create_screen.dart": {
-    "old_identifier_name": "",
-    "new_identifier_name": "",
+    "old_identifier_name": "ChatRoomCreateScreen",
+    "new_identifier_name": "ChatRoomCreateScreen",
     "type": "W",
     "is_deleted": false
   },
