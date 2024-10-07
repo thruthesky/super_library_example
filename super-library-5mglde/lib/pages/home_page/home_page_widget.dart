@@ -17,7 +17,6 @@ class HomePageWidget extends StatefulWidget {
 class _HomePageWidgetState extends State<HomePageWidget> {
   late HomePageModel _model;
 
-//
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -54,20 +53,19 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   letterSpacing: 0.0,
                 ),
           ),
-          actions: const [],
+          actions: [],
           centerTitle: false,
           elevation: 2.0,
         ),
         body: SafeArea(
           top: true,
           child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+            padding: EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
+                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
                   child: Material(
                     color: Colors.transparent,
                     elevation: 0.0,
@@ -83,12 +81,12 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           color: Colors.transparent,
                           borderRadius: BorderRadius.circular(24.0),
                           border: Border.all(
-                            color: const Color(0xE857636C),
+                            color: Color(0xE857636C),
                             width: 1.6,
                           ),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: EdgeInsets.all(16.0),
                           child: Text(
                             'Hello World - Comic Box',
                             style: FlutterFlowTheme.of(context)

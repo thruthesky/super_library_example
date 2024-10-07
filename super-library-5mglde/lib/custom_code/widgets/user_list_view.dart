@@ -1,5 +1,4 @@
 // Automatic FlutterFlow imports
-
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom widgets
@@ -40,7 +39,7 @@ class _UserListViewState extends State<UserListView> {
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
-            final user = UserData.fromSnapshot(doc);
+            final UserData user = UserData.fromSnapshot(doc);
 
             return Component.userListTile?.call(user) ??
                 ListTile(

@@ -25,24 +25,6 @@ void main() async {
   );
 
   UserService.instance.collectionName = 'users';
-  Component.userListTile = (user) {
-    return ListTile(
-      leading: CachedNetworkImage(
-        imageUrl: user.photoUrl,
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-      ),
-      title: Text(user.displayName),
-      subtitle: Text(user.createdAt.toDateTime.short),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete),
-        onPressed: () {
-          // UserService.instance.delete(user.id);
-        },
-      ),
-    );
-  };
 
   runApp(const MyApp());
 }
@@ -86,7 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
             showGeneralDialog(
               context: context,
               pageBuilder: (_, __, ___) {
-                return const ChatRoomScreen();
+                return ChatRoomScreen(
+                  otherUid: user.uid,
+                );
               },
             );
           },

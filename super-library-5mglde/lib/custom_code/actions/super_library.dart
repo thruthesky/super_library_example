@@ -1,7 +1,4 @@
 // Automatic FlutterFlow imports
-
-import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
-
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
@@ -12,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as fs;
 import 'package:firebase_auth/firebase_auth.dart' as fa;
 import 'package:flutter/foundation.dart';
@@ -122,18 +120,20 @@ class ChatService {
     };
 
     roomId = roomId ?? makeSingleChatRoomId(senderUid, receiverUid!);
-    await messagesRef(roomId!).push().set(data);
+    await messagesRef(roomId).push().set(data);
   }
 
   ///
-  makeSingleChatRoomId(String? uidA, String? uidB) {
-    if (uidA == null || uidB == null) {
-      throw SuperLibraryException(
-          'makeSingleChatRoomId', 'uidA or uidB is null');
+  String makeSingleChatRoomId(String? loginUid, String? otherUid) {
+    if (loginUid == null) {
+      throw SuperLibraryException('makeSingleChatRoomId', 'loginUid is null');
     }
-    return [uidA, uidB]
-      ..sort()
-      ..join(joinSeparator);
+    if (otherUid == null) {
+      throw SuperLibraryException('makeSingleChatRoomId', 'otherUid is null');
+    }
+    final arr = [loginUid, otherUid];
+    arr.sort();
+    return arr.join(joinSeparator);
   }
 }
 
@@ -363,14 +363,14 @@ class UserData {
     photoUrl: 'photoUrl',
   );
 
-  final String key;
+  final String uid;
   final int createdAt;
   final String displayName;
   final String displayNameLowerCase;
   final String photoUrl;
 
   UserData({
-    required this.key,
+    required this.uid,
     required this.createdAt,
     required this.displayName,
     required this.displayNameLowerCase,
@@ -379,7 +379,7 @@ class UserData {
 
   factory UserData.fromJson(Map<dynamic, dynamic> json, String key) {
     return UserData(
-      key: key,
+      uid: key,
       createdAt: json[field.creatAt],
       displayName: json[field.displayName],
       displayNameLowerCase: json[field.displayNameLowerCase],
@@ -392,6 +392,7 @@ class UserData {
   }
 }
 
+/// Component holder class.
 class Component {
   static Widget Function(UserData)? userListTile;
 }
@@ -503,4 +504,3 @@ Future superLibrary() async {
 }
 
 // End custom action code
-
