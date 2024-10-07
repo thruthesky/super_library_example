@@ -158,40 +158,44 @@ class _ChatRoomCreateScreenState extends State<ChatRoomCreateScreen> {
                     isLoading = true;
                   });
                   // TODO continue from heere.
-                  // try {
-                  //   ChatRoom? chatRoom;
+                  try {
+                    ChatRoom? chatRoom;
 
-                  //   /// Create a new chat room
-                  //   final newRoomRef = await ChatRoom.create(
-                  //     name: nameController.text,
-                  //     description: descriptionController.text,
-                  //     iconUrl: iconUrl,
-                  //     open: open,
-                  //     group: true,
-                  //     single: false,
-                  //     users: {myUid!: false},
-                  //   );
+                    /// Create a new chat room
+                    final newRoomRef = await ChatRoom.create(
+                      name: nameController.text,
+                      description: descriptionController.text,
+                      // TODO icon url
+                      // iconUrl: iconUrl,
+                      open: open,
+                      group: true,
+                      single: false,
+                      users: {myUid!: false},
+                    );
 
-                  //   /// Get the chat room
-                  //   chatRoom = await ChatRoom.get(newRoomRef.key!);
-                  //   await ChatService.instance.join(
-                  //     chatRoom!,
-                  //     protocol: ChatProtocol.create,
-                  //   );
+                    /// Get the chat room
+                    chatRoom = await ChatRoom.get(newRoomRef.key!);
+                    // TODO join room
+                    // await ChatService.instance.join(
+                    //   chatRoom!,
+                    //   protocol: ChatProtocol.create,
+                    // );
 
-                  //   // This will prevent the newly Uploaded photo to be deleted
-                  //   iconUrl = null;
-                  //   if (!context.mounted) return;
-                  //   Navigator.of(context).pop(chatRoom.ref);
-                  //   ChatService.instance
-                  //       .showChatRoomScreen(context, room: chatRoom);
-                  // } catch (e) {
-                  //   dog("Failed on chat room creation: ${e.toString()}");
-                  //   setState(() {
-                  //     isLoading = false;
-                  //   });
-                  //   rethrow;
-                  // }
+                    // This will prevent the newly Uploaded photo to be deleted
+                    // TODO icon URL
+                    // iconUrl = null;
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop(chatRoom!.ref);
+                    // TODO showing the chat room screen
+                    // ChatService.instance
+                    //     .showChatRoomScreen(context, room: chatRoom);
+                  } catch (e) {
+                    dog("Failed on chat room creation: ${e.toString()}");
+                    setState(() {
+                      isLoading = false;
+                    });
+                    rethrow;
+                  }
                 },
                 child: Text('create'),
               ),

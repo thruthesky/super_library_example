@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:super_library/custom_code/widgets/chat_room_list_view.dart';
+import 'package:super_library/custom_code/widgets/chat_room_create_screen.dart';
 
 class ChatRoomListScreen extends StatelessWidget {
   static const String routeName = '/ChatRoomList';
@@ -16,6 +17,12 @@ class ChatRoomListScreen extends StatelessWidget {
             onPressed: () {
               // TODO create Chat Room Screen
               // TODO customizable?
+              showGeneralDialog(
+                context: context,
+                pageBuilder: (context, a1, a2) {
+                  return const ChatRoomCreateScreen();
+                },
+              );
             },
             icon: const Icon(Icons.add),
           ),

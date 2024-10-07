@@ -11,9 +11,27 @@
     "type": "A",
     "is_deleted": false
   },
+  "chat_bubble.dart": {
+    "old_identifier_name": "ChatBubble",
+    "new_identifier_name": "ChatBubble",
+    "type": "W",
+    "is_deleted": false
+  },
   "chat_message_list_view.dart": {
     "old_identifier_name": "ChatMessageListView",
     "new_identifier_name": "ChatMessageListView",
+    "type": "W",
+    "is_deleted": false
+  },
+  "chat_room_create_screen.dart": {
+    "old_identifier_name": "",
+    "new_identifier_name": "",
+    "type": "W",
+    "is_deleted": false
+  },
+  "chat_room_list_view.dart": {
+    "old_identifier_name": "ChatRoomListView",
+    "new_identifier_name": "ChatRoomListView",
     "type": "W",
     "is_deleted": false
   },
@@ -27,18 +45,6 @@
     "old_identifier_name": "CustomFunctions",
     "new_identifier_name": "CustomFunctions",
     "type": "F",
-    "is_deleted": false
-  },
-  "chat_bubble.dart": {
-    "old_identifier_name": "ChatBubble",
-    "new_identifier_name": "ChatBubble",
-    "type": "W",
-    "is_deleted": false
-  },
-  "chat_room_list_view.dart": {
-    "old_identifier_name": "ChatRoomListView",
-    "new_identifier_name": "ChatRoomListView",
-    "type": "W",
     "is_deleted": false
   }
 }
