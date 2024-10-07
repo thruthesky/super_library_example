@@ -28,5 +28,11 @@
     "new_identifier_name": "CustomFunctions",
     "type": "F",
     "is_deleted": false
+  },
+  "chat_bubble.dart": {
+    "old_identifier_name": "ChatBubble",
+    "new_identifier_name": "ChatBubble",
+    "type": "W",
+    "is_deleted": false
   }
 }
