@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:super_example/chat_room.list.screen.dart';
 import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
 import 'package:super_library/custom_code/actions/index.dart';
@@ -190,15 +191,30 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text('UID: ${FirebaseAuth.instance.currentUser!.uid}'),
-                ElevatedButton(
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
-                  },
-                  child: const Text('Sign Out'),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        showGeneralDialog(
+                          context: context,
+                          pageBuilder: (context, a1, a2) {
+                            return const ChatRoomListScreen();
+                          },
+                        );
+                      },
+                      child: const Text('Chat Rooms'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                      },
+                      child: const Text('Sign Out'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
-                const SizedBox(
-                  height: 300,
+                const Expanded(
                   child: UserListView(),
                 ),
               ],

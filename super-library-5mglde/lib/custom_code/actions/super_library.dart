@@ -100,6 +100,8 @@ class ChatService {
   DatabaseReference messagesRef(String roomId) =>
       database.ref('chat/messages').child(roomId);
 
+  DatabaseReference get joinsRef => database.ref('chat/joins').child(myUid);
+
   Future sendMessage({
     required String senderUid,
     String? receiverUid,

@@ -34,5 +34,11 @@
     "new_identifier_name": "ChatBubble",
     "type": "W",
     "is_deleted": false
+  },
+  "chat_room_list_view.dart": {
+    "old_identifier_name": "ChatRoomListView",
+    "new_identifier_name": "ChatRoomListView",
+    "type": "W",
+    "is_deleted": false
   }
 }
