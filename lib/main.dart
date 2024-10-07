@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 
@@ -10,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +23,26 @@ void main() async {
     getDatabaseUrl: () =>
         'https://withcenter-test-4-default-rtdb.firebaseio.com',
   );
+
+  UserService.instance.collectionName = 'users';
+  Component.userListTile = (user) {
+    return ListTile(
+      leading: CachedNetworkImage(
+        imageUrl: user.photoUrl,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+      ),
+      title: Text(user.displayName),
+      subtitle: Text(user.createdAt.toDateTime.short),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: () {
+          // UserService.instance.delete(user.id);
+        },
+      ),
+    );
+  };
 
   runApp(const MyApp());
 }
@@ -48,6 +70,29 @@ class _MyHomePageState extends State<MyHomePage> {
   final passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    Component.userListTile = (user) {
+      return ListTile(
+        leading: CachedNetworkImage(
+          imageUrl: user.photoUrl,
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+        ),
+        title: Text(user.displayName),
+        subtitle: Text(user.createdAt.toDateTime.short),
+        trailing: IconButton(
+          icon: const Icon(Icons.comment),
+          onPressed: () {
+            showGeneralDialog(
+              context: context,
+              pageBuilder: (_, __, ___) {
+                return const ChatRoomScreen();
+              },
+            );
+          },
+        ),
+      );
+    };
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

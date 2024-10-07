@@ -31,7 +31,7 @@ class _UserListViewState extends State<UserListView> {
   Widget build(BuildContext context) {
     return ValueListView(
       query: UserService.instance.usersRef
-          .orderByChild(User.field.creatAt)
+          .orderByChild(UserData.field.creatAt)
           .startAt(0),
       builder: (snapshot, fetchMore) {
         return ListView.separated(
@@ -40,9 +40,9 @@ class _UserListViewState extends State<UserListView> {
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
-            final User user = User.fromSnapshot(doc);
+            final user = UserData.fromSnapshot(doc);
 
-            return UserService.instance.userListTile?.call(user) ??
+            return Component.userListTile?.call(user) ??
                 ListTile(
                   leading: CachedNetworkImage(
                     imageUrl: user.photoUrl,

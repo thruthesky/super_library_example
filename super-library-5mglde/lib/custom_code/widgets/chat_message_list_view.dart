@@ -38,9 +38,9 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
   @override
   Widget build(BuildContext context) {
     String roomId = widget.roomId ??
-        ChatService.instance.makeChatRoomId(
+        ChatService.instance.makeSingleChatRoomId(
           myUid,
-          widget.otherUid!,
+          widget.otherUid,
         );
     return ValueListView(
       query: ChatService.instance.messagesRef(roomId),

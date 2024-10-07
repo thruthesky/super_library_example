@@ -48,14 +48,13 @@ class SuperLibrary {
 
   init({
     required Function getDatabaseUrl,
-    String userCollectionName = 'users',
     debug = false,
   }) {
     //
     this.getDatabaseUrl = getDatabaseUrl;
     this.debug = debug;
     initialized = true;
-    UserService.instance.init(collectionName: userCollectionName);
+    UserService.instance.init();
   }
 
   FirebaseDatabase get database {
@@ -76,6 +75,21 @@ class SuperLibrary {
 
     dog('databaseURL: $databaseURL');
     return _database!;
+  }
+}
+
+class SuperLibraryException implements Exception {
+  final String code;
+  final String message;
+
+  SuperLibraryException(
+    this.code,
+    this.message,
+  );
+
+  @override
+  String toString() {
+    return 'SuperLibraryException: ($code) $message';
   }
 }
 
@@ -107,12 +121,17 @@ class ChatService {
       'createdAt': DateTime.now().millisecondsSinceEpoch,
     };
 
-    roomId = roomId ?? makeChatRoomId(senderUid, receiverUid!);
+    roomId = roomId ?? makeSingleChatRoomId(senderUid, receiverUid!);
     await messagesRef(roomId!).push().set(data);
   }
 
-  makeChatRoomId(String senderUid, String receiverUid) {
-    return [senderUid, receiverUid]
+  ///
+  makeSingleChatRoomId(String? uidA, String? uidB) {
+    if (uidA == null || uidB == null) {
+      throw SuperLibraryException(
+          'makeSingleChatRoomId', 'uidA or uidB is null');
+    }
+    return [uidA, uidB]
       ..sort()
       ..join(joinSeparator);
   }
@@ -245,18 +264,11 @@ class UserService {
 
   DatabaseReference get usersRef => database.ref().child(collectionName);
 
-  Widget Function(dynamic)? userListTile;
   bool initialized = false;
 
-  init({
-    required String collectionName,
-    List<String>? mirrorExcludeFields,
-    Widget Function(dynamic)? userListTile,
-  }) {
-    dog('UserService.init: $collectionName');
-    this.collectionName = collectionName;
+  init() {
+    dog('UserService.init:');
     mirror();
-    this.userListTile = userListTile;
     initialized = true;
   }
 
@@ -326,11 +338,11 @@ class UserService {
           }
 
           Map<String, dynamic> data = {
-            User.field.creatAt: stamp,
-            User.field.displayName: snapshot.get('display_name') ?? '',
-            User.field.displayNameLowerCase:
+            UserData.field.creatAt: stamp,
+            UserData.field.displayName: snapshot.get('display_name') ?? '',
+            UserData.field.displayNameLowerCase:
                 (snapshot.get('display_name') ?? '').toLowerCase(),
-            User.field.photoUrl: snapshot.get('photo_url') ?? '',
+            UserData.field.photoUrl: snapshot.get('photo_url') ?? '',
           };
 
           userRef(user.uid).update(data);
@@ -341,7 +353,7 @@ class UserService {
 }
 
 /// Realtime database user modeling class
-class User {
+class UserData {
   ///
   /// Field names used for the Firestore document
   static const field = (
@@ -357,7 +369,7 @@ class User {
   final String displayNameLowerCase;
   final String photoUrl;
 
-  User({
+  UserData({
     required this.key,
     required this.createdAt,
     required this.displayName,
@@ -365,8 +377,8 @@ class User {
     required this.photoUrl,
   });
 
-  factory User.fromJson(Map<dynamic, dynamic> json, String key) {
-    return User(
+  factory UserData.fromJson(Map<dynamic, dynamic> json, String key) {
+    return UserData(
       key: key,
       createdAt: json[field.creatAt],
       displayName: json[field.displayName],
@@ -375,9 +387,13 @@ class User {
     );
   }
 
-  factory User.fromSnapshot(DataSnapshot snapshot) {
-    return User.fromJson(snapshot.value as Map, snapshot.key!);
+  factory UserData.fromSnapshot(DataSnapshot snapshot) {
+    return UserData.fromJson(snapshot.value as Map, snapshot.key!);
   }
+}
+
+class Component {
+  static Widget Function(UserData)? userListTile;
 }
 
 extension SuperLibraryIntExtension on int {

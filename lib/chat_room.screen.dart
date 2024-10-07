@@ -9,7 +9,9 @@ import 'package:super_library/custom_code/widgets/index.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   static const String routeName = '/ChatRoom';
-  const ChatRoomScreen({super.key});
+  const ChatRoomScreen({super.key, this.otherUid});
+
+  final String? otherUid;
 
   @override
   State<ChatRoomScreen> createState() => _ChatRoomScreenState();
@@ -41,9 +43,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                   ),
                 ],
               ),
-              const Expanded(
+              Expanded(
                 child: ChatMessageListView(
-                  roomId: 'roomId',
+                  otherUid: widget.otherUid,
                 ),
               ),
               SafeArea(
