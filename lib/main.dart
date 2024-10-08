@@ -24,6 +24,9 @@ void main() async {
   SuperLibrary.instance.init(
     getDatabaseUrl: () =>
         'https://withcenter-test-4-default-rtdb.firebaseio.com',
+    onReport: () {
+      print('Report created');
+    },
   );
 
   UserService.instance.collectionName = 'users';
@@ -78,15 +81,9 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.report),
-                  onPressed: () {
-                    ReportService.instance.report(
-                      context: context,
-                      path:
-                          '${UserService.instance.collectionName}/${user.uid}',
-                      reportee: user.uid,
-                      type: 'user',
-                      summary: 'Report User',
-                    );
+                  onPressed: () async {
+                    await createReport(
+                        context, user.uid, 'user', 'Report User');
                   },
                 ),
                 IconButton(

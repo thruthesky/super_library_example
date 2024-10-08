@@ -1,12 +1,12 @@
 // Automatic FlutterFlow imports
-import 'package:super_library/custom_code/widgets/index.dart';
-
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
 import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
+
+import 'package:super_library/custom_code/widgets/index.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -47,17 +47,21 @@ class SuperLibrary {
 
   bool initialized = false;
 
+  Function? onReport;
+
   bool debug = false;
 
   init({
     required Function getDatabaseUrl,
+    Function? onReport,
     debug = false,
   }) {
-    //
     this.getDatabaseUrl = getDatabaseUrl;
     this.debug = debug;
+    this.onReport = onReport;
     initialized = true;
     UserService.instance.init();
+    ReportService.instance.init();
   }
 
   FirebaseDatabase get database {
@@ -1192,6 +1196,12 @@ class ReportService {
   String get userNamePath => 'users/{uid}/displayName';
   String get userPhotoUrlPath => 'users/{uid}/photoUrl';
 
+  Function? onReport;
+
+  init() {
+    onReport = SuperLibrary.instance.onReport;
+  }
+
   /// Report
   ///
   /// It reports the [reportee] user with the [path] document reference.
@@ -1205,7 +1215,6 @@ class ReportService {
     required String reportee,
     required String type,
     required String summary,
-    Function? onCreate,
   }) async {
     String? reason;
 
@@ -1238,9 +1247,8 @@ class ReportService {
 
     await ref.set(data);
     await reportsRef.child('---key-list').child(ref.key!).set(currentUser!.uid);
-    onCreate?.call();
+    onReport?.call();
   }
 }
-
 
 // End custom action code

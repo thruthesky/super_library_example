@@ -5,6 +5,12 @@
     "type": "A",
     "is_deleted": false
   },
+  "create_report.dart": {
+    "old_identifier_name": "createReport",
+    "new_identifier_name": "createReport",
+    "type": "A",
+    "is_deleted": false
+  },
   "super_library.dart": {
     "old_identifier_name": "superLibrary",
     "new_identifier_name": "superLibrary",

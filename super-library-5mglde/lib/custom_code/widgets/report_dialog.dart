@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-class ReportDialog extends StatelessWidget {
+class ReportDialog extends StatefulWidget {
   const ReportDialog({
     super.key,
     this.width,
@@ -25,6 +25,11 @@ class ReportDialog extends StatelessWidget {
   final String reportee;
   final String summary;
 
+  @override
+  State<ReportDialog> createState() => _ReportDialogState();
+}
+
+class _ReportDialogState extends State<ReportDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -62,8 +67,8 @@ class ReportDialog extends StatelessWidget {
             // ),
             // const SizedBox(height: 8),
             // DisplayName(uid: reportee),
-            Text('Type: $type'),
-            Text('Summary: $summary'),
+            Text('Type: ${widget.type}'),
+            Text('Summary: ${widget.summary}'),
             const SizedBox(height: 24),
             Text(
               'Select a reason for reporting',
