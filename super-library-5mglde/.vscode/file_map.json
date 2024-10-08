@@ -41,6 +41,18 @@
     "type": "W",
     "is_deleted": false
   },
+  "report_dialog.dart": {
+    "old_identifier_name": "ReportDialog",
+    "new_identifier_name": "ReportDialog",
+    "type": "W",
+    "is_deleted": false
+  },
+  "report_list_view.dart": {
+    "old_identifier_name": "ReportListView",
+    "new_identifier_name": "ReportListView",
+    "type": "W",
+    "is_deleted": false
+  },
   "user_list_view.dart": {
     "old_identifier_name": "UserListView",
     "new_identifier_name": "UserListView",
@@ -51,24 +63,6 @@
     "old_identifier_name": "CustomFunctions",
     "new_identifier_name": "CustomFunctions",
     "type": "F",
-    "is_deleted": false
-  },
-  "report.list_view.dart": {
-    "old_identifier_name": "ReportListView",
-    "new_identifier_name": "ReportListView",
-    "type": "W",
-    "is_deleted": false
-  },
-  "report_dialog.dart": {
-    "old_identifier_name": "ReportDialog",
-    "new_identifier_name": "ReportDialog",
-    "type": "W",
-    "is_deleted": false
-  },
-  "value.dart": {
-    "old_identifier_name": "Value",
-    "new_identifier_name": "Value",
-    "type": "W",
     "is_deleted": false
   }
 }
