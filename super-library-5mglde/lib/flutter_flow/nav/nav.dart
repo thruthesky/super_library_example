@@ -47,32 +47,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'HomePage',
           path: '/homePage',
           builder: (context, params) => HomePageWidget(),
-        ),
-        FFRoute(
-          name: 'PublicProfileScreen',
-          path: '/publicProfileScreen',
-          builder: (context, params) => PublicProfileScreenWidget(
-            photoUrl: params.getParam(
-              'photoUrl',
-              ParamType.String,
-            ),
-            displayName: params.getParam(
-              'displayName',
-              ParamType.String,
-            ),
-            statePhotoUrl: params.getParam(
-              'statePhotoUrl',
-              ParamType.String,
-            ),
-            stateMessage: params.getParam(
-              'stateMessage',
-              ParamType.String,
-            ),
-            uid: params.getParam(
-              'uid',
-              ParamType.String,
-            ),
-          ),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

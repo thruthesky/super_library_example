@@ -35,6 +35,12 @@
     "type": "W",
     "is_deleted": false
   },
+  "chat_room_screen.dart": {
+    "old_identifier_name": "ChatRoomScreen",
+    "new_identifier_name": "ChatRoomScreen",
+    "type": "W",
+    "is_deleted": false
+  },
   "user_list_view.dart": {
     "old_identifier_name": "UserListView",
     "new_identifier_name": "UserListView",
