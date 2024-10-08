@@ -821,6 +821,7 @@ class UserService {
           if (snapshot.exists == false) {
             return;
           }
+          // TODO add a validation that will check if the field exists
           int stamp;
           if (snapshot.get('created_time') is Timestamp) {
             stamp = (snapshot.get('created_time') as Timestamp)
@@ -992,10 +993,10 @@ class UserData {
   factory UserData.fromJson(Map<dynamic, dynamic> json, String key) {
     return UserData(
       uid: key,
-      createdAt: json[field.creatAt],
-      displayName: json[field.displayName],
-      displayNameLowerCase: json[field.displayNameLowerCase],
-      photoUrl: json[field.photoUrl],
+      createdAt: json[field.creatAt] ?? DateTime.now(),
+      displayName: json[field.displayName] ?? '',
+      displayNameLowerCase: json[field.displayNameLowerCase] ?? '',
+      photoUrl: json[field.photoUrl] ?? '',
     );
   }
 
@@ -1154,13 +1155,13 @@ class Report {
   factory Report.fromJson(Map<String, dynamic> json, String id) {
     return Report(
       id: id,
-      reporter: json['reporter'],
-      reportee: json['reportee'],
-      path: json['path'],
-      reason: json['reason'],
-      type: json['type'],
-      summary: json['summary'],
-      createdAt: json['createdAt'] is int
+      reporter: json['reporter'] ?? '',
+      reportee: json['reportee'] ?? '',
+      path: json['path'] ?? '',
+      reason: json['reason'] ?? '',
+      type: json['type'] ?? '',
+      summary: json['summary'] ?? '',
+      createdAt: json['createdAt'] != null && json['createdAt'] is int
           ? DateTime.fromMillisecondsSinceEpoch(json['createdAt'])
           : DateTime.now(),
     );
