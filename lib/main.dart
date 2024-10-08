@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:super_example/chat_room.list.screen.dart';
-import 'package:super_example/chat_room.screen.dart';
+// import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
+import 'package:super_example/report/report.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -54,27 +55,56 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     Component.userListTile = (user) {
-      return ListTile(
-        leading: CachedNetworkImage(
-          imageUrl: user.photoUrl,
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
-        ),
-        title: Text(user.displayName),
-        subtitle: Text(user.createdAt.toDateTime.short),
-        trailing: IconButton(
-          icon: const Icon(Icons.comment),
-          onPressed: () {
-            showGeneralDialog(
-              context: context,
-              pageBuilder: (_, __, ___) {
-                return ChatRoomScreen(
-                  otherUid: user.uid,
-                );
-              },
-            );
-          },
+      return Container(
+        child: Row(
+          children: [
+            CachedNetworkImage(
+              imageUrl: user.photoUrl,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  Text(user.displayName),
+                  const SizedBox(height: 16),
+                  Text(user.createdAt.toDateTime.short)
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.report),
+                  onPressed: () {
+                    ReportService.instance.report(
+                      context: context,
+                      path:
+                          '${UserService.instance.collectionName}/${user.uid}',
+                      reportee: user.uid,
+                      type: 'user',
+                      summary: 'Report User',
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.comment),
+                  onPressed: () {
+                    showGeneralDialog(
+                      context: context,
+                      pageBuilder: (_, __, ___) {
+                        return ChatRoomScreen(
+                          otherUid: user.uid,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       );
     };
@@ -194,6 +224,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 Wrap(
                   alignment: WrapAlignment.center,
                   children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        showGeneralDialog(
+                          context: context,
+                          pageBuilder: (_, __, ___) => const ReportScreen(),
+                        );
+                      },
+                      child: const Text('Report List'),
+                    ),
                     ElevatedButton(
                       onPressed: () async {
                         showGeneralDialog(

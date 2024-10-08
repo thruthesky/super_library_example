@@ -1,4 +1,6 @@
 // Automatic FlutterFlow imports
+import 'package:super_library/custom_code/widgets/index.dart';
+
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
@@ -22,6 +24,7 @@ import 'package:firebase_ui_database/firebase_ui_database.dart';
 
 FirebaseDatabase get database => SuperLibrary.instance.database;
 fs.FirebaseFirestore get firestore => fs.FirebaseFirestore.instance;
+User? get currentUser => FirebaseAuth.instance.currentUser;
 
 const String joinSeparator = '---';
 
@@ -191,7 +194,7 @@ class ChatService {
       // TODO reimplement
       // rejectedUserRef(myUid!).child(room.id).path: null,
       // Add uid in users
-      room.ref.child('users').child(myUid!).path: true,
+      room.ref.child('users').child(myUid).path: true,
       // Add in chat joins
       'chat/joins/$myUid/${room.id}/joinedAt': ServerValue.timestamp,
       // Should be in top in order
@@ -490,7 +493,7 @@ class ChatRoom {
       single: true,
       id: singleChatRoomId(otherUid),
       users: {myUid: true},
-      masterUsers: [myUid!],
+      masterUsers: [myUid],
       domain: domain,
     );
 
@@ -934,6 +937,12 @@ class UserData {
 /// Component holder class.
 class Component {
   static Widget Function(UserData)? userListTile;
+  static Widget Function(
+    Report,
+    String reporteeDisplayName,
+    String reporteePhotoUrl,
+  )? reportListTile;
+  static Widget Function()? reportDialog;
 }
 
 extension SuperLibraryIntExtension on int {
@@ -1041,5 +1050,131 @@ void dog(dynamic msg, {int level = 0}) {
 Future superLibrary() async {
   // Add your function code here!
 }
+
+class Report {
+  final String id;
+  final String reporter;
+  final String reportee;
+  final String path;
+  final String reason;
+  final String type;
+  final String summary;
+  final DateTime createdAt;
+
+  DatabaseReference get ref => ReportService.instance.reportsRef.child(id);
+
+  Report({
+    required this.id,
+    required this.reporter,
+    required this.reportee,
+    required this.path,
+    required this.reason,
+    required this.type,
+    required this.summary,
+    required this.createdAt,
+  });
+
+  factory Report.fromSnapshot(DataSnapshot snapshot) {
+    return Report.fromJson(
+      Map<String, dynamic>.from(snapshot.value as Map),
+      snapshot.key!,
+    );
+  }
+
+  factory Report.fromJson(Map<String, dynamic> json, String id) {
+    return Report(
+      id: id,
+      reporter: json['reporter'],
+      reportee: json['reportee'],
+      path: json['path'],
+      reason: json['reason'],
+      type: json['type'],
+      summary: json['summary'],
+      createdAt: json['createdAt'] is int
+          ? DateTime.fromMillisecondsSinceEpoch(json['createdAt'])
+          : DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'reporter': reporter,
+      'reportee': reportee,
+      'path': path,
+      'reason': reason,
+      'createdAt': createdAt,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Report(${toJson()})';
+  }
+}
+
+/// Report service
+class ReportService {
+  static ReportService? _instance;
+  static ReportService get instance => _instance ??= ReportService._();
+  ReportService._();
+
+  DatabaseReference reportsRef = FirebaseDatabase.instance.ref('reports');
+  DatabaseReference get myReportsRef =>
+      reportsRef.child(FirebaseAuth.instance.currentUser!.uid);
+
+  String get userNamePath => 'users/{uid}/displayName';
+  String get userPhotoUrlPath => 'users/{uid}/photoUrl';
+
+  /// Report
+  ///
+  /// It reports the [reportee] user with the [path] document reference.
+  ///
+  /// Use this method to report a user.
+  ///
+  /// Refer to README.md for details.
+  Future<void> report({
+    required BuildContext context,
+    required String path,
+    required String reportee,
+    required String type,
+    required String summary,
+    Function? onCreate,
+  }) async {
+    String? reason;
+
+    if (context.mounted) {
+      reason = await showDialog<String>(
+        context: context,
+        builder: (context) =>
+            Component.reportDialog?.call() ??
+            ReportDialog(
+              reportee: reportee,
+              path: path,
+              type: type,
+              summary: summary,
+            ),
+      );
+
+      if (reason == null) return;
+    }
+    final data = {
+      'reporter': currentUser!.uid,
+      'reportee': reportee,
+      'reason': reason,
+      'path': path,
+      'type': type,
+      'summary': summary,
+      'createdAt': ServerValue.timestamp,
+    };
+
+    final ref = myReportsRef.push();
+
+    await ref.set(data);
+    await reportsRef.child('---key-list').child(ref.key!).set(currentUser!.uid);
+    onCreate?.call();
+  }
+}
+
 
 // End custom action code
