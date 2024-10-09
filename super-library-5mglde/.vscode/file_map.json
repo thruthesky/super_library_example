@@ -5,21 +5,15 @@
     "type": "A",
     "is_deleted": false
   },
-  "create_report.dart": {
-    "old_identifier_name": "createReport",
-    "new_identifier_name": "createReport",
+  "report_user.dart": {
+    "old_identifier_name": "reportUser",
+    "new_identifier_name": "reportUser",
     "type": "A",
     "is_deleted": false
   },
   "super_library.dart": {
     "old_identifier_name": "superLibrary",
     "new_identifier_name": "superLibrary",
-    "type": "A",
-    "is_deleted": false
-  },
-  "to_user_data_model.dart": {
-    "old_identifier_name": "toUserDataModel",
-    "new_identifier_name": "toUserDataModel",
     "type": "A",
     "is_deleted": false
   },

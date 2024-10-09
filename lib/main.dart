@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:super_example/chat_room.list.screen.dart';
 // import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
-import 'package:super_example/report/report.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -82,8 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 IconButton(
                   icon: const Icon(Icons.report),
                   onPressed: () async {
-                    await createReport(
-                        context, user.uid, 'user', 'Report User');
+                    await reportUser(context, user.uid, 'user', 'Report User');
                   },
                 ),
                 IconButton(
@@ -221,15 +219,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 Wrap(
                   alignment: WrapAlignment.center,
                   children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        showGeneralDialog(
-                          context: context,
-                          pageBuilder: (_, __, ___) => const ReportScreen(),
-                        );
-                      },
-                      child: const Text('Report List'),
-                    ),
+                    // ElevatedButton(
+                    //   onPressed: () async {
+                    //     showGeneralDialog(
+                    //       context: context,
+                    //       pageBuilder: (_, __, ___) => const ReportScreen(),
+                    //     );
+                    //   },
+                    //   child: const Text('Report List'),
+                    // ),
                     ElevatedButton(
                       onPressed: () async {
                         showGeneralDialog(

@@ -1,5 +1,4 @@
 // Automatic FlutterFlow imports
-import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
@@ -1195,6 +1194,10 @@ class ReportService {
   DatabaseReference get myReportsRef =>
       reportsRef.child(FirebaseAuth.instance.currentUser!.uid);
 
+  /// Firestore references
+  fs.CollectionReference get fsReportsRef => firestore.collection('reports');
+  fs.DocumentReference get fsMyReportsRef => fsReportsRef.doc(currentUser?.uid);
+
   String get userNamePath => 'users/{uid}/displayName';
   String get userPhotoUrlPath => 'users/{uid}/photoUrl';
 
@@ -1242,12 +1245,15 @@ class ReportService {
       'path': path,
       'type': type,
       'summary': summary,
-      'createdAt': ServerValue.timestamp,
     };
 
     final ref = myReportsRef.push();
 
-    await ref.set(data);
+    /// Set to firestore
+    await fsReportsRef.doc().set({...data, 'createdAt': Timestamp.now()});
+
+    /// Set to realtime database
+    await ref.set({...data, 'createdAt': ServerValue.timestamp});
     await reportsRef.child('---key-list').child(ref.key!).set(currentUser!.uid);
     onReport?.call();
   }
