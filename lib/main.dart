@@ -79,9 +79,18 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
+                  icon: const Icon(Icons.block),
+                  onPressed: () async {
+                    await blockUser(
+                      user.uid,
+                    );
+                  },
+                ),
+                IconButton(
                   icon: const Icon(Icons.report),
                   onPressed: () async {
-                    await reportUser(context, user.uid, 'user', 'Report User');
+                    await reportUser(
+                        context, user.uid, 'user', 'Report User', 'Testing');
                   },
                 ),
                 IconButton(
