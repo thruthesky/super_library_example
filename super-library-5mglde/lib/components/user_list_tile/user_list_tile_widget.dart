@@ -1,4 +1,4 @@
-import '/components/user_avatar_widget.dart';
+import '/components/user_avatar/user_avatar_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +10,13 @@ export 'user_list_tile_model.dart';
 class UserListTileWidget extends StatefulWidget {
   const UserListTileWidget({
     super.key,
-    this.displayName,
-    this.uid,
-    this.photoUrl,
-  });
+    required this.uid,
+    String? displayName,
+    required this.photoUrl,
+  }) : this.displayName = displayName ?? '';
 
-  final String? displayName;
   final String? uid;
+  final String displayName;
   final String? photoUrl;
 
   @override
@@ -67,7 +67,7 @@ class _UserListTileWidgetState extends State<UserListTileWidget> {
                 photoUrl: widget!.photoUrl,
                 initials:
                     widget!.displayName != null && widget!.displayName != ''
-                        ? widget!.displayName!
+                        ? widget!.displayName
                         : widget!.uid!,
                 size: 48.0,
               ),
@@ -81,7 +81,7 @@ class _UserListTileWidgetState extends State<UserListTileWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget!.displayName!,
+                      widget!.displayName,
                       style: FlutterFlowTheme.of(context).titleLarge.override(
                             fontFamily: 'Inter Tight',
                             letterSpacing: 0.0,

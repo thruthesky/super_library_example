@@ -1,5 +1,5 @@
-import '/components/comic_box_widget.dart';
-import '/components/user_avatar_widget.dart';
+import '/components/comic_box/comic_box_widget.dart';
+import '/components/user_avatar/user_avatar_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';

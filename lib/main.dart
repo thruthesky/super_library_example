@@ -6,6 +6,8 @@ import 'package:super_example/chat_room.list.screen.dart';
 // import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
 import 'package:super_example/screens/user/custom.user_list_view.screen.dart';
+import 'package:super_example/screens/user/custom_component.user_list_view.screen.dart';
+import 'package:super_example/screens/user/horizontal.custom_component.user_list_view.screen.dart';
 import 'package:super_example/screens/user/horizontal.user_list_view.screen.dart';
 import 'package:super_example/screens/user/user_list_view.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
@@ -219,6 +221,26 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                         ),
                     child: const Text('Custom User List View')),
+                ElevatedButton(
+                  onPressed: () => showGeneralDialog(
+                    context: context,
+                    pageBuilder: (_, __, ___) {
+                      return const CustomComponentUserListViewScreen();
+                    },
+                  ),
+                  child:
+                      const Text('Custom Component User List View - Vertical'),
+                ),
+                ElevatedButton(
+                  onPressed: () => showGeneralDialog(
+                    context: context,
+                    pageBuilder: (_, __, ___) {
+                      return const HorizontalCustomComponentUserListViewScreen();
+                    },
+                  ),
+                  child: const Text(
+                      'Custom Component User List View - Horizontal'),
+                ),
               ],
             ),
           ),
