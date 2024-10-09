@@ -6,10 +6,6 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'index.dart'; // Imports other custom actions
-
-import 'package:super_library/custom_code/widgets/index.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'dart:async';
@@ -26,10 +22,13 @@ import 'package:firebase_ui_database/firebase_ui_database.dart';
 
 FirebaseDatabase get database => SuperLibrary.instance.database;
 fs.FirebaseFirestore get firestore => fs.FirebaseFirestore.instance;
-User? get currentUser => FirebaseAuth.instance.currentUser;
 
 const String joinSeparator = '---';
 
+/// [currentUserUid] returns the current user's UID. It returns null if the user is not signed in.
+String? get currentUserUid => fa.FirebaseAuth.instance.currentUser!.uid;
+
+/// [myUid] returns the current user's UID. It throws an exception if the user is not signed in.
 String get myUid {
   if (fa.FirebaseAuth.instance.currentUser == null) {
     throw Exception('[myUid] is called but the user is not signed in');
@@ -49,8 +48,6 @@ class SuperLibrary {
 
   bool initialized = false;
 
-  Function? onReport;
-
   bool debug = false;
 
   init({
@@ -60,10 +57,9 @@ class SuperLibrary {
   }) {
     this.getDatabaseUrl = getDatabaseUrl;
     this.debug = debug;
-    this.onReport = onReport;
+
     initialized = true;
     UserService.instance.init();
-    ReportService.instance.init();
   }
 
   FirebaseDatabase get database {
@@ -1136,8 +1132,6 @@ class Report {
   final String summary;
   final DateTime createdAt;
 
-  fs.DocumentReference get ref => ReportService.instance.reportsRef.doc(id);
-
   Report({
     required this.id,
     required this.reporter,
@@ -1148,6 +1142,8 @@ class Report {
     required this.summary,
     required this.createdAt,
   });
+
+  static fs.CollectionReference get col => firestore.collection('reports');
 
   factory Report.fromSnapshot(DataSnapshot snapshot) {
     return Report.fromJson(
@@ -1185,51 +1181,6 @@ class Report {
   @override
   String toString() {
     return 'Report(${toJson()})';
-  }
-}
-
-/// Report service
-class ReportService {
-  static ReportService? _instance;
-  static ReportService get instance => _instance ??= ReportService._();
-  ReportService._();
-
-  /// Firestore references
-  fs.CollectionReference get reportsRef => firestore.collection('reports');
-
-  Function? onReport;
-
-  init() {
-    onReport = SuperLibrary.instance.onReport;
-  }
-
-  /// Report
-  ///
-  /// It reports the [reportee] user with the [path] document reference.
-  ///
-  /// Use this method to report a user.
-  ///
-  /// Refer to README.md for details.
-  Future<void> report(
-      {required BuildContext context,
-      required String path,
-      required String reportee,
-      required String type,
-      required String summary,
-      required String reason}) async {
-    final data = {
-      'reporter': currentUser!.uid,
-      'reportee': reportee,
-      'reason': reason,
-      'path': path,
-      'type': type,
-      'summary': summary,
-    };
-
-    /// Set to firestore
-    await reportsRef.doc().set({...data, 'createdAt': Timestamp.now()});
-
-    onReport?.call();
   }
 }
 

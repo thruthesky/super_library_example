@@ -9,10 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Block a user
+///
+/// This function blocks a user by adding their UID to the current user's
+/// `blockedUsers` array.
+///
+/// Note that, this function does not check if the user is already blocked.
 Future blockUser(String otherUid) async {
-  final myRef = firestore.collection('users').doc(currentUser!.uid);
+  final myRef = firestore.collection('users').doc(myUid);
 
-  myRef.update({
+  await myRef.update({
     'blockedUsers': FieldValue.arrayUnion([otherUid])
   });
 }
