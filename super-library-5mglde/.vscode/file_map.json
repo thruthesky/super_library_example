@@ -17,6 +17,12 @@
     "type": "A",
     "is_deleted": false
   },
+  "to_user_data_model.dart": {
+    "old_identifier_name": "toUserDataModel",
+    "new_identifier_name": "toUserDataModel",
+    "type": "A",
+    "is_deleted": false
+  },
   "chat_bubble.dart": {
     "old_identifier_name": "ChatBubble",
     "new_identifier_name": "ChatBubble",
