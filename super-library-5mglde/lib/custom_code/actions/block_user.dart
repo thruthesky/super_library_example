@@ -7,15 +7,12 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:super_library/custom_code/actions/super_library.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-Future reportUser(BuildContext context, String reporteeUid, String type,
-    String summary, String reason) async {
-  await ReportService.instance.report(
-    context: context,
-    path: 'users/$reporteeUid',
-    reportee: reporteeUid,
-    type: type,
-    summary: summary,
-    reason: reason,
-  );
+Future blockUser(String otherUid) async {
+  final myRef = firestore.collection('users').doc(currentUser!.uid);
+
+  myRef.update({
+    'blockedUsers': FieldValue.arrayUnion([otherUid])
+  });
 }

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'index.dart'; // Imports other custom actions
+
 import 'package:super_library/custom_code/widgets/index.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -800,6 +802,15 @@ class UserService {
     return ref;
   }
 
+  DatabaseReference get myBlockedUsersRef {
+    final user = fa.FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw Exception('UserService.myDoc: user is not signed in');
+    }
+    return database.ref().child('blockedUsers').child(user.uid);
+  }
+
   StreamSubscription<fa.User?>? mirrorSubscription;
   StreamSubscription? userDocumentSubscription;
 
@@ -823,13 +834,13 @@ class UserService {
           }
           // TODO add a validation that will check if the field exists
           int stamp;
-          if (snapshot.get('created_time') is Timestamp) {
+          if (snapshot.get('created_time') != null &&
+              snapshot.get('created_time') is Timestamp) {
             stamp = (snapshot.get('created_time') as Timestamp)
                 .millisecondsSinceEpoch;
           } else {
             stamp = DateTime.now().millisecondsSinceEpoch;
           }
-
           Map<String, dynamic> data = {
             UserData.field.creatAt: stamp,
             UserData.field.displayName: snapshot.get('display_name') ?? '',
@@ -839,6 +850,8 @@ class UserService {
           };
 
           userRef(user.uid).update(data);
+          if (snapshot.get('blockedUsers') == null) return;
+          myBlockedUsersRef.update(snapshot.get('blockedUsers') ?? {});
         });
       }
     });
@@ -1008,11 +1021,6 @@ class UserData {
 /// Component holder class.
 class Component {
   static Widget Function(UserData)? userListTile;
-  static Widget Function(
-    Report,
-    String reporteeDisplayName,
-    String reporteePhotoUrl,
-  )? reportListTile;
   static Widget Function()? reportDialog;
 }
 
@@ -1118,10 +1126,6 @@ void dog(dynamic msg, {int level = 0}) {
   log('--> ${msg.toString()}', time: DateTime.now(), name: '🐶', level: level);
 }
 
-Future superLibrary() async {
-  // Add your function code here!
-}
-
 class Report {
   final String id;
   final String reporter;
@@ -1132,7 +1136,7 @@ class Report {
   final String summary;
   final DateTime createdAt;
 
-  DatabaseReference get ref => ReportService.instance.reportsRef.child(id);
+  fs.DocumentReference get ref => ReportService.instance.reportsRef.doc(id);
 
   Report({
     required this.id,
@@ -1190,16 +1194,8 @@ class ReportService {
   static ReportService get instance => _instance ??= ReportService._();
   ReportService._();
 
-  DatabaseReference reportsRef = FirebaseDatabase.instance.ref('reports');
-  DatabaseReference get myReportsRef =>
-      reportsRef.child(FirebaseAuth.instance.currentUser!.uid);
-
   /// Firestore references
-  fs.CollectionReference get fsReportsRef => firestore.collection('reports');
-  fs.DocumentReference get fsMyReportsRef => fsReportsRef.doc(currentUser?.uid);
-
-  String get userNamePath => 'users/{uid}/displayName';
-  String get userPhotoUrlPath => 'users/{uid}/photoUrl';
+  fs.CollectionReference get reportsRef => firestore.collection('reports');
 
   Function? onReport;
 
@@ -1214,30 +1210,13 @@ class ReportService {
   /// Use this method to report a user.
   ///
   /// Refer to README.md for details.
-  Future<void> report({
-    required BuildContext context,
-    required String path,
-    required String reportee,
-    required String type,
-    required String summary,
-  }) async {
-    String? reason;
-
-    if (context.mounted) {
-      reason = await showDialog<String>(
-        context: context,
-        builder: (context) =>
-            Component.reportDialog?.call() ??
-            ReportDialog(
-              reportee: reportee,
-              path: path,
-              type: type,
-              summary: summary,
-            ),
-      );
-
-      if (reason == null) return;
-    }
+  Future<void> report(
+      {required BuildContext context,
+      required String path,
+      required String reportee,
+      required String type,
+      required String summary,
+      required String reason}) async {
     final data = {
       'reporter': currentUser!.uid,
       'reportee': reportee,
@@ -1247,16 +1226,15 @@ class ReportService {
       'summary': summary,
     };
 
-    final ref = myReportsRef.push();
-
     /// Set to firestore
-    await fsReportsRef.doc().set({...data, 'createdAt': Timestamp.now()});
+    await reportsRef.doc().set({...data, 'createdAt': Timestamp.now()});
 
-    /// Set to realtime database
-    await ref.set({...data, 'createdAt': ServerValue.timestamp});
-    await reportsRef.child('---key-list').child(ref.key!).set(currentUser!.uid);
     onReport?.call();
   }
+}
+
+Future superLibrary() async {
+  // Add your function code here!
 }
 
 // End custom action code
