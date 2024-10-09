@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:super_example/chat_room.list.screen.dart';
 // import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
+import 'package:super_example/screens/user/custom.user_list_view.screen.dart';
+import 'package:super_example/screens/user/horizontal.user_list_view.screen.dart';
+import 'package:super_example/screens/user/user_list_view.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -58,82 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Component.userListTile = (user) {
-      return Container(
-        child: Row(
-          children: [
-            CachedNetworkImage(
-              imageUrl: user.photoUrl,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  Text(user.displayName),
-                  const SizedBox(height: 16),
-                  Text(user.createdAt.toDateTime.short)
-                ],
-              ),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.block),
-                  onPressed: () async {
-                    await blockUser(
-                      user.uid,
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.report),
-                  onPressed: () async {
-                    final re = await reportExists('user', user.uid);
-                    if (re) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                          content: const Text('User already reported'),
-                        ),
-                      );
-                      return;
-                    }
-                    await report(
-                      'user',
-                      user.uid,
-                      user.uid,
-                      'Abuse',
-                      'I report this user because he is an abuser',
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User reported'),
-                      ),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.comment),
-                  onPressed: () {
-                    showGeneralDialog(
-                      context: context,
-                      pageBuilder: (_, __, ___) {
-                        return ChatRoomScreen(
-                          otherUid: user.uid,
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    };
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -249,15 +176,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 Wrap(
                   alignment: WrapAlignment.center,
                   children: [
-                    // ElevatedButton(
-                    //   onPressed: () async {
-                    //     showGeneralDialog(
-                    //       context: context,
-                    //       pageBuilder: (_, __, ___) => const ReportScreen(),
-                    //     );
-                    //   },
-                    //   child: const Text('Report List'),
-                    // ),
                     ElevatedButton(
                       onPressed: () async {
                         showGeneralDialog(
@@ -277,157 +195,35 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                const Expanded(
-                  child: UserListView(),
-                ),
+                ElevatedButton(
+                    onPressed: () => showGeneralDialog(
+                          context: context,
+                          pageBuilder: (_, __, ___) {
+                            return const UserListViewScreen();
+                          },
+                        ),
+                    child: const Text('Default User List View')),
+                ElevatedButton(
+                    onPressed: () => showGeneralDialog(
+                          context: context,
+                          pageBuilder: (_, __, ___) {
+                            return const HorizontalUserListViewScreen();
+                          },
+                        ),
+                    child: const Text('Horizontal User List View')),
+                ElevatedButton(
+                    onPressed: () => showGeneralDialog(
+                          context: context,
+                          pageBuilder: (_, __, ___) {
+                            return const CustomUserListViewScreen();
+                          },
+                        ),
+                    child: const Text('Custom User List View')),
               ],
             ),
           ),
         );
       }),
-    );
-  }
-}
-
-class CustomTile extends StatefulWidget {
-  const CustomTile({
-    super.key,
-    required this.user,
-  });
-
-  final UserData user;
-
-  @override
-  State<CustomTile> createState() => _CustomTileState();
-}
-
-class _CustomTileState extends State<CustomTile> {
-  StreamSubscription? userSubscription;
-  List<String> blockedUsers = [];
-  getUser() async {
-    userSubscription = UserService.instance.myDoc.snapshots().listen(
-      (snapshot) {
-        if (!snapshot.exists) {
-          return;
-        }
-        final loggedInUser = snapshot.data() as Map;
-        setState(() {
-          blockedUsers = [...loggedInUser['blockedUsers']];
-        });
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getUser();
-  }
-
-  @override
-  void dispose() {
-    userSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: Row(
-        children: [
-          CachedNetworkImage(
-            imageUrl: widget.user.photoUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Text(widget.user.displayName),
-                const SizedBox(height: 16),
-                Text(widget.user.createdAt.toDateTime.short)
-              ],
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (blockedUsers.contains(widget.user.uid) == false) ...[
-                IconButton(
-                  icon: const Icon(Icons.block),
-                  onPressed: () async {
-                    await blockUser(
-                      widget.user.uid,
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User blocked'),
-                      ),
-                    );
-                    setState(() {});
-                    dog('test');
-                  },
-                ),
-              ] else
-                IconButton(
-                  onPressed: () async {
-                    await unblockUser(
-                      widget.user.uid,
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User unblocked'),
-                      ),
-                    );
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.circle_outlined),
-                ),
-              IconButton(
-                icon: const Icon(Icons.report),
-                onPressed: () async {
-                  final re = await reportExists('user/${widget.user.uid}');
-                  if (re) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User already reported'),
-                      ),
-                    );
-                    return;
-                  }
-                  await report(
-                    widget.user.uid,
-                    'user',
-                    'Report User',
-                    'Spam',
-                    '$myUid-user/${widget.user.uid}',
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('User reported'),
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.comment),
-                onPressed: () {
-                  showGeneralDialog(
-                    context: context,
-                    pageBuilder: (_, __, ___) {
-                      return ChatRoomScreen(
-                        otherUid: widget.user.uid,
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

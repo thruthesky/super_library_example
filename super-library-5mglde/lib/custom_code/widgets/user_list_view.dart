@@ -16,10 +16,12 @@ class UserListView extends StatefulWidget {
     super.key,
     this.width,
     this.height,
+    this.horizontalScroll,
   });
 
   final double? width;
   final double? height;
+  final bool? horizontalScroll;
 
   @override
   State<UserListView> createState() => _UserListViewState();
@@ -36,6 +38,8 @@ class _UserListViewState extends State<UserListView> {
         return ListView.separated(
           itemCount: snapshot.docs.length,
           separatorBuilder: (context, index) => const Divider(),
+          scrollDirection:
+              widget.horizontalScroll == true ? Axis.horizontal : Axis.vertical,
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
@@ -55,6 +59,15 @@ class _UserListViewState extends State<UserListView> {
           },
         );
       },
+      emptyBuilder: () => const Center(
+        child: Text('No users found'),
+      ),
+      errorBuilder: (error) => Center(
+        child: Text('Error: $error'),
+      ),
+      loadingBuilder: () => const Center(
+        child: CircularProgressIndicator.adaptive(),
+      ),
     );
   }
 }
