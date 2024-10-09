@@ -1,4 +1,10 @@
 {
+  "block_user.dart": {
+    "old_identifier_name": "blockUser",
+    "new_identifier_name": "blockUser",
+    "type": "A",
+    "is_deleted": false
+  },
   "chat_send_message.dart": {
     "old_identifier_name": "chatSendMessage",
     "new_identifier_name": "chatSendMessage",
@@ -44,18 +50,6 @@
   "chat_room_screen.dart": {
     "old_identifier_name": "ChatRoomScreen",
     "new_identifier_name": "ChatRoomScreen",
-    "type": "W",
-    "is_deleted": false
-  },
-  "report_dialog.dart": {
-    "old_identifier_name": "ReportDialog",
-    "new_identifier_name": "ReportDialog",
-    "type": "W",
-    "is_deleted": false
-  },
-  "report_list_view.dart": {
-    "old_identifier_name": "ReportListView",
-    "new_identifier_name": "ReportListView",
     "type": "W",
     "is_deleted": false
   },
