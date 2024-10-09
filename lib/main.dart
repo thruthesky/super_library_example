@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -54,6 +55,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     Component.userListTile = (user) {
@@ -237,7 +239,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
         }
-
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -285,6 +286,148 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }),
+    );
+  }
+}
+
+class CustomTile extends StatefulWidget {
+  const CustomTile({
+    super.key,
+    required this.user,
+  });
+
+  final UserData user;
+
+  @override
+  State<CustomTile> createState() => _CustomTileState();
+}
+
+class _CustomTileState extends State<CustomTile> {
+  StreamSubscription? userSubscription;
+  List<String> blockedUsers = [];
+  getUser() async {
+    userSubscription = UserService.instance.myDoc.snapshots().listen(
+      (snapshot) {
+        if (!snapshot.exists) {
+          return;
+        }
+        final loggedInUser = snapshot.data() as Map;
+        setState(() {
+          blockedUsers = [...loggedInUser['blockedUsers']];
+        });
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUser();
+  }
+
+  @override
+  void dispose() {
+    userSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Row(
+        children: [
+          CachedNetworkImage(
+            imageUrl: widget.user.photoUrl,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                Text(widget.user.displayName),
+                const SizedBox(height: 16),
+                Text(widget.user.createdAt.toDateTime.short)
+              ],
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (blockedUsers.contains(widget.user.uid) == false) ...[
+                IconButton(
+                  icon: const Icon(Icons.block),
+                  onPressed: () async {
+                    await blockUser(
+                      widget.user.uid,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('User blocked'),
+                      ),
+                    );
+                    setState(() {});
+                    dog('test');
+                  },
+                ),
+              ] else
+                IconButton(
+                  onPressed: () async {
+                    await unblockUser(
+                      widget.user.uid,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('User unblocked'),
+                      ),
+                    );
+                    setState(() {});
+                  },
+                  icon: const Icon(Icons.circle_outlined),
+                ),
+              IconButton(
+                icon: const Icon(Icons.report),
+                onPressed: () async {
+                  final re = await reportExists('user/${widget.user.uid}');
+                  if (re) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('User already reported'),
+                      ),
+                    );
+                    return;
+                  }
+                  await report(
+                    widget.user.uid,
+                    'user',
+                    'Report User',
+                    'Spam',
+                    '$myUid-user/${widget.user.uid}',
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User reported'),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.comment),
+                onPressed: () {
+                  showGeneralDialog(
+                    context: context,
+                    pageBuilder: (_, __, ___) {
+                      return ChatRoomScreen(
+                        otherUid: widget.user.uid,
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
