@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 
 import 'package:super_library/custom_code/actions/super_library.dart';
 
-Future<bool> reportExists(String path) async {
+Future<bool> reportExists(String otherUid, String type) async {
   // Add your function code here!
-  final newPath = '$myUid-$path';
+  final newPath = '$myUid-$type/$otherUid';
   print('Checking if report exists at $newPath, ${Report.col.path}');
   final snapshot = await Report.col.where('path', isEqualTo: newPath).get();
   return snapshot.docs.isNotEmpty;
