@@ -315,7 +315,7 @@ class _CustomTileState extends State<CustomTile> {
               IconButton(
                 icon: const Icon(Icons.report),
                 onPressed: () async {
-                  final re = await reportExists(widget.user.uid, 'user');
+                  final re = await reportExists('user/${widget.user.uid}');
                   if (re) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -329,6 +329,7 @@ class _CustomTileState extends State<CustomTile> {
                     'user',
                     'Report User',
                     'Spam',
+                    '$myUid-user/${widget.user.uid}',
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
