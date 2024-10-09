@@ -6,27 +6,28 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'index.dart'; // Imports other custom actions
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 
 Future report(
-  String reporteeUid,
   String type,
-  String summary,
+  String id,
+  String reporteeUid,
   String reason,
-  String path,
+  String summary,
 ) async {
   final data = {
     'reporter': myUid,
     'reportee': reporteeUid,
     'reason': reason,
-    'path': path,
+    'id': id,
     'type': type,
     'summary': summary,
+    'createdAt': Timestamp.now(),
   };
 
+  final reportId = '$myUid-$type-$id';
+
   /// Set to firestore
-  await Report.col.add({...data, 'createdAt': Timestamp.now()});
+  await Report.col.doc(reportId).set(data);
 }

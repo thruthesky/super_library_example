@@ -18,7 +18,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 Future blockUser(String otherUid) async {
   final myRef = firestore.collection('users').doc(myUid);
 
-  await myRef.update({
+  await myRef.set({
     'blockedUsers': FieldValue.arrayUnion([otherUid])
-  });
+  }, SetOptions(merge: true));
 }

@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:super_library/custom_code/actions/super_library.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Check if the same report exists
-Future<bool> reportExists(String type, String id) async {
-  // Add your function code here!
-  final reportId = '$myUid-$type-$id';
-  final snapshot = await Report.col.doc(reportId).get();
+Future unblockUser(String otherUid) async {
+  final myRef = firestore.collection('users').doc(myUid);
 
-  return snapshot.exists;
+  await myRef.set({
+    'blockedUsers': FieldValue.arrayRemove([otherUid])
+  }, SetOptions(merge: true));
 }

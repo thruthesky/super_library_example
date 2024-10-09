@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'index.dart'; // Imports other custom actions
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'dart:async';
@@ -806,7 +804,7 @@ class UserService {
     if (user == null) {
       throw Exception('UserService.myDoc: user is not signed in');
     }
-    return database.ref().child('blockedUsers').child(user.uid);
+    return database.ref().child('blocked-users').child(user.uid);
   }
 
   StreamSubscription<fa.User?>? mirrorSubscription;
@@ -830,26 +828,32 @@ class UserService {
           if (snapshot.exists == false) {
             return;
           }
+
+          final dataSnapshot = snapshot.data() as Map<String, dynamic>;
+
+          if (dataSnapshot.keys.contains('blockedUsers') == true) {
+            myBlockedUsersRef.set(dataSnapshot['blockedUsers']);
+            return;
+          }
+
           // TODO add a validation that will check if the field exists
           int stamp;
-          if (snapshot.get('created_time') != null &&
-              snapshot.get('created_time') is Timestamp) {
-            stamp = (snapshot.get('created_time') as Timestamp)
+          if (dataSnapshot['created_time'] != null &&
+              dataSnapshot['created_time'] is Timestamp) {
+            stamp = (dataSnapshot['created_time'] as Timestamp)
                 .millisecondsSinceEpoch;
           } else {
             stamp = DateTime.now().millisecondsSinceEpoch;
           }
           Map<String, dynamic> data = {
             UserData.field.creatAt: stamp,
-            UserData.field.displayName: snapshot.get('display_name') ?? '',
+            UserData.field.displayName: dataSnapshot['display_name'] ?? '',
             UserData.field.displayNameLowerCase:
-                (snapshot.get('display_name') ?? '').toLowerCase(),
-            UserData.field.photoUrl: snapshot.get('photo_url') ?? '',
+                (dataSnapshot['display_name'] ?? '').toLowerCase(),
+            UserData.field.photoUrl: dataSnapshot['photo_url'] ?? '',
           };
 
           userRef(user.uid).update(data);
-          if (snapshot.get('blockedUsers') == null) return;
-          myBlockedUsersRef.update(snapshot.get('blockedUsers') ?? {});
         });
       }
     });

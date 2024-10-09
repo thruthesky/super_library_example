@@ -29,6 +29,12 @@
     "type": "A",
     "is_deleted": false
   },
+  "unblock_user.dart": {
+    "old_identifier_name": "unblockUser",
+    "new_identifier_name": "unblockUser",
+    "type": "A",
+    "is_deleted": false
+  },
   "chat_bubble.dart": {
     "old_identifier_name": "ChatBubble",
     "new_identifier_name": "ChatBubble",
