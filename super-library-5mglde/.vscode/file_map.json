@@ -17,6 +17,12 @@
     "type": "A",
     "is_deleted": false
   },
+  "report_exists.dart": {
+    "old_identifier_name": "reportExists",
+    "new_identifier_name": "reportExists",
+    "type": "A",
+    "is_deleted": false
+  },
   "super_library.dart": {
     "old_identifier_name": "superLibrary",
     "new_identifier_name": "superLibrary",

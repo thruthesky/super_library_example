@@ -11,13 +11,17 @@ import 'index.dart'; // Imports other custom actions
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 
-Future report(String reporteeUid, String type, String summary, String reason,
-    String? path) async {
+Future report(
+  String reporteeUid,
+  String type,
+  String summary,
+  String reason,
+  String path,
+) async {
   final data = {
     'reporter': myUid,
     'reportee': reporteeUid,
     'reason': reason,
-    // @todo: Add path to the report
     'path': path,
     'type': type,
     'summary': summary,

@@ -89,8 +89,27 @@ class _MyHomePageState extends State<MyHomePage> {
                 IconButton(
                   icon: const Icon(Icons.report),
                   onPressed: () async {
-                    await reportUser(
-                        context, user.uid, 'user', 'Report User', 'Testing');
+                    final re = await reportExists('user/${user.uid}');
+                    if (re) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('User already reported'),
+                        ),
+                      );
+                      return;
+                    }
+                    await report(
+                      user.uid,
+                      'user',
+                      'Report User',
+                      'Spam',
+                      '$myUid-user/${user.uid}',
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('User reported'),
+                      ),
+                    );
                   },
                 ),
                 IconButton(
