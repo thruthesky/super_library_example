@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:super_example/screens/chat/chat_room_edit_dialog.dart';
 
 import 'package:super_library/custom_code/widgets/chat_room_list_view.dart';
 
@@ -14,14 +15,12 @@ class ChatRoomListScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              // TODO create Chat Room Screen
-              // TODO customizable?
-              // showGeneralDialog(
-              //   context: context,
-              //   pageBuilder: (context, a1, a2) {
-              //     return const ChatRoomCreateScreen();
-              //   },
-              // );
+              showGeneralDialog(
+                context: context,
+                pageBuilder: (context, a1, a2) {
+                  return const ChatRoomEditDialog();
+                },
+              );
             },
             icon: const Icon(Icons.add),
           ),

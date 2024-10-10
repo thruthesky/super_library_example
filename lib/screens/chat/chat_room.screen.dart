@@ -9,9 +9,14 @@ import 'package:super_library/custom_code/widgets/index.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   static const String routeName = '/ChatRoom';
-  const ChatRoomScreen({super.key, this.otherUid});
+  const ChatRoomScreen({
+    super.key,
+    this.otherUid,
+    this.roomId,
+  });
 
   final String? otherUid;
+  final String? roomId;
 
   @override
   State<ChatRoomScreen> createState() => _ChatRoomScreenState();
@@ -46,6 +51,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               Expanded(
                 child: ChatMessageListView(
                   otherUid: widget.otherUid,
+                  roomId: widget.roomId,
                 ),
               ),
               SafeArea(
@@ -55,9 +61,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     hintText: 'Enter message',
                     suffixIcon: IconButton(
                       onPressed: () async {
-                        await chatSendMessage(
+                        await sendChatMessage(
                           widget.otherUid,
-                          null,
+                          widget.roomId,
                           textController.text,
                         );
                         textController.clear();

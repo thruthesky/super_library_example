@@ -60,24 +60,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final passwordController = TextEditingController();
 
   StreamSubscription? userSubscription;
-  List<String> blockedUsers = [];
-  getUser() async {
-    userSubscription =
-        UserService.instance.myDoc.snapshots().listen((snapshot) {
-      if (!snapshot.exists) {
-        return;
-      }
-      final loggedInUser = snapshot.data() as Map;
-      setState(() {
-        blockedUsers = [...loggedInUser['blockedUsers']];
-      });
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    getUser();
   }
 
   @override
@@ -278,9 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () => showGeneralDialog(
                           context: context,
                           pageBuilder: (_, __, ___) {
-                            return CustomUserListViewScreen(
-                              blockedUsers: blockedUsers,
-                            );
+                            return const CustomUserListViewScreen();
                           },
                         ),
                     child: const Text('Custom User List View')),

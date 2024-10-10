@@ -30,7 +30,9 @@ class _UserListViewScreenState extends State<UserListViewScreen> {
         children: [
           Text("UserListView"),
           Expanded(
-            child: UserListView(),
+            child: UserListView(
+              reverse: true,
+            ),
           ),
         ],
       ),

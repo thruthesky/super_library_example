@@ -9,19 +9,18 @@ import 'package:flutter/material.dart';
 import '/custom_code/actions/super_library.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-Future chatSendMessage(
-  String? receiverUid,
+Future sendChatMessage(
+  String? otherUid,
   String? roomId,
   String? message,
 ) async {
   // Add your function code here!
   assert(
-    receiverUid != null || roomId != null,
-    "receiverUid or roomId must be provided",
+    otherUid != null || roomId != null,
+    "otherUid or roomId must be provided",
   );
   await ChatService.instance.sendMessage(
-    senderUid: myUid,
-    receiverUid: receiverUid,
+    receiverUid: otherUid,
     roomId: roomId,
     message: message,
   );

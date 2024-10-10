@@ -39,18 +39,21 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
-            return ListTile(
-              title: Text(doc.key!),
-              subtitle: Text(doc.value.toString()),
-              onTap: () async {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        'Customize your UI/UX to open chat room key: ${doc.key}'),
-                  ),
+            final join = ChatJoin.fromSnapshot(doc);
+
+            return Component.chatRoomListTile?.call(join) ??
+                ListTile(
+                  title: Text(join.name ?? join.displayName ?? '...'),
+                  subtitle: Text(join.lastText ?? join.lastUrl ?? '...'),
+                  onTap: () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Customize your UI/UX to open chat room key: ${doc.key}'),
+                      ),
+                    );
+                  },
                 );
-              },
-            );
           },
         );
       },

@@ -34,224 +34,296 @@ String get myUid {
   return fa.FirebaseAuth.instance.currentUser!.uid;
 }
 
-class SuperLibrary {
-  static SuperLibrary? _instance;
-  static SuperLibrary get instance => _instance ??= SuperLibrary._();
-
-  SuperLibrary._();
-
-  String? databaseURL;
-  late final Function getDatabaseUrl;
-  FirebaseDatabase? _database;
-
-  bool initialized = false;
-
-  bool debug = false;
-
-  init({
-    required Function getDatabaseUrl,
-    debug = true,
-  }) {
-    this.getDatabaseUrl = getDatabaseUrl;
-    this.debug = debug;
-
-    initialized = true;
-    UserService.instance.init();
-  }
-
-  FirebaseDatabase get database {
-    if (initialized == false) {
-      throw Exception('SuperLibrary is not initialized');
-    }
-
-    databaseURL ??= getDatabaseUrl();
-
-    if (databaseURL == null) {
-      throw Exception('SuperLibrary.databaseURL is null');
-    }
-
-    _database ??= FirebaseDatabase.instanceFor(
-      app: Firebase.app(),
-      databaseURL: databaseURL!,
-    );
-
-    dog('databaseURL: $databaseURL');
-    return _database!;
-  }
-}
-
-class SuperLibraryException implements Exception {
-  final String code;
-  final String message;
-
-  SuperLibraryException(
-    this.code,
-    this.message,
+/// Realtime database chat join model
+class ChatJoin {
+  /// For field names
+  static const field = (
+    joinedAt: 'joinedAt',
+    singleOrder: 'singleOrder',
+    groupOrder: 'groupOrder',
+    openOrder: 'openOrder',
+    order: 'order',
+    lastMessageUid: 'lastMessageUid',
+    lastMessageAt: 'lastMessageAt',
+    lastMessageDeleted: 'lastMessageDeleted',
+    lastText: 'lastText',
+    lastUrl: 'lastUrl',
+    lastProtocol: 'lastProtocol',
+    unreadMessageCount: 'unreadMessageCount',
+    name: 'name',
+    iconUrl: 'iconUrl',
+    displayName: 'displayName',
+    photoUrl: 'photoUrl',
   );
+
+  final String roomId;
+  final int joinedAt;
+  final int? singleOrder;
+  final int? groupOrder;
+  final int? openOrder;
+  final int order;
+  final String? lastMessageUid;
+  final DateTime? lastMessageAt;
+  final bool? lastMessageDeleted;
+  final String? lastText;
+  final String? lastUrl;
+  final String? lastProtocol;
+
+  final int unreadMessageCount;
+
+  final String? name;
+  final String? iconUrl;
+  final String? displayName;
+  final String? photoUrl;
+
+  bool get group => groupOrder != null;
+  bool get single => singleOrder != null;
+  bool get open => openOrder != null;
+
+  ChatJoin({
+    required this.roomId,
+    required this.joinedAt,
+    required this.singleOrder,
+    required this.groupOrder,
+    required this.openOrder,
+    required this.order,
+    required this.lastMessageUid,
+    required this.lastMessageAt,
+    required this.lastMessageDeleted,
+    required this.lastText,
+    required this.lastUrl,
+    required this.lastProtocol,
+    this.unreadMessageCount = 0,
+    this.name,
+    this.iconUrl,
+    this.displayName,
+    this.photoUrl,
+  });
+
+  factory ChatJoin.fromSnapshot(DataSnapshot snapshot) {
+    return ChatJoin.fromJson(snapshot.value as Map, snapshot.key!);
+  }
+
+  factory ChatJoin.fromJson(Map<dynamic, dynamic> json, String roomId) {
+    return ChatJoin(
+      roomId: roomId,
+      joinedAt: json[field.joinedAt] is ServerValue
+          ? DateTime.now().millisecondsSinceEpoch
+          : json[field.joinedAt],
+      singleOrder: json[field.singleOrder],
+      groupOrder: json[field.groupOrder],
+      openOrder: json[field.openOrder],
+      order: json[field.order] is ServerValue
+          ? DateTime.now().millisecondsSinceEpoch
+          : json[field.order],
+      lastMessageUid: json[field.lastMessageUid],
+      lastMessageAt:
+          DateTime.fromMillisecondsSinceEpoch(json[field.lastMessageAt] ?? 0),
+      lastMessageDeleted: json[field.lastMessageDeleted],
+      lastUrl: json[field.lastUrl],
+      lastText: json[field.lastText],
+      lastProtocol: json[field.lastProtocol],
+      unreadMessageCount: json[field.unreadMessageCount] ?? 0,
+      name: json[field.name],
+      iconUrl: json[field.iconUrl],
+      displayName: json[field.displayName],
+      photoUrl: json[field.photoUrl],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'roomId': roomId,
+      field.joinedAt: joinedAt,
+      field.singleOrder: singleOrder,
+      field.groupOrder: groupOrder,
+      field.openOrder: openOrder,
+      field.order: order,
+      field.lastMessageUid: lastMessageUid,
+      field.lastMessageAt: lastMessageAt,
+      field.lastMessageDeleted: lastMessageDeleted,
+      field.lastText: lastText,
+      field.lastUrl: lastUrl,
+      field.lastProtocol: lastProtocol,
+      field.unreadMessageCount: unreadMessageCount,
+      field.name: name,
+      field.iconUrl: iconUrl,
+      field.displayName: displayName,
+      field.photoUrl: photoUrl,
+    };
+  }
 
   @override
   String toString() {
-    return 'SuperLibraryException: ($code) $message';
+    return 'ChatJoin(${toJson()})';
   }
 }
 
-class ChatService {
-  static ChatService? _instance;
-  static ChatService get instance => _instance ??= ChatService._();
+class ChatMessage {
+  /// Field names for the Chat Message Model
+  static const field = (
+    id: 'id',
+    roomId: 'roomId',
+    text: 'text',
+    url: 'url',
+    senderUid: 'uid',
+    displayName: 'displayName',
+    photoUrl: 'photoUrl',
+    createdAt: 'createdAt',
+    replyTo: 'replyTo',
+    deleted: 'deleted',
+    updatedAt: 'updatedAt',
+    previewUrl: 'previewUrl',
+    previewTitle: 'previewTitle',
+    previewDescription: 'previewDescription',
+    previewImageUrl: 'previewImageUrl',
+    protocol: 'protocol',
+  );
 
-  ChatService._();
+  String? id;
 
-  DatabaseReference messagesRef(String roomId) =>
-      database.ref('chat/messages').child(roomId);
+  /// [roomId] is not saved in database. It can be found in the path.
+  String? roomId;
+  String senderUid;
+  String? displayName;
 
-  DatabaseReference get joinsRef => database.ref('chat/joins').child(myUid);
+  /// [photoUrl] is pertaining to the sender's profile photo url,
+  /// not the attached photo in message itself.
+  String? photoUrl;
+  int createdAt;
+  int? updatedAt;
+  int? order;
+  String? text;
 
-  DatabaseReference get roomsRef => database.ref('chat/rooms');
+  /// [url] is used for the attached url in the message
+  String? url;
+  String? protocol;
+  final bool deleted;
 
-  DatabaseReference roomRef(String roomId) =>
-      database.ref('chat/rooms').child(roomId);
+  String? previewUrl;
+  String? previewTitle;
+  String? previewDescription;
+  String? previewImageUrl;
 
-  Future sendMessage({
-    required String senderUid,
-    String? receiverUid,
-    String? roomId,
-    String? message,
-  }) async {
-    // Add your function code here!
-    assert(
-      receiverUid != null || roomId != null,
-      "receiverUid or roomId must be provided",
+  ChatMessage? replyTo;
+
+  bool get isUpdated => updatedAt != null;
+  bool get isProtocol => protocol != null && protocol!.isNotEmpty;
+
+  DatabaseReference get ref =>
+      ChatService.instance.messagesRef(roomId!).child(id!);
+
+  ChatMessage({
+    this.id,
+    required this.roomId,
+    this.text,
+    this.url,
+    this.protocol,
+    required this.senderUid,
+    this.displayName,
+    this.photoUrl,
+    required this.createdAt,
+    this.replyTo,
+    this.deleted = false,
+    this.updatedAt,
+    this.previewUrl,
+    this.previewTitle,
+    this.previewDescription,
+    this.previewImageUrl,
+  });
+
+  factory ChatMessage.fromSnapshot(DataSnapshot snapshot) {
+    final data = Map<String, dynamic>.from(snapshot.value as Map);
+    return ChatMessage.fromJson(
+      data,
+      snapshot.key!,
+      snapshot.ref.parent!.key,
     );
-    final data = {
-      'senderUid': senderUid,
-      'receiverUid': receiverUid,
-      'roomId': roomId,
-      'message': message,
-      'createdAt': DateTime.now().millisecondsSinceEpoch,
+  }
+
+  static ChatMessage fromJson(
+    Map<String, dynamic> json,
+    String id, [
+    String? roomId,
+  ]) {
+    final replyTo = json[field.replyTo] == null
+        ? null
+        : Map<String, dynamic>.from(json[field.replyTo] as Map);
+    return ChatMessage(
+      id: id,
+      roomId: roomId,
+      text: json[field.text],
+      url: json[field.url],
+      protocol: json[field.protocol],
+      senderUid: json[field.senderUid],
+      displayName: json[field.displayName],
+      photoUrl: json[field.photoUrl],
+      createdAt: json[field.createdAt],
+      replyTo: replyTo == null
+          ? null
+          : ChatMessage.fromJson(replyTo, replyTo[field.id]),
+      // Added '?? false' because this it RTDB
+      // Reason: There is no use for saving false in deleted.
+      deleted: json[field.deleted] ?? false,
+      updatedAt: json[field.updatedAt],
+      previewUrl: json[field.previewUrl],
+      previewTitle: json[field.previewTitle],
+      previewDescription: json[field.previewDescription],
+      previewImageUrl: json[field.previewImageUrl],
+    );
+  }
+
+  static json({
+    String? text,
+    String? url,
+    String? protocol,
+    required String senderUid,
+    String? displayName,
+    String? photoUrl,
+    required Map<String, String> createdAt,
+    dynamic replyTo,
+    bool? deleted,
+    Map<String, String>? updatedAt,
+    String? previewUrl,
+    String? previewTitle,
+    String? previewDescription,
+    String? previewImageUrl,
+  }) {
+    return {
+      field.text: text,
+      field.url: url,
+      field.protocol: protocol,
+      field.senderUid: senderUid,
+      field.displayName: displayName,
+      field.photoUrl: photoUrl,
+      field.createdAt: createdAt,
+      field.replyTo: replyTo?.toJson(),
+      field.deleted: deleted,
+      field.updatedAt: updatedAt,
+      field.previewUrl: previewUrl,
+      field.previewTitle: previewTitle,
+      field.previewDescription: previewDescription,
+      field.previewImageUrl: previewImageUrl,
     };
-
-    roomId = roomId ?? makeSingleChatRoomId(senderUid, receiverUid!);
-    await messagesRef(roomId).push().set(data);
   }
 
-  String joinSeparator = '---';
-
-  ///
-  String makeSingleChatRoomId(String? loginUid, String? otherUid) {
-    if (loginUid == null) {
-      throw SuperLibraryException('makeSingleChatRoomId', 'loginUid is null');
-    }
-    if (otherUid == null) {
-      throw SuperLibraryException('makeSingleChatRoomId', 'otherUid is null');
-    }
-    final arr = [loginUid, otherUid];
-    arr.sort();
-    return arr.join(joinSeparator);
-  }
-
-  /// [isSingleChatRoom] returns true if the room id is single chat room.
-  bool isSingleChatRoom(String roomId) {
-    return roomId.contains(joinSeparator);
-  }
-
-  /// [getOtherUid] returns the other user's uid from the single chat room id.
-  String getOtherUid(String singleChatRoomId) {
-    final uids = singleChatRoomId.split(joinSeparator);
-    if (uids.length != 2) {
-      throw SuperLibraryException(
-        'getOtherUid',
-        'Invalid single chat room id',
-      );
-    }
-    return uids.firstWhere((uid) => uid != myUid);
-  }
-
-  // TODO where to put this
-  Future<int> getDatabaseServerTimestamp() async {
-    final ref = FirebaseDatabase.instance
-        .ref()
-        .child('chat')
-        .child('-info')
-        .child('timestamp');
-    await ref.set(ServerValue.timestamp);
-    final snapshot = await ref.get();
-    return snapshot.value as int;
-  }
-
-  /// Join a chat room
-  ///
-  /// This method is used to join a chat room.
-  ///
-  ///
-  /// Where:
-  /// - It is called after the chat room created.
-  /// - It is called after the user accepted the invitation.
-  ///
-  /// Logic:
-  /// - It update the room.users with current user's uid. It's called as
-  /// call-by-reference. So, the parent can use the updated room.users which
-  /// includes the current user's uid.
-  Future<void> join(String roomId) async {
-    dog("Joining");
-
-    ChatRoom? room = await ChatRoom.get(roomId);
-
-    if (room == null) {
-      if (isSingleChatRoom(roomId)) {
-        // Join the single chat room. The chat room join is not created, yet.
-        await ChatRoom.createSingle(getOtherUid(roomId));
-        room = await ChatRoom.get(roomId);
-      } else {
-        // Group chat room must exist before entering chat room.
-        throw SuperLibraryException(
-            'chat-room-join', 'Group chat room not found');
-      }
-    } else if (room.joined) {
-      // Already joined. just return.
-      return;
-    } else {
-      // Chat room exists but not joined yet.
-    }
-
-    // Hereby, [room] is ready.
-    dog("Room: $room");
-
-    final timestamp = await getDatabaseServerTimestamp();
-    final negativeTimestamp = -1 * timestamp;
-
-    // int timestamp = await getDatabaseServerTimestamp();
-    // final order = timestamp * -1; // int.parse("-1$timestamp");
-    final joinValues = {
-      // Incase there is an invitation, remove the invitation
-      // TODO reimplement
-      // invitedUserRef(myUid!).child(room.id).path: null,
-      // In case, invitation was mistakenly rejected
-      // TODO reimplement
-      // rejectedUserRef(myUid!).child(room.id).path: null,
-      // Add uid in users
-      room!.ref.child('users').child(myUid).path: true,
-      // Add in chat joins
-      'chat/joins/$myUid/${room.id}/joinedAt': ServerValue.timestamp,
-      // Should be in top in order
-      // This will make the newly joined room at top.
-      'chat/joins/$myUid/${room.id}/order': negativeTimestamp,
-      if (room.single)
-        'chat/joins/$myUid/${room.id}/singleOrder': negativeTimestamp,
-      if (room.group)
-        'chat/joins/$myUid/${room.id}/groupOrder': negativeTimestamp,
-      if (room.open)
-        'chat/joins/$myUid/${room.id}/openOrder': negativeTimestamp,
+  Map<String, dynamic> toJson() {
+    return {
+      field.text: text,
+      field.url: url,
+      field.protocol: protocol,
+      field.senderUid: senderUid,
+      field.displayName: displayName,
+      field.photoUrl: photoUrl,
+      field.createdAt: createdAt,
+      field.replyTo: replyTo?.toJson(),
+      field.deleted: deleted,
+      field.updatedAt: updatedAt,
+      field.previewUrl: previewUrl,
+      field.previewTitle: previewTitle,
+      field.previewDescription: previewDescription,
+      field.previewImageUrl: previewImageUrl,
     };
-
-    dog("Joining: $joinValues");
-
-    await FirebaseDatabase.instance.ref().update(joinValues);
-
-    // TODO support protocol
-    // await sendMessage(
-    //   room,
-    // protocol: protocol ?? ChatProtocol.join,
-    // );
   }
 }
 
@@ -404,32 +476,6 @@ class ChatRoom {
     };
   }
 
-  @Deprecated(
-      'DO NOT USE THIS: Why do we need this? Use it if it saved time and money')
-  copyFromSnapshot(DataSnapshot doc) {
-    copyFrom(ChatRoom.fromSnapshot(doc));
-  }
-
-  @Deprecated(
-      'DO NOT USE THIS: Why do we need this? Use it if it saved time and money')
-  copyFrom(ChatRoom room) {
-    // copy all the fields from the room
-    id = room.id;
-    name = room.name;
-    description = room.description;
-    iconUrl = room.iconUrl;
-    open = room.open;
-    single = room.single;
-    group = room.group;
-    users = room.users;
-    masterUsers = room.masterUsers;
-    blockedUsers = room.blockedUsers;
-    createdAt = room.createdAt;
-    updatedAt = room.updatedAt;
-    lastMessageAt = room.lastMessageAt;
-    allMembersCanInvite = room.allMembersCanInvite;
-  }
-
   /// toString
   @override
   String toString() {
@@ -451,7 +497,7 @@ class ChatRoom {
     bool group = true,
     bool single = false,
     // String? password, (NOT IMPLEMENTED YET)
-    required Map<String, bool>? users,
+    Map<String, bool> users = const {},
     List<String>? masterUsers,
     bool allMembersCanInvite = false,
   }) async {
@@ -549,6 +595,231 @@ class ChatRoom {
     };
 
     await ref.update(updateData);
+  }
+}
+
+class ChatService {
+  static ChatService? _instance;
+  static ChatService get instance => _instance ??= ChatService._();
+
+  ChatService._();
+
+  DatabaseReference messagesRef(String roomId) =>
+      database.ref('chat/messages').child(roomId);
+
+  DatabaseReference get joinsRef => database.ref('chat/joins').child(myUid);
+
+  DatabaseReference get roomsRef => database.ref('chat/rooms');
+
+  DatabaseReference roomRef(String roomId) =>
+      database.ref('chat/rooms').child(roomId);
+
+  Future sendMessage({
+    String? receiverUid,
+    String? roomId,
+    String? message,
+  }) async {
+    // Add your function code here!
+    assert(
+      receiverUid != null || roomId != null,
+      "receiverUid or roomId must be provided",
+    );
+
+    final my = await UserData.get(myUid);
+/*
+data = {
+      'senderUid': senderUid,
+      'receiverUid': receiverUid,
+      'roomId': roomId,
+      'message': message,
+      'createdAt': ServerValue.timestamp,
+    };*/
+    final message = ChatMessage.json(
+      senderUid: myUid,
+      displayName: my?.displayName,
+      photoUrl: my?.photoUrl,
+      createdAt: ServerValue.timestamp,
+    );
+
+    roomId = roomId ?? makeSingleChatRoomId(myUid, receiverUid!);
+    await messagesRef(roomId).push().set(message.toJson());
+  }
+
+  String joinSeparator = '---';
+
+  ///
+  String makeSingleChatRoomId(String? loginUid, String? otherUid) {
+    if (loginUid == null) {
+      throw SuperLibraryException('makeSingleChatRoomId', 'loginUid is null');
+    }
+    if (otherUid == null) {
+      throw SuperLibraryException('makeSingleChatRoomId', 'otherUid is null');
+    }
+    final arr = [loginUid, otherUid];
+    arr.sort();
+    return arr.join(joinSeparator);
+  }
+
+  /// [isSingleChatRoom] returns true if the room id is single chat room.
+  bool isSingleChatRoom(String roomId) {
+    return roomId.contains(joinSeparator);
+  }
+
+  /// [getOtherUid] returns the other user's uid from the single chat room id.
+  String getOtherUid(String singleChatRoomId) {
+    final uids = singleChatRoomId.split(joinSeparator);
+    if (uids.length != 2) {
+      throw SuperLibraryException(
+        'getOtherUid',
+        'Invalid single chat room id',
+      );
+    }
+    return uids.firstWhere((uid) => uid != myUid);
+  }
+
+  // TODO where to put this
+  Future<int> getDatabaseServerTimestamp() async {
+    final ref = database.ref().child('chat').child('-info').child('timestamp');
+    await ref.set(ServerValue.timestamp);
+    final snapshot = await ref.get();
+    return snapshot.value as int;
+  }
+
+  /// Join a chat room
+  ///
+  /// This method is used to join a chat room.
+  ///
+  ///
+  /// Where:
+  /// - It is called after the chat room created.
+  /// - It is called after the user accepted the invitation.
+  ///
+  /// Logic:
+  /// - It update the room.users with current user's uid. It's called as
+  /// call-by-reference. So, the parent can use the updated room.users which
+  /// includes the current user's uid.
+  Future<void> join(String roomId) async {
+    dog("Joining");
+
+    ChatRoom? room = await ChatRoom.get(roomId);
+
+    if (room == null) {
+      if (isSingleChatRoom(roomId)) {
+        // Join the single chat room. The chat room join is not created, yet.
+        await ChatRoom.createSingle(getOtherUid(roomId));
+        room = await ChatRoom.get(roomId);
+      } else {
+        // Group chat room must exist before entering chat room.
+        throw SuperLibraryException(
+            'chat-room-join', 'Group chat room not found');
+      }
+    } else if (room.joined) {
+      // Already joined. just return.
+      return;
+    } else {
+      // Chat room exists but not joined yet.
+    }
+
+    // Hereby, [room] is ready.
+    dog("Room: $room");
+
+    final timestamp = await getDatabaseServerTimestamp();
+    final negativeTimestamp = -1 * timestamp;
+
+    // int timestamp = await getDatabaseServerTimestamp();
+    // final order = timestamp * -1; // int.parse("-1$timestamp");
+    final joinValues = {
+      // Incase there is an invitation, remove the invitation
+      // TODO reimplement
+      // invitedUserRef(myUid!).child(room.id).path: null,
+      // In case, invitation was mistakenly rejected
+      // TODO reimplement
+      // rejectedUserRef(myUid!).child(room.id).path: null,
+      // Add uid in users
+      room!.ref.child('users').child(myUid).path: true,
+      // Add in chat joins
+      'chat/joins/$myUid/${room.id}/joinedAt': ServerValue.timestamp,
+      // Should be in top in order
+      // This will make the newly joined room at top.
+      'chat/joins/$myUid/${room.id}/order': negativeTimestamp,
+      if (room.single)
+        'chat/joins/$myUid/${room.id}/singleOrder': negativeTimestamp,
+      if (room.group)
+        'chat/joins/$myUid/${room.id}/groupOrder': negativeTimestamp,
+      if (room.open)
+        'chat/joins/$myUid/${room.id}/openOrder': negativeTimestamp,
+    };
+
+    dog("Joining: $joinValues");
+
+    await database.ref().update(joinValues);
+
+    // TODO support protocol
+    // await sendMessage(
+    //   room,
+    // protocol: protocol ?? ChatProtocol.join,
+    // );
+  }
+}
+
+class SuperLibrary {
+  static SuperLibrary? _instance;
+  static SuperLibrary get instance => _instance ??= SuperLibrary._();
+
+  SuperLibrary._();
+
+  String? databaseURL;
+  late final Function getDatabaseUrl;
+  FirebaseDatabase? _database;
+
+  bool initialized = false;
+
+  bool debug = false;
+
+  init({
+    required Function getDatabaseUrl,
+    debug = true,
+  }) {
+    this.getDatabaseUrl = getDatabaseUrl;
+    this.debug = debug;
+
+    initialized = true;
+    UserService.instance.init();
+  }
+
+  FirebaseDatabase get database {
+    if (initialized == false) {
+      throw Exception('SuperLibrary is not initialized');
+    }
+
+    databaseURL ??= getDatabaseUrl();
+
+    if (databaseURL == null) {
+      throw Exception('SuperLibrary.databaseURL is null');
+    }
+
+    _database ??= FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL: databaseURL!,
+    );
+
+    dog('databaseURL: $databaseURL');
+    return _database!;
+  }
+}
+
+class SuperLibraryException implements Exception {
+  final String code;
+  final String message;
+
+  SuperLibraryException(
+    this.code,
+    this.message,
+  );
+
+  @override
+  String toString() {
+    return 'SuperLibraryException: ($code) $message';
   }
 }
 
@@ -740,126 +1011,6 @@ class AuthStateChanges extends StatelessWidget {
   }
 }
 
-/// Realtime database chat join model
-class ChatJoin {
-  /// For field names
-  static const field = (
-    joinedAt: 'joinedAt',
-    singleOrder: 'singleOrder',
-    groupOrder: 'groupOrder',
-    openOrder: 'openOrder',
-    order: 'order',
-    lastMessageUid: 'lastMessageUid',
-    lastMessageAt: 'lastMessageAt',
-    lastMessageDeleted: 'lastMessageDeleted',
-    lastText: 'lastText',
-    lastUrl: 'lastUrl',
-    lastProtocol: 'lastProtocol',
-    unreadMessageCount: 'unreadMessageCount',
-    name: 'name',
-    iconUrl: 'iconUrl',
-    displayName: 'displayName',
-    photoUrl: 'photoUrl',
-  );
-
-  final String roomId;
-  final int joinedAt;
-  final int? singleOrder;
-  final int? groupOrder;
-  final int? openOrder;
-  final int order;
-  final String? lastMessageUid;
-  final DateTime? lastMessageAt;
-  final bool? lastMessageDeleted;
-  final String? lastText;
-  final String? lastUrl;
-  final String? lastProtocol;
-
-  final int unreadMessageCount;
-
-  final String? name;
-  final String? iconUrl;
-  final String? displayName;
-  final String? photoUrl;
-
-  bool get group => groupOrder != null;
-  bool get single => singleOrder != null;
-  bool get open => openOrder != null;
-
-  ChatJoin({
-    required this.roomId,
-    required this.joinedAt,
-    required this.singleOrder,
-    required this.groupOrder,
-    required this.openOrder,
-    required this.order,
-    required this.lastMessageUid,
-    required this.lastMessageAt,
-    required this.lastMessageDeleted,
-    required this.lastText,
-    required this.lastUrl,
-    required this.lastProtocol,
-    this.unreadMessageCount = 0,
-    this.name,
-    this.iconUrl,
-    this.displayName,
-    this.photoUrl,
-  });
-
-  factory ChatJoin.fromSnapshot(DataSnapshot snapshot) {
-    return ChatJoin.fromJson(snapshot.value as Map, snapshot.key!);
-  }
-
-  factory ChatJoin.fromJson(Map<dynamic, dynamic> json, String roomId) {
-    return ChatJoin(
-      roomId: roomId,
-      joinedAt: json[field.joinedAt] is ServerValue
-          ? DateTime.now().millisecondsSinceEpoch
-          : json[field.joinedAt],
-      singleOrder: json[field.singleOrder],
-      groupOrder: json[field.groupOrder],
-      openOrder: json[field.openOrder],
-      order: json[field.order] is ServerValue
-          ? DateTime.now().millisecondsSinceEpoch
-          : json[field.order],
-      lastMessageUid: json[field.lastMessageUid],
-      lastMessageAt:
-          DateTime.fromMillisecondsSinceEpoch(json[field.lastMessageAt] ?? 0),
-      lastMessageDeleted: json[field.lastMessageDeleted],
-      lastUrl: json[field.lastUrl],
-      lastText: json[field.lastText],
-      lastProtocol: json[field.lastProtocol],
-      unreadMessageCount: json[field.unreadMessageCount] ?? 0,
-      name: json[field.name],
-      iconUrl: json[field.iconUrl],
-      displayName: json[field.displayName],
-      photoUrl: json[field.photoUrl],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'roomId': roomId,
-      field.joinedAt: joinedAt,
-      field.singleOrder: singleOrder,
-      field.groupOrder: groupOrder,
-      field.openOrder: openOrder,
-      field.order: order,
-      field.lastMessageUid: lastMessageUid,
-      field.lastMessageAt: lastMessageAt,
-      field.lastMessageDeleted: lastMessageDeleted,
-      field.lastText: lastText,
-      field.lastUrl: lastUrl,
-      field.lastProtocol: lastProtocol,
-      field.unreadMessageCount: unreadMessageCount,
-      field.name: name,
-      field.iconUrl: iconUrl,
-      field.displayName: displayName,
-      field.photoUrl: photoUrl,
-    };
-  }
-}
-
 /// Realtime database user modeling class
 class UserData {
   ///
@@ -912,13 +1063,19 @@ class UserData {
   ///
   /// This method is used to get the user data from the Realtime database.
   ///
+  /// The user data is cached in the memory to reduce the flickering and improve
+  /// the performance.
+  ///
   /// Returns null if the user data does not exist.
   ///
   /// TODO: make [getUserData] custom action based on this method.
-  static Future<UserData?> get(String uid) async {
-    // if (Memory.get(uid) != null) {
-    //   return Memory.get(uid) as UserData;
-    // }
+  static Future<UserData?> get(
+    String uid, {
+    bool cache = true,
+  }) async {
+    if (cache && Memory.get(uid) != null) {
+      return Memory.get(uid) as UserData;
+    }
 
     final snapshot = await UserService.instance.databaseUserRef(uid).get();
     if (snapshot.exists == false) {
@@ -931,7 +1088,7 @@ class UserData {
 
     final userData = UserData.fromSnapshot(snapshot);
 
-    // Memory.set(uid, userData);
+    Memory.set(uid, userData);
 
     return userData;
   }
@@ -1060,7 +1217,7 @@ class UserService {
 /// Component holder class.
 class Component {
   static Widget Function(UserData)? userListTile;
-  static Widget Function()? reportDialog;
+  static Widget Function(ChatJoin)? chatRoomListTile;
 }
 
 extension SuperLibraryIntExtension on int {

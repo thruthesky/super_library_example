@@ -17,11 +17,13 @@ class UserListView extends StatefulWidget {
     this.width,
     this.height,
     this.horizontalScroll,
+    this.reverse,
   });
 
   final double? width;
   final double? height;
   final bool? horizontalScroll;
+  final bool? reverse;
 
   @override
   State<UserListView> createState() => _UserListViewState();
@@ -31,6 +33,7 @@ class _UserListViewState extends State<UserListView> {
   @override
   Widget build(BuildContext context) {
     return ValueListView(
+      reverseQuery: widget.reverse == true,
       query: UserService.instance.databaseUsersRef
           .orderByChild(UserData.field.creatAt)
           .startAt(0),

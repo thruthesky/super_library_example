@@ -15,10 +15,7 @@ class CustomUserListViewScreen extends StatefulWidget {
   static const String routeName = '/UserListView';
   const CustomUserListViewScreen({
     super.key,
-    required this.blockedUsers,
   });
-
-  final List<String> blockedUsers;
 
   @override
   State<CustomUserListViewScreen> createState() =>
@@ -28,8 +25,7 @@ class CustomUserListViewScreen extends StatefulWidget {
 class _CustomUserListViewScreenState extends State<CustomUserListViewScreen> {
   @override
   Widget build(BuildContext context) {
-    Component.userListTile =
-        (user) => CustomTile(user: user, blockedUsers: widget.blockedUsers);
+    Component.userListTile = (user) => CustomTile(user: user);
     return Scaffold(
       appBar: AppBar(
         title: const Text('UserListView'),
@@ -47,10 +43,9 @@ class _CustomUserListViewScreenState extends State<CustomUserListViewScreen> {
 }
 
 class CustomTile extends StatefulWidget {
-  const CustomTile({super.key, required this.user, required this.blockedUsers});
+  const CustomTile({super.key, required this.user});
 
   final UserData user;
-  final List<String> blockedUsers;
 
   @override
   State<CustomTile> createState() => _CustomTileState();
@@ -80,36 +75,6 @@ class _CustomTileState extends State<CustomTile> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.blockedUsers.contains(widget.user.uid) == false) ...[
-                IconButton(
-                  icon: const Icon(Icons.block),
-                  onPressed: () async {
-                    await blockUser(
-                      widget.user.uid,
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User blocked'),
-                      ),
-                    );
-                    setState(() {});
-                  },
-                ),
-              ] else
-                IconButton(
-                  onPressed: () async {
-                    await unblockUser(
-                      widget.user.uid,
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User unblocked'),
-                      ),
-                    );
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.circle_outlined),
-                ),
               IconButton(
                 icon: const Icon(Icons.report),
                 onPressed: () async {

@@ -5,9 +5,9 @@
     "type": "A",
     "is_deleted": false
   },
-  "chat_send_message.dart": {
-    "old_identifier_name": "chatSendMessage",
-    "new_identifier_name": "chatSendMessage",
+  "create_chat_room.dart": {
+    "old_identifier_name": "createChatRoom",
+    "new_identifier_name": "createChatRoom",
     "type": "A",
     "is_deleted": false
   },
@@ -20,6 +20,12 @@
   "report_exists.dart": {
     "old_identifier_name": "reportExists",
     "new_identifier_name": "reportExists",
+    "type": "A",
+    "is_deleted": false
+  },
+  "send_chat_message.dart": {
+    "old_identifier_name": "sendChatMessage",
+    "new_identifier_name": "sendChatMessage",
     "type": "A",
     "is_deleted": false
   },
