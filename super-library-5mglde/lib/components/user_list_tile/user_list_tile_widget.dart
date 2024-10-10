@@ -49,59 +49,80 @@ class _UserListTileWidgetState extends State<UserListTileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 80.0,
-      decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            wrapWithModel(
-              model: _model.userAvatarModel,
-              updateCallback: () => safeSetState(() {}),
-              child: UserAvatarWidget(
-                photoUrl: widget!.photoUrl,
-                initials:
-                    widget!.displayName != null && widget!.displayName != ''
-                        ? widget!.displayName
-                        : widget!.uid!,
-                size: 48.0,
+    return InkWell(
+      splashColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () async {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${widget!.displayName} is tapped. You can customize to display public profile.',
+              style: TextStyle(
+                color: FlutterFlowTheme.of(context).primaryText,
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(17.0, 0.0, 0.0, 0.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget!.displayName,
-                      style: FlutterFlowTheme.of(context).titleLarge.override(
-                            fontFamily: 'Inter Tight',
-                            letterSpacing: 0.0,
-                          ),
-                    ),
-                    Text(
-                      valueOrDefault<String>(
-                        widget!.uid,
-                        'asdasd',
-                      ),
-                      style: FlutterFlowTheme.of(context).labelMedium.override(
-                            fontFamily: 'Inter',
-                            letterSpacing: 0.0,
-                          ),
-                    ),
-                  ],
+            duration: Duration(milliseconds: 4000),
+            backgroundColor: FlutterFlowTheme.of(context).secondary,
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        height: 80.0,
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              wrapWithModel(
+                model: _model.userAvatarModel,
+                updateCallback: () => safeSetState(() {}),
+                child: UserAvatarWidget(
+                  photoUrl: widget!.photoUrl,
+                  initials:
+                      widget!.displayName != null && widget!.displayName != ''
+                          ? widget!.displayName
+                          : widget!.uid!,
+                  size: 48.0,
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(17.0, 0.0, 0.0, 0.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget!.displayName,
+                        style: FlutterFlowTheme.of(context).titleLarge.override(
+                              fontFamily: 'Inter Tight',
+                              letterSpacing: 0.0,
+                            ),
+                      ),
+                      Text(
+                        valueOrDefault<String>(
+                          widget!.uid,
+                          'asdasd',
+                        ),
+                        style:
+                            FlutterFlowTheme.of(context).labelMedium.override(
+                                  fontFamily: 'Inter',
+                                  letterSpacing: 0.0,
+                                ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
