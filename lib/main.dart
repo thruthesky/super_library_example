@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:super_example/chat_room.list.screen.dart';
+import 'package:super_example/screens/chat/chat_room.list.screen.dart';
 // import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
 import 'package:super_example/screens/user/custom.user_list_view.screen.dart';
@@ -303,6 +303,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   child: const Text(
                       'Custom Component User List View - Horizontal'),
+                ),
+                ElevatedButton(
+                  onPressed: () => showGeneralDialog(
+                    context: context,
+                    pageBuilder: (_, __, ___) {
+                      return const ChatRoomListScreen();
+                    },
+                  ),
+                  child: const Text('My chat room list view'),
                 ),
               ],
             ),

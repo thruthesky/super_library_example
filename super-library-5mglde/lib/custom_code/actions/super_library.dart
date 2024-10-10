@@ -23,8 +23,6 @@ import 'package:firebase_ui_database/firebase_ui_database.dart';
 FirebaseDatabase get database => SuperLibrary.instance.database;
 fs.FirebaseFirestore get firestore => fs.FirebaseFirestore.instance;
 
-const String joinSeparator = '---';
-
 /// [currentUserUid] returns the current user's UID. It returns null if the user is not signed in.
 String? get currentUserUid => fa.FirebaseAuth.instance.currentUser!.uid;
 
@@ -136,7 +134,9 @@ class ChatService {
     await messagesRef(roomId).push().set(data);
   }
 
-  /// TODO should it be make? or get
+  String joinSeparator = '---';
+
+  ///
   String makeSingleChatRoomId(String? loginUid, String? otherUid) {
     if (loginUid == null) {
       throw SuperLibraryException('makeSingleChatRoomId', 'loginUid is null');
@@ -149,8 +149,25 @@ class ChatService {
     return arr.join(joinSeparator);
   }
 
+  /// [isSingleChatRoom] returns true if the room id is single chat room.
+  bool isSingleChatRoom(String roomId) {
+    return roomId.contains(joinSeparator);
+  }
+
+  /// [getOtherUid] returns the other user's uid from the single chat room id.
+  String getOtherUid(String singleChatRoomId) {
+    final uids = singleChatRoomId.split(joinSeparator);
+    if (uids.length != 2) {
+      throw SuperLibraryException(
+        'getOtherUid',
+        'Invalid single chat room id',
+      );
+    }
+    return uids.firstWhere((uid) => uid != myUid);
+  }
+
   // TODO where to put this
-  Future<int> getServerTimestamp() async {
+  Future<int> getDatabaseServerTimestamp() async {
     final ref = FirebaseDatabase.instance
         .ref()
         .child('chat')
@@ -174,18 +191,35 @@ class ChatService {
   /// - It update the room.users with current user's uid. It's called as
   /// call-by-reference. So, the parent can use the updated room.users which
   /// includes the current user's uid.
-  Future<void> join(
-    ChatRoom room, {
-    String? protocol,
-  }) async {
+  Future<void> join(String roomId) async {
     dog("Joining");
 
-    if (room.joined) return;
+    ChatRoom? room = await ChatRoom.get(roomId);
 
-    final timestamp = await getServerTimestamp();
+    if (room == null) {
+      if (isSingleChatRoom(roomId)) {
+        // Join the single chat room. The chat room join is not created, yet.
+        await ChatRoom.createSingle(getOtherUid(roomId));
+        room = await ChatRoom.get(roomId);
+      } else {
+        // Group chat room must exist before entering chat room.
+        throw SuperLibraryException(
+            'chat-room-join', 'Group chat room not found');
+      }
+    } else if (room.joined) {
+      // Already joined. just return.
+      return;
+    } else {
+      // Chat room exists but not joined yet.
+    }
+
+    // Hereby, [room] is ready.
+    dog("Room: $room");
+
+    final timestamp = await getDatabaseServerTimestamp();
     final negativeTimestamp = -1 * timestamp;
 
-    // int timestamp = await getServerTimestamp();
+    // int timestamp = await getDatabaseServerTimestamp();
     // final order = timestamp * -1; // int.parse("-1$timestamp");
     final joinValues = {
       // Incase there is an invitation, remove the invitation
@@ -195,7 +229,7 @@ class ChatService {
       // TODO reimplement
       // rejectedUserRef(myUid!).child(room.id).path: null,
       // Add uid in users
-      room.ref.child('users').child(myUid).path: true,
+      room!.ref.child('users').child(myUid).path: true,
       // Add in chat joins
       'chat/joins/$myUid/${room.id}/joinedAt': ServerValue.timestamp,
       // Should be in top in order
@@ -209,12 +243,11 @@ class ChatService {
         'chat/joins/$myUid/${room.id}/openOrder': negativeTimestamp,
     };
 
-    /// Add your uid into the user list of the chat room instead of reading from database.
-    /// * This must be here before await. So it can return fast.
-    room.users[myUid] = true;
+    dog("Joining: $joinValues");
+
     await FirebaseDatabase.instance.ref().update(joinValues);
 
-    // TODO how do we do report things
+    // TODO support protocol
     // await sendMessage(
     //   room,
     // protocol: protocol ?? ChatProtocol.join,
@@ -240,8 +273,6 @@ class ChatRoom {
     group: 'group',
     lastMessageAt: 'lastMessageAt',
     allMembersCanInvite: 'allMembersCanInvite',
-    gender: 'gender',
-    domain: 'domain',
   );
 
   /// [id] is the chat room id. This is the key of the chat room data.
@@ -292,17 +323,6 @@ class ChatRoom {
   /// [lastMessageAt] is the time when last message was sent to chat room.
   DateTime? lastMessageAt;
 
-  /// [gender] to filter the chat room by user's gender.
-  /// If it's M, then only male can enter the chat room. And if it's F,
-  /// only female can enter the chat room.
-  ///
-  /// Note that, [gender] is not supported at this time.
-  String gender;
-
-  /// [domain] is the domain of the chat room. It can be the name of the app.
-  ///
-  String domain;
-
   bool allMembersCanInvite = false;
 
   /// Uids for single chat is combination of both users' uids separated by "---"
@@ -324,8 +344,6 @@ class ChatRoom {
     required this.updatedAt,
     this.lastMessageAt,
     this.allMembersCanInvite = false,
-    required this.gender,
-    required this.domain,
   });
 
   /// Return the chat room object from the snapshot.
@@ -362,8 +380,6 @@ class ChatRoom {
           ? DateTime.now()
           : DateTime.fromMillisecondsSinceEpoch(json[field.lastMessageAt]),
       allMembersCanInvite: json[field.allMembersCanInvite] ?? false,
-      gender: json[field.gender],
-      domain: json[field.domain],
     );
   }
 
@@ -385,8 +401,6 @@ class ChatRoom {
       field.updatedAt: updatedAt.millisecondsSinceEpoch,
       field.lastMessageAt: lastMessageAt?.millisecondsSinceEpoch,
       field.allMembersCanInvite: allMembersCanInvite,
-      field.gender: gender,
-      field.domain: domain,
     };
   }
 
@@ -414,8 +428,6 @@ class ChatRoom {
     updatedAt = room.updatedAt;
     lastMessageAt = room.lastMessageAt;
     allMembersCanInvite = room.allMembersCanInvite;
-    gender = room.gender;
-    domain = room.domain;
   }
 
   /// toString
@@ -442,8 +454,6 @@ class ChatRoom {
     required Map<String, bool>? users,
     List<String>? masterUsers,
     bool allMembersCanInvite = false,
-    String gender = '',
-    String domain = '',
   }) async {
     // TODO: Should (create and join) be one write upon create?
     if (single == true && (group == true || open == true)) {
@@ -464,8 +474,6 @@ class ChatRoom {
       field.users: [],
       field.masterUsers: [myUid],
       field.allMembersCanInvite: allMembersCanInvite,
-      field.gender: gender,
-      field.domain: domain,
       field.createdAt: ServerValue.timestamp,
       field.updatedAt: ServerValue.timestamp,
     };
@@ -484,35 +492,19 @@ class ChatRoom {
 
   /// [createSingle] creates a new single chat room.
   static Future<DatabaseReference> createSingle(
-    String otherUid, {
-    String domain = '',
-  }) async {
+    String otherUid,
+  ) async {
     ///
     final ref = await create(
       group: false,
       open: false,
       single: true,
-      id: singleChatRoomId(otherUid),
-      users: {myUid: true},
+      id: ChatService.instance.makeSingleChatRoomId(myUid, otherUid),
+      users: {},
       masterUsers: [myUid],
-      domain: domain,
     );
 
     return ref;
-  }
-
-  // TODO review where to put this
-  static const String chatRoomDivider = '---';
-
-  // TODO review where to put this
-  static String singleChatRoomId(String otherUserUid) {
-    if (FirebaseAuth.instance.currentUser?.uid == null) {
-      // throw 'chat/auth-required Loign to get the sing chat room id';
-      throw 'login to get the single chat room id';
-    }
-    final uids = [FirebaseAuth.instance.currentUser!.uid, otherUserUid];
-    uids.sort();
-    return uids.join(chatRoomDivider);
   }
 
   /// [get] gets the chat room by id.

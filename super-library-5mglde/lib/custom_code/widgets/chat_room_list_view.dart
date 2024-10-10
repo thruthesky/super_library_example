@@ -10,6 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '/custom_code/actions/super_library.dart';
 
+/// ChatRoomListView
+///
+/// This widget displays a list of chat rooms
 class ChatRoomListView extends StatefulWidget {
   const ChatRoomListView({
     super.key,

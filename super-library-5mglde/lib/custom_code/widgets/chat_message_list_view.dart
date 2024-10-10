@@ -10,11 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '/custom_code/actions/super_library.dart';
 
-/// A list view of chat messages
+/// Chat room message list view.
 ///
-/// This widget displays a list of chat messages in a chat room.
+/// This widget displays a list of chat messages. This widget can be used in
+/// a chat room or any other screen.
 ///
-///
+/// If this widget is shown to screen, it is considered that the user has
+/// joined the chat room. So, it has the logic of joining the chat room.
 class ChatMessageListView extends StatefulWidget {
   const ChatMessageListView({
     super.key,
@@ -34,14 +36,24 @@ class ChatMessageListView extends StatefulWidget {
 }
 
 class _ChatMessageListViewState extends State<ChatMessageListView> {
+  String get roomId =>
+      widget.roomId ??
+      ChatService.instance.makeSingleChatRoomId(
+        myUid,
+        widget.otherUid,
+      );
+
+  @override
+  void initState() {
+    super.initState();
+
+    ChatService.instance.join(roomId);
+  }
+
   @override
   Widget build(BuildContext context) {
-    String roomId = widget.roomId ??
-        ChatService.instance.makeSingleChatRoomId(
-          myUid,
-          widget.otherUid,
-        );
     return ValueListView(
+      reverseQuery: true,
       query: ChatService.instance.messagesRef(roomId),
       builder: (snapshot, fetchMore) {
         return ListView.builder(
@@ -51,7 +63,7 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
             return ListTile(
-              shape: OutlineInputBorder(),
+              shape: const OutlineInputBorder(),
               title: Text(doc.key!),
               subtitle: Text(doc.value.toString()),
             );

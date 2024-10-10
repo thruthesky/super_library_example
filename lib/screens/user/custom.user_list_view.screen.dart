@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:super_example/screens/chat/chat_room.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
 
@@ -139,14 +140,14 @@ class _CustomTileState extends State<CustomTile> {
               IconButton(
                 icon: const Icon(Icons.comment),
                 onPressed: () {
-                  // showGeneralDialog(
-                  //   context: context,
-                  //   pageBuilder: (_, __, ___) {
-                  //     // return ChatRoomScreen(
-                  //     //   otherUid: widget.user.uid,
-                  //     // );
-                  //   },
-                  // );
+                  showGeneralDialog(
+                    context: context,
+                    pageBuilder: (_, __, ___) {
+                      return ChatRoomScreen(
+                        otherUid: widget.user.uid,
+                      );
+                    },
+                  );
                 },
               ),
             ],
