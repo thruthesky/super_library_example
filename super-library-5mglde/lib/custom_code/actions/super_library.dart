@@ -553,11 +553,22 @@ class ChatRoom {
     return ref;
   }
 
-  /// [get] gets the chat room by id.
-  static Future<ChatRoom?> get(String id) async {
+  /// [get] gets the cached chat room by id.
+  ///
+  /// Note that the chat room data is updated in realtime by [ChatMessageListView] widget.
+  static Future<ChatRoom?> get(
+    String id, {
+    bool cache = true,
+  }) async {
+    if (cache && Memory.get(id) != null) {
+      return Memory.get(id) as ChatRoom;
+    }
     final snapshot = await ChatService.instance.roomRef(id).get();
     if (snapshot.exists == false) return null;
-    return ChatRoom.fromSnapshot(snapshot);
+    final room = ChatRoom.fromSnapshot(snapshot);
+
+    Memory.set(id, room);
+    return room;
   }
 
   /// [update] updates the chat room.
@@ -617,7 +628,8 @@ class ChatService {
   Future sendMessage({
     String? receiverUid,
     String? roomId,
-    String? message,
+    String? text,
+    String? photoUrl,
   }) async {
     // Add your function code here!
     assert(
@@ -625,24 +637,128 @@ class ChatService {
       "receiverUid or roomId must be provided",
     );
 
+    // Get the cached user data
     final my = await UserData.get(myUid);
-/*
-data = {
-      'senderUid': senderUid,
-      'receiverUid': receiverUid,
-      'roomId': roomId,
-      'message': message,
-      'createdAt': ServerValue.timestamp,
-    };*/
+
+    // Save/create a chat message into chat room.
     final message = ChatMessage.json(
       senderUid: myUid,
       displayName: my?.displayName,
       photoUrl: my?.photoUrl,
       createdAt: ServerValue.timestamp,
+      text: text,
     );
-
     roomId = roomId ?? makeSingleChatRoomId(myUid, receiverUid!);
-    await messagesRef(roomId).push().set(message.toJson());
+    final messageRef = messagesRef(roomId).push();
+    await messageRef.set(message.toJson());
+
+    // Get server timestamp
+    final createdAtSnapshot =
+        await messageRef.child(ChatMessage.field.createdAt).get();
+    final timestamp = createdAtSnapshot.value as int;
+
+    final moreImportant = int.parse("-1$timestamp");
+    final lessImportant = -1 * timestamp;
+
+    // Get the cached chat room data. Note that the chat room data is updated
+    // in realtime by [ChatMessageListView] widget.
+    final room = await ChatRoom.get(roomId);
+    if (room == null) {
+      throw SuperLibraryException('send-message', 'Chat room not found');
+    }
+
+    final Map<String, Object?> updates = {};
+    const f = ChatJoin.field;
+    for (String uid in room.userUids) {
+      if (uid == myUid) {
+        // If it's my join data, the order must not have -11 infront since I
+        // have already read that chat room. (I am in the chat room)
+        updates['chat/joins/$uid/${room.id}/order'] = lessImportant;
+        if (room.single) {
+          updates['chat/joins/$uid/${room.id}/${f.singleOrder}'] =
+              lessImportant;
+        }
+        if (room.group) {
+          updates['chat/joins/$uid/${room.id}/${f.groupOrder}'] = lessImportant;
+        }
+        if (room.open) {
+          updates['chat/joins/$uid/${room.id}/${f.openOrder}'] = lessImportant;
+        }
+        // updates['chat/settings/$uid/unread-message-count/${room.id}'] = null;
+      } else {
+        updates['chat/joins/$uid/${room.id}/order'] = moreImportant;
+        if (room.single) {
+          updates['chat/joins/$uid/${room.id}/${f.singleOrder}'] =
+              moreImportant;
+        }
+        if (room.group) {
+          updates['chat/joins/$uid/${room.id}/${f.groupOrder}'] = moreImportant;
+        }
+        if (room.open) {
+          updates['chat/joins/$uid/${room.id}/${f.openOrder}'] = moreImportant;
+        }
+
+        /// Increment the unread message count if the message is not
+        /// - join,
+        /// - left,
+        /// - or invitation-not-sent
+        // TODO: Protocol support
+        // if (protocol != ChatProtocol.join &&
+        //     protocol != ChatProtocol.left &&
+        //     protocol != ChatProtocol.invitationNotSent) {
+
+        updates['chat/settings/$uid/unread-message-count/${room.id}'] =
+            ServerValue.increment(1);
+        updates['chat/joins/$uid/${room.id}/unread-message-count'] =
+            ServerValue.increment(1);
+
+        // }
+      }
+
+      updates['chat/joins/$uid/${room.id}/${f.lastMessageAt}'] = timestamp;
+
+      // Add more about chat room info, to display the chat room list
+      // information without referring to the chat room.
+      updates['chat/joins/$uid/${room.id}/${f.lastMessageUid}'] = myUid;
+      updates['chat/joins/$uid/${room.id}/${f.lastText}'] = text;
+      updates['chat/joins/$uid/${room.id}/${f.lastUrl}'] = photoUrl;
+      // TODO: Protocol support
+      // updates['chat/joins/$uid/${room.id}/${f.lastProtocol}'] = protocol;
+      updates['chat/joins/$uid/${room.id}/lastMessageDeleted'] = null;
+
+      // If it's single chat, add the my information to the other user's join
+      if (room.single && uid != myUid) {
+        updates['chat/joins/$uid/${room.id}/displayName'] = my?.displayName;
+        updates['chat/joins/$uid/${room.id}/photoUrl'] = my?.photoUrl;
+      } else if (room.group) {
+        updates['chat/joins/$uid/${room.id}/name'] = room.name;
+        updates['chat/joins/$uid/${room.id}/iconUrl'] = room.iconUrl;
+      }
+
+      // If it's group chat, add the sender's information
+      if (room.group) {
+        updates['chat/joins/$uid/${room.id}/displayName'] = my?.displayName;
+        updates['chat/joins/$uid/${room.id}/photoUrl'] = my?.photoUrl;
+      }
+    }
+
+    // Must save the last message at in room to properly reorder it upon seening the message.
+    updates['chat/rooms/${room.id}/${f.lastMessageAt}'] = timestamp;
+    await database.ref().update(updates);
+
+    // Write the data first for the speed of performance and then update the
+    // other user data.
+    // See README.md for details
+    if (room.single) {
+      UserData? user = await UserData.get(getOtherUid(roomId));
+      await database.ref().update({
+        'chat/joins/$myUid/${room.id}/displayName': user?.displayName,
+        'chat/joins/$myUid/${room.id}/photoUrl': user?.photoUrl,
+      });
+    }
+
+    // TODO: site preview
+    // await updateUrlPreview(newMessage, text);
   }
 
   String joinSeparator = '---';

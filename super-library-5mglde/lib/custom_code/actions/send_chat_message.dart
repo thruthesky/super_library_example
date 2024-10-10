@@ -12,7 +12,7 @@ import 'package:firebase_database/firebase_database.dart';
 Future sendChatMessage(
   String? otherUid,
   String? roomId,
-  String? message,
+  String? text,
 ) async {
   // Add your function code here!
   assert(
@@ -22,6 +22,6 @@ Future sendChatMessage(
   await ChatService.instance.sendMessage(
     receiverUid: otherUid,
     roomId: roomId,
-    message: message,
+    text: text,
   );
 }
