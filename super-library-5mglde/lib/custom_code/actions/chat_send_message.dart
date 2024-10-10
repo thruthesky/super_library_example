@@ -7,11 +7,9 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import '/custom_code/actions/super_library.dart';
-
 import 'package:firebase_database/firebase_database.dart';
 
 Future chatSendMessage(
-  String senderUid,
   String? receiverUid,
   String? roomId,
   String? message,
@@ -22,7 +20,7 @@ Future chatSendMessage(
     "receiverUid or roomId must be provided",
   );
   await ChatService.instance.sendMessage(
-    senderUid: senderUid,
+    senderUid: myUid,
     receiverUid: receiverUid,
     roomId: roomId,
     message: message,

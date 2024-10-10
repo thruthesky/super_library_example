@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_database/firebase_database.dart';
 import '/custom_code/actions/super_library.dart';
-import '/custom_code/widgets/chat_room_screen.dart';
 
 class ChatRoomListView extends StatefulWidget {
   const ChatRoomListView({
@@ -36,21 +35,16 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
             fetchMore(index);
-            // TODO customization
             final DataSnapshot doc = snapshot.docs[index];
             return ListTile(
               title: Text(doc.key!),
               subtitle: Text(doc.value.toString()),
               onTap: () async {
-                // Open chat room screen
-                await showGeneralDialog(
-                  context: context,
-                  pageBuilder: (context, a1, a2) {
-                    // TODO customization
-                    return ChatRoomScreen(
-                      roomId: doc.key,
-                    );
-                  },
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Customize your UI/UX to open chat room ${doc.key}'),
+                  ),
                 );
               },
             );
