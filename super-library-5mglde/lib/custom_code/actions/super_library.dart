@@ -71,9 +71,15 @@ class ChatJoin {
 
   final int unreadMessageCount;
 
+  // chat room name
   final String? name;
+  // chat room icon url
   final String? iconUrl;
+
+  // message sender's display name
   final String? displayName;
+
+  // message sender's photo url
   final String? photoUrl;
 
   bool get group => groupOrder != null;
@@ -249,6 +255,8 @@ class ChatMessage {
     final replyTo = json[field.replyTo] == null
         ? null
         : Map<String, dynamic>.from(json[field.replyTo] as Map);
+
+    dog('ChatMessage.fromJson: $json');
     return ChatMessage(
       id: id,
       roomId: roomId,
@@ -273,7 +281,7 @@ class ChatMessage {
     );
   }
 
-  static json({
+  static Map<String, dynamic> json({
     String? text,
     String? url,
     String? protocol,
@@ -420,11 +428,16 @@ class ChatRoom {
 
   /// Return the chat room object from the snapshot.
   factory ChatRoom.fromSnapshot(DataSnapshot data) {
+    if (data.exists == false || data.value == null) {
+      dog("data does not exists or is null");
+    }
     if (data.value is int) {
       dog("data.value is int");
     }
     return ChatRoom.fromJson(
-        (Map<String, dynamic>.from(data.value as Map)), data.key!);
+      (Map<String, dynamic>.from(data.value as Map)),
+      data.key!,
+    );
   }
 
   /// Return the chat room object from the json.
@@ -564,7 +577,10 @@ class ChatRoom {
       return Memory.get(id) as ChatRoom;
     }
     final snapshot = await ChatService.instance.roomRef(id).get();
-    if (snapshot.exists == false) return null;
+    if (snapshot.exists == false) {
+      dog('ChatRoom.get() -> Chat room not found. id: $id');
+      return null;
+    }
     final room = ChatRoom.fromSnapshot(snapshot);
 
     Memory.set(id, room);
@@ -650,7 +666,7 @@ class ChatService {
     );
     roomId = roomId ?? makeSingleChatRoomId(myUid, receiverUid!);
     final messageRef = messagesRef(roomId).push();
-    await messageRef.set(message.toJson());
+    await messageRef.set(message);
 
     // Get server timestamp
     final createdAtSnapshot =
@@ -664,6 +680,7 @@ class ChatService {
     // in realtime by [ChatMessageListView] widget.
     final room = await ChatRoom.get(roomId);
     if (room == null) {
+      dog('sendMessage() -> Chat room not found. roomId: $roomId');
       throw SuperLibraryException('send-message', 'Chat room not found');
     }
 
@@ -783,6 +800,7 @@ class ChatService {
 
   /// [getOtherUid] returns the other user's uid from the single chat room id.
   String getOtherUid(String singleChatRoomId) {
+    dog('getOtherUid: $singleChatRoomId');
     final uids = singleChatRoomId.split(joinSeparator);
     if (uids.length != 2) {
       throw SuperLibraryException(
@@ -919,7 +937,6 @@ class SuperLibrary {
       databaseURL: databaseURL!,
     );
 
-    dog('databaseURL: $databaseURL');
     return _database!;
   }
 }

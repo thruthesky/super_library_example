@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:super_example/components/chat_room_list_tile_widget.dart';
 import 'package:super_example/screens/chat/chat_room.list.screen.dart';
 // import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
@@ -33,6 +34,24 @@ void main() async {
   );
 
   UserService.instance.collectionName = 'users';
+
+  Component.userListTile = (user) => CustomTile(user: user);
+  Component.chatRoomListTile = (join) => ChatRoomListTileWidget(
+        roomId: join.roomId,
+        name: join.name,
+        iconUrl: join.iconUrl,
+        displayName: join.displayName,
+        photoUrl: join.photoUrl,
+        group: join.group,
+        single: join.single,
+        open: join.open,
+        lastMessageAt: join.lastMessageAt,
+        lastMessageDeleted: join.lastMessageDeleted,
+        lastText: join.lastText,
+        lastUrl: join.lastUrl,
+        lastProtocol: join.lastProtocol,
+        unreadMessageCount: join.unreadMessageCount,
+      );
 
   runApp(const MyApp());
 }

@@ -37,17 +37,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Wrap(
-                children: [
-                  Text('UID: ${FirebaseAuth.instance.currentUser!.uid}'),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                    },
-                    child: const Text('Sign Out'),
-                  ),
-                ],
-              ),
               Expanded(
                 child: ChatMessageListView(
                   otherUid: widget.otherUid,

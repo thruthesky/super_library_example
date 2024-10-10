@@ -53,8 +53,10 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
     // other widgets. By doing this, the 'users' field of the chat room is
     // always up-to-date in memory.
     ChatService.instance.roomRef(roomId).onValue.listen((event) {
-      final room = ChatRoom.fromSnapshot(event.snapshot);
-      Memory.set(roomId, room);
+      if (event.snapshot.exists && event.snapshot.value != null) {
+        final room = ChatRoom.fromSnapshot(event.snapshot);
+        Memory.set(roomId, room);
+      }
     });
   }
 
@@ -70,11 +72,44 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
-            return ListTile(
-              shape: const OutlineInputBorder(),
-              title: Text(doc.key!),
-              subtitle: Text(doc.value.toString()),
+
+            final message = ChatMessage.fromSnapshot(doc);
+            // TODO - support custom ui
+
+            return Container(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  UserAvatar(
+                    uid: message.senderUid,
+                    width: 60,
+                    height: 60,
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (message.displayName != null)
+                        Text(
+                          message.displayName!,
+                          style: FlutterFlowTheme.of(context).labelSmall,
+                        ),
+                      if (message.text != null)
+                        Text(
+                          message.text!,
+                          style: FlutterFlowTheme.of(context).bodyMedium,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             );
+
+            //  ListTile(
+            //   shape: const OutlineInputBorder(),
+            //   title: Text(doc.key!),
+            //   subtitle: Text(doc.value.toString()),
+            // );
           },
         );
       },
