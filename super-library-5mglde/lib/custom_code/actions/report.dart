@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:super_library/custom_code/actions/super_library.dart';
+import '/custom_code/actions/super_library.dart';
 
 Future report(
   String type,

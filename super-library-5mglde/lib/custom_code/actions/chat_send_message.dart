@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:super_library/custom_code/actions/super_library.dart';
+import '/custom_code/actions/super_library.dart';
 
 import 'package:firebase_database/firebase_database.dart';
 

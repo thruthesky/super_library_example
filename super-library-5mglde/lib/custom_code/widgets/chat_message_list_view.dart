@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:firebase_database/firebase_database.dart';
-import 'package:super_library/custom_code/actions/super_library.dart';
+import '/custom_code/actions/super_library.dart';
 
 /// A list view of chat messages
 ///

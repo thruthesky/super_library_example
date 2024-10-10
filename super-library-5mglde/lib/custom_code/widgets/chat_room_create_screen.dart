@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:super_library/custom_code/actions/super_library.dart';
+import '/custom_code/actions/super_library.dart';
 
 class ChatRoomCreateScreen extends StatefulWidget {
   const ChatRoomCreateScreen({
