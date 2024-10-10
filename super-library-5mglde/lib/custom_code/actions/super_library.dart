@@ -52,8 +52,7 @@ class SuperLibrary {
 
   init({
     required Function getDatabaseUrl,
-    Function? onReport,
-    debug = false,
+    debug = true,
   }) {
     this.getDatabaseUrl = getDatabaseUrl;
     this.debug = debug;
@@ -688,6 +687,11 @@ class ValueListView extends StatelessWidget {
 ///
 /// A static memory class to store data in memory
 ///
+/// Note that any data that might be re-used must be stored in the memory (like
+/// user data, chat room data, etc) with this Memeory class to not fetch the
+/// data again and again. And this will help to reduce flickering and improve
+/// the performance.
+///
 /// Usage:
 /// ```dart
 /// Memory.set('key', 'value);
@@ -741,122 +745,6 @@ class AuthStateChanges extends StatelessWidget {
         return builder(user);
       },
     );
-  }
-}
-
-class UserService {
-  static UserService? _instance;
-  static UserService get instance => _instance ??= UserService._();
-  UserService._();
-
-  /// Firestore collection name for users
-  String collectionName = 'users';
-
-  DatabaseReference get usersRef => database.ref().child(collectionName);
-
-  bool initialized = false;
-
-  init() {
-    dog('UserService.init:');
-    mirror();
-    initialized = true;
-  }
-
-  /// Firestore document reference for the current user
-  fs.DocumentReference get myDoc {
-    final user = fa.FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception('UserService.myDoc: user is not signed in');
-    }
-    final ref = doc(user.uid);
-    return ref;
-  }
-
-  /// Firestore document reference for the user with [uid]
-  fs.DocumentReference doc(String uid) {
-    final ref = firestore.collection(collectionName).doc(uid);
-
-    dog('path of ref: ${ref.path}');
-    return ref;
-  }
-
-  /// Database reference for the current user
-  DatabaseReference get myRef {
-    final user = fa.FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception('UserService.myRef: user is not signed in');
-    }
-    final ref = userRef(user.uid);
-    return ref;
-  }
-
-  /// Database reference for the user with [uid]
-  DatabaseReference userRef(String uid) {
-    final ref = database.ref().child(collectionName).child(uid);
-
-    dog('path of ref: ${ref.path}');
-    return ref;
-  }
-
-  DatabaseReference get myBlockedUsersRef {
-    final user = fa.FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      throw Exception('UserService.myDoc: user is not signed in');
-    }
-    return database.ref().child('blocked-users').child(user.uid);
-  }
-
-  StreamSubscription<fa.User?>? mirrorSubscription;
-  StreamSubscription? userDocumentSubscription;
-
-  /// Mirror user's displayName, photoURL, and created_time only from Firestore to Database
-  ///
-  /// Why?
-  /// The super library is using Firebase Realtime Database for chat and other
-  /// functionalities. But the user's displayName and photoURL are stored in
-  /// Firestore by FlutterFlow.
-  mirror() {
-    dog('UserService.mirror');
-    mirrorSubscription?.cancel();
-    mirrorSubscription =
-        fa.FirebaseAuth.instance.authStateChanges().listen((user) {
-      print('User uid: ${user?.uid}');
-      if (user != null) {
-        userDocumentSubscription?.cancel();
-        userDocumentSubscription = doc(user.uid).snapshots().listen((snapshot) {
-          if (snapshot.exists == false) {
-            return;
-          }
-
-          final dataSnapshot = snapshot.data() as Map<String, dynamic>;
-
-          if (dataSnapshot.keys.contains('blockedUsers') == true) {
-            myBlockedUsersRef.set(dataSnapshot['blockedUsers']);
-            return;
-          }
-
-          // TODO add a validation that will check if the field exists
-          int stamp;
-          if (dataSnapshot['created_time'] != null &&
-              dataSnapshot['created_time'] is Timestamp) {
-            stamp = (dataSnapshot['created_time'] as Timestamp)
-                .millisecondsSinceEpoch;
-          } else {
-            stamp = DateTime.now().millisecondsSinceEpoch;
-          }
-          Map<String, dynamic> data = {
-            UserData.field.creatAt: stamp,
-            UserData.field.displayName: dataSnapshot['display_name'] ?? '',
-            UserData.field.displayNameLowerCase:
-                (dataSnapshot['display_name'] ?? '').toLowerCase(),
-            UserData.field.photoUrl: dataSnapshot['photo_url'] ?? '',
-          };
-
-          userRef(user.uid).update(data);
-        });
-      }
-    });
   }
 }
 
@@ -1005,6 +893,15 @@ class UserData {
     required this.photoUrl,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      field.creatAt: createdAt,
+      field.displayName: displayName,
+      field.displayNameLowerCase: displayNameLowerCase,
+      field.photoUrl: photoUrl,
+    };
+  }
+
   factory UserData.fromJson(Map<dynamic, dynamic> json, String key) {
     return UserData(
       uid: key,
@@ -1017,6 +914,154 @@ class UserData {
 
   factory UserData.fromSnapshot(DataSnapshot snapshot) {
     return UserData.fromJson(snapshot.value as Map, snapshot.key!);
+  }
+
+  /// Returns the user data from the Realtime database as UserData model
+  ///
+  /// This method is used to get the user data from the Realtime database.
+  ///
+  /// Returns null if the user data does not exist.
+  ///
+  /// TODO: make [getUserData] custom action based on this method.
+  static Future<UserData?> get(String uid) async {
+    // if (Memory.get(uid) != null) {
+    //   return Memory.get(uid) as UserData;
+    // }
+
+    final snapshot = await UserService.instance.databaseUserRef(uid).get();
+    if (snapshot.exists == false) {
+      return null;
+    }
+
+    if (snapshot.value == null) {
+      return null;
+    }
+
+    final userData = UserData.fromSnapshot(snapshot);
+
+    // Memory.set(uid, userData);
+
+    return userData;
+  }
+}
+
+class UserService {
+  static UserService? _instance;
+  static UserService get instance => _instance ??= UserService._();
+  UserService._();
+
+  /// Firestore collection name for users
+  String collectionName = 'users';
+
+  DatabaseReference get databaseUsersRef =>
+      database.ref().child(collectionName);
+
+  bool initialized = false;
+
+  init() {
+    dog('UserService.init:');
+    mirror();
+    initialized = true;
+  }
+
+  /// Firestore document reference for the current user
+  fs.DocumentReference get myDoc {
+    final user = fa.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('UserService.myDoc: user is not signed in');
+    }
+    final ref = doc(user.uid);
+    return ref;
+  }
+
+  /// Firestore document reference for the user with [uid]
+  fs.DocumentReference doc(String uid) {
+    final ref = firestore.collection(collectionName).doc(uid);
+
+    dog('path of ref: ${ref.path}');
+    return ref;
+  }
+
+  /// Database reference for the current user
+  DatabaseReference get myDatabaseRef {
+    final user = fa.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('UserService.myDatabaseRef: user is not signed in');
+    }
+    final ref = databaseUserRef(user.uid);
+    return ref;
+  }
+
+  /// Database reference for the user with [uid]
+  DatabaseReference databaseUserRef(String uid) {
+    final ref = database.ref().child(collectionName).child(uid);
+
+    dog('path of ref: ${ref.path}');
+    return ref;
+  }
+
+  DatabaseReference get myBlockedUsersRef {
+    final user = fa.FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw Exception('UserService.myDoc: user is not signed in');
+    }
+    return database.ref().child('blocked-users').child(user.uid);
+  }
+
+  StreamSubscription<fa.User?>? mirrorSubscription;
+  StreamSubscription? userDocumentSubscription;
+
+  /// Mirror user's displayName, photoURL, and created_time only from Firestore to Database
+  ///
+  /// Why?
+  /// The super library is using Firebase Realtime Database for chat and other
+  /// functionalities. But the user's displayName and photoURL are stored in
+  /// Firestore by FlutterFlow.
+  mirror() {
+    mirrorSubscription?.cancel();
+    mirrorSubscription =
+        fa.FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user == null) {
+        dog('Super library -> mirror() -> User is not signed in. So, return');
+        return;
+      }
+
+      dog('Super library -> mirror() -> User is signed in. So, mirror the user data');
+
+      userDocumentSubscription?.cancel();
+      userDocumentSubscription = doc(user.uid).snapshots().listen((snapshot) {
+        if (snapshot.exists == false) {
+          return;
+        }
+
+        final dataSnapshot = snapshot.data() as Map<String, dynamic>;
+
+        if (dataSnapshot.keys.contains('blockedUsers') == true) {
+          myBlockedUsersRef.set(dataSnapshot['blockedUsers']);
+          return;
+        }
+
+        // TODO add a validation that will check if the field exists
+        int stamp;
+        if (dataSnapshot['created_time'] != null &&
+            dataSnapshot['created_time'] is Timestamp) {
+          stamp = (dataSnapshot['created_time'] as Timestamp)
+              .millisecondsSinceEpoch;
+        } else {
+          stamp = DateTime.now().millisecondsSinceEpoch;
+        }
+        Map<String, dynamic> data = {
+          UserData.field.creatAt: stamp,
+          UserData.field.displayName: dataSnapshot['display_name'] ?? '',
+          UserData.field.displayNameLowerCase:
+              (dataSnapshot['display_name'] ?? '').toLowerCase(),
+          UserData.field.photoUrl: dataSnapshot['photo_url'] ?? '',
+        };
+
+        databaseUserRef(user.uid).update(data);
+      });
+    });
   }
 }
 

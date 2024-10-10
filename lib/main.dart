@@ -29,9 +29,7 @@ void main() async {
   SuperLibrary.instance.init(
     getDatabaseUrl: () =>
         'https://withcenter-test-4-default-rtdb.firebaseio.com',
-    onReport: () {
-      print('Report created');
-    },
+    debug: true,
   );
 
   UserService.instance.collectionName = 'users';
@@ -145,6 +143,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 ElevatedButton(
                   onPressed: () async {
                     await FirebaseAuth.instance.signInAnonymously();
+                    String uid = FirebaseAuth.instance.currentUser!.uid;
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .set({
+                      'display_name': 'Anonymous $uid',
+                      'created_time': FieldValue.serverTimestamp(),
+                      'photo_url': 'https://picsum.photos/id/123/200/300',
+                    });
                   },
                   child: const Text('Sign in Anonymously'),
                 ),
@@ -195,7 +202,40 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                UserAvatar(
+                  uid: myUid,
+                  width: 48,
+                  height: 48,
+                ),
                 Text('UID: ${FirebaseAuth.instance.currentUser!.uid}'),
+                ElevatedButton(
+                  onPressed: () async {
+                    final String id = 'id${Random().nextInt(1000) + 9999}';
+
+                    for (int i = 0; i < 10; i++) {
+                      final String email = '$id-$i@test.com';
+                      await FirebaseAuth.instance
+                          .createUserWithEmailAndPassword(
+                        email: email,
+                        password: '12345a,*',
+                      );
+                      String uid = FirebaseAuth.instance.currentUser!.uid;
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(uid)
+                          .set({
+                        'display_name': 'User-$id',
+                        'created_time': FieldValue.serverTimestamp(),
+                        'email': email,
+                        'photo_url': 'https://picsum.photos/id/${i}0/200/300',
+                      });
+                      print(
+                        'User $email created with uid: $uid',
+                      );
+                    }
+                  },
+                  child: const Text('Create 10 test users'),
+                ),
                 Wrap(
                   alignment: WrapAlignment.center,
                   children: [

@@ -65,6 +65,12 @@
     "type": "W",
     "is_deleted": false
   },
+  "user_avatar.dart": {
+    "old_identifier_name": "UserAvatar",
+    "new_identifier_name": "UserAvatar",
+    "type": "W",
+    "is_deleted": false
+  },
   "user_list_view.dart": {
     "old_identifier_name": "UserListView",
     "new_identifier_name": "UserListView",

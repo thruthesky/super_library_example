@@ -31,7 +31,7 @@ class _UserListViewState extends State<UserListView> {
   @override
   Widget build(BuildContext context) {
     return ValueListView(
-      query: UserService.instance.usersRef
+      query: UserService.instance.databaseUsersRef
           .orderByChild(UserData.field.creatAt)
           .startAt(0),
       builder: (snapshot, fetchMore) {
