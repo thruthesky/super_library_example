@@ -43,7 +43,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                        'Customize your UI/UX to open chat room ${doc.key}'),
+                        'Customize your UI/UX to open chat room key: ${doc.key}'),
                   ),
                 );
               },

@@ -56,7 +56,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     suffixIcon: IconButton(
                       onPressed: () async {
                         await chatSendMessage(
-                          myUid,
                           widget.otherUid,
                           null,
                           textController.text,

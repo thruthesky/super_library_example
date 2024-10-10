@@ -139,14 +139,14 @@ class _CustomTileState extends State<CustomTile> {
               IconButton(
                 icon: const Icon(Icons.comment),
                 onPressed: () {
-                  showGeneralDialog(
-                    context: context,
-                    pageBuilder: (_, __, ___) {
-                      return ChatRoomScreen(
-                        otherUid: widget.user.uid,
-                      );
-                    },
-                  );
+                  // showGeneralDialog(
+                  //   context: context,
+                  //   pageBuilder: (_, __, ___) {
+                  //     // return ChatRoomScreen(
+                  //     //   otherUid: widget.user.uid,
+                  //     // );
+                  //   },
+                  // );
                 },
               ),
             ],

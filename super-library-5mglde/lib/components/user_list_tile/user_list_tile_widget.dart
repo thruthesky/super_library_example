@@ -1,4 +1,3 @@
-import '/components/user_avatar/user_avatar_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -79,18 +78,6 @@ class _UserListTileWidgetState extends State<UserListTileWidget> {
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              wrapWithModel(
-                model: _model.userAvatarModel,
-                updateCallback: () => safeSetState(() {}),
-                child: UserAvatarWidget(
-                  photoUrl: widget!.photoUrl,
-                  initials:
-                      widget!.displayName != null && widget!.displayName != ''
-                          ? widget!.displayName
-                          : widget!.uid!,
-                  size: 48.0,
-                ),
-              ),
               Expanded(
                 child: Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(17.0, 0.0, 0.0, 0.0),
