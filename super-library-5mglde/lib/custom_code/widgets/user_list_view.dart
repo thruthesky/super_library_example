@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:super_library/custom_code/actions/super_library.dart';
+import '/custom_code/actions/super_library.dart';
 
 class UserListView extends StatefulWidget {
   const UserListView({

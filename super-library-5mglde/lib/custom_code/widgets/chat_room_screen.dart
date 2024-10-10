@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:super_library/custom_code/actions/super_library.dart';
+import '/custom_code/actions/super_library.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   const ChatRoomScreen({
