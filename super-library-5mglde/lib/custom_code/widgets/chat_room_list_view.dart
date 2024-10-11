@@ -42,18 +42,80 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
             final join = ChatJoin.fromSnapshot(doc);
 
             return Component.chatRoomListTile?.call(join) ??
-                ListTile(
-                  title: Text(join.name ?? join.displayName ?? '...'),
-                  subtitle: Text(join.lastText ?? join.lastUrl ?? '...'),
-                  onTap: () async {
+                InkWell(
+                  onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text(
-                            'Customize your UI/UX to open chat room key: ${doc.key}'),
+                            'Customize your UI/UX to open chat room. Refer to the developer documentation for details.'),
                       ),
                     );
                   },
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          if (join.single == true)
+                            UserAvatar(
+                              uid:
+                                  ChatService.instance.getOtherUid(join.roomId),
+                              width: 60,
+                              height: 60,
+                            ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  join.name ??
+                                      join.displayName ??
+                                      'No chat room name',
+                                ),
+                                Text(
+                                  'Single: ${join.single}, Group: ${join.group}, Open: ${join.open}',
+                                ),
+                                Text(
+                                  join.lastText ?? 'No last message',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Text(
+                                'Unread',
+                              ),
+                              Text(
+                                join.unreadMessageCount.toString(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 );
+
+            // ListTile(
+            //   title: Text(join.name ?? join.displayName ?? '...'),
+            //   subtitle: Text(join.lastText ?? join.lastUrl ?? '...'),
+            //   onTap: () async {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text(
+            //             'Customize your UI/UX to open chat room key: ${doc.key}'),
+            //       ),
+            //     );
+            //   },
+            // );
           },
         );
       },

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:super_example/screens/chat/chat_room.screen.dart';
+import 'package:super_library/custom_code/actions/super_library.dart';
+import 'package:super_library/custom_code/widgets/index.dart';
 
 class ChatRoomListTileWidget extends StatefulWidget {
   const ChatRoomListTileWidget({
@@ -73,49 +75,51 @@ class _ChatRoomListTileWidgetState extends State<ChatRoomListTileWidget> {
           },
         );
       },
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-        child: SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.name ??
-                            widget.displayName ??
-                            'No chat room name',
-                      ),
-                      Text(
-                        'Single: ${widget.single}, Group: ${widget.group}, Open: ${widget.open}',
-                      ),
-                      Text(
-                        widget.lastText ?? 'No last message',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+      child: SizedBox(
+        width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              if (widget.single == true)
+                UserAvatar(
+                  uid: ChatService.instance.getOtherUid(widget.roomId),
+                  width: 60,
+                  height: 60,
                 ),
-                Column(
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Unread',
+                    Text(
+                      widget.name ?? widget.displayName ?? 'No chat room name',
                     ),
                     Text(
-                      widget.unreadMessageCount.toString(),
+                      'Single: ${widget.single}, Group: ${widget.group}, Open: ${widget.open}',
+                    ),
+                    Text(
+                      widget.lastText ?? 'No last message',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    'Unread',
+                  ),
+                  Text(
+                    widget.unreadMessageCount.toString(),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
