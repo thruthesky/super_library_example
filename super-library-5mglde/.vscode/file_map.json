@@ -53,6 +53,18 @@
     "type": "W",
     "is_deleted": false
   },
+  "open_chat_room_list_view.dart": {
+    "old_identifier_name": "OpenChatRoomListView",
+    "new_identifier_name": "OpenChatRoomListView",
+    "type": "W",
+    "is_deleted": false
+  },
+  "test_widget.dart": {
+    "old_identifier_name": "TestWidget",
+    "new_identifier_name": "TestWidget",
+    "type": "W",
+    "is_deleted": false
+  },
   "user_avatar.dart": {
     "old_identifier_name": "UserAvatar",
     "new_identifier_name": "UserAvatar",

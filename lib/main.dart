@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:super_example/components/chat_room_list_tile_widget.dart';
+import 'package:super_example/components/open_chat_room_list_tile_widget.dart';
 import 'package:super_example/screens/chat/chat_room.list.screen.dart';
 // import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
@@ -38,22 +39,40 @@ void main() async {
   UserService.instance.collectionName = 'users';
 
   Component.userListTile = (user) => CustomTile(user: user);
-  Component.chatRoomListTile = (join) => ChatRoomListTileWidget(
-        roomId: join.roomId,
-        name: join.name,
-        iconUrl: join.iconUrl,
-        displayName: join.displayName,
-        photoUrl: join.photoUrl,
-        group: join.group,
-        single: join.single,
-        open: join.open,
-        lastMessageAt: join.lastMessageAt,
-        lastMessageDeleted: join.lastMessageDeleted,
-        lastText: join.lastText,
-        lastUrl: join.lastUrl,
-        lastProtocol: join.lastProtocol,
-        unreadMessageCount: join.unreadMessageCount,
-      );
+  // Component.chatRoomListTile = (join) => ChatRoomListTileWidget(
+  //       roomId: join.roomId,
+  //       name: join.name,
+  //       iconUrl: join.iconUrl,
+  //       displayName: join.displayName,
+  //       photoUrl: join.photoUrl,
+  //       group: join.group,
+  //       single: join.single,
+  //       open: join.open,
+  //       lastMessageAt: join.lastMessageAt,
+  //       lastMessageDeleted: join.lastMessageDeleted,
+  //       lastText: join.lastText,
+  //       lastUrl: join.lastUrl,
+  //       lastProtocol: join.lastProtocol,
+  //       unreadMessageCount: join.unreadMessageCount,
+  //     );
+
+  // Component.openChatRoomListTile = (room) => OpenChatRoomListTileWidget(
+  //       roomId: room.id,
+  //       name: room.name,
+  //       description: room.description,
+  //       iconUrl: room.iconUrl,
+  //       users: room.users,
+  //       blockedUsers: room.blockedUids,
+  //       masterUsers: room.masterUsers,
+  //       createdAt: room.createdAt,
+  //       updatedAt: room.updatedAt,
+  //       open: room.open,
+  //       openCreatedAt: room.openCreatedAt,
+  //       single: room.single,
+  //       group: room.group,
+  //       lastMessageAt: room.lastMessageAt,
+  //       allMembersCanInvite: room.allMembersCanInvite,
+  //     );
 
   runApp(const MyApp());
 }

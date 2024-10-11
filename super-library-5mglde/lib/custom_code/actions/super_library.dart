@@ -2,6 +2,7 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
+import '/flutter_flow/custom_functions.dart'; // Imports custom functions
 import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
@@ -376,13 +377,12 @@ class ChatRoom {
     description: 'description',
     iconUrl: 'iconUrl',
     users: 'users',
-    invitedUsers: 'invitedUsers',
-    rejectedUsers: 'rejectedUsers',
     blockedUsers: 'blockedUsers',
     masterUsers: 'masterUsers',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     open: 'open',
+    openCreatedAt: 'openCreatedAt',
     single: 'single',
     group: 'group',
     lastMessageAt: 'lastMessageAt',
@@ -428,6 +428,11 @@ class ChatRoom {
   /// [open] is true if the chat room is open chat
   bool open;
 
+  /// [openCreatedAt] is the time when the open chat room was creatd.
+  /// It is null if the chat room is not open chat.
+  /// It is used to sort the open chat rooms.
+  DateTime? openCreatedAt;
+
   /// [single] is true if the chat room is single chat or 1:1.
   bool single;
 
@@ -449,6 +454,7 @@ class ChatRoom {
     required this.description,
     this.iconUrl,
     required this.open,
+    this.openCreatedAt,
     required this.single,
     required this.group,
     required this.users,
@@ -482,6 +488,9 @@ class ChatRoom {
       description: json[field.description] ?? '',
       iconUrl: json[field.iconUrl],
       open: json[field.open],
+      openCreatedAt: json[field.openCreatedAt] is num
+          ? DateTime.fromMillisecondsSinceEpoch(json[field.openCreatedAt])
+          : DateTime.now(),
       single: json[field.single],
       group: json[field.group],
       users: json[field.users] is Map
@@ -511,6 +520,7 @@ class ChatRoom {
       field.description: description,
       field.iconUrl: iconUrl,
       field.open: open,
+      field.openCreatedAt: openCreatedAt,
       field.single: single,
       field.group: group,
       field.users: users,
@@ -561,6 +571,7 @@ class ChatRoom {
       if (description != null) field.description: description,
       if (iconUrl != null) field.iconUrl: iconUrl,
       field.open: open,
+      if (open) field.openCreatedAt: ServerValue.timestamp,
       field.single: single,
       field.group: group,
       // if (invitedUsers != null) field.invitedUsers: invitedUsers,
@@ -1049,6 +1060,7 @@ class ConfirmDialog extends StatelessWidget {
 class Component {
   static Widget Function(UserData)? userListTile;
   static Widget Function(ChatJoin)? chatRoomListTile;
+  static Widget Function(ChatRoom)? openChatRoomListTile;
 }
 
 /// Memory

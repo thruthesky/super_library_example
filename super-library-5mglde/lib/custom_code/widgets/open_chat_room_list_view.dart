@@ -11,11 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '/custom_code/actions/super_library.dart';
 
-/// ChatRoomListView
-///
-/// This widget displays a list of chat rooms
-class ChatRoomListView extends StatefulWidget {
-  const ChatRoomListView({
+class OpenChatRoomListView extends StatefulWidget {
+  const OpenChatRoomListView({
     super.key,
     this.width,
     this.height,
@@ -27,12 +24,14 @@ class ChatRoomListView extends StatefulWidget {
   final Future Function(String roomId)? onTap;
 
   @override
-  State<ChatRoomListView> createState() => _ChatRoomListViewState();
+  State<OpenChatRoomListView> createState() => _OpenChatRoomListViewState();
 }
 
-class _ChatRoomListViewState extends State<ChatRoomListView> {
+class _OpenChatRoomListViewState extends State<OpenChatRoomListView> {
   Query get query {
-    return ChatService.instance.joinsRef.orderByChild(ChatJoin.field.order);
+    return ChatService.instance.roomsRef
+        .orderByChild(ChatRoom.field.openCreatedAt)
+        .startAt(0);
   }
 
   @override
@@ -46,28 +45,25 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
-            final join = ChatJoin.fromSnapshot(doc);
+            final room = ChatRoom.fromSnapshot(doc);
 
-            return Component.chatRoomListTile?.call(join) ??
+            return Component.openChatRoomListTile?.call(room) ??
                 InkWell(
                   onTap: () async {
-                    final room = await ChatRoom.get(join.roomId);
-                    if (room?.users[myUid] == false) {
-                      if (context.mounted) {
-                        final re = await confirm(
-                          context: context,
-                          title: const Text('New chat'),
-                          message:
-                              const Text('Do you want to join this chat room?'),
-                        );
-                        if (re != true) {
-                          return;
-                        }
+                    if (room.users[myUid] == false) {
+                      final re = await confirm(
+                        context: context,
+                        title: const Text('New chat'),
+                        message:
+                            const Text('Do you want to join this chat room?'),
+                      );
+                      if (re != true) {
+                        return;
                       }
                     }
 
                     if (context.mounted) {
-                      widget.onTap?.call(join.roomId) ??
+                      widget.onTap?.call(room.id) ??
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
@@ -85,32 +81,13 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                       padding: const EdgeInsets.all(16.0),
                       child: Row(
                         children: [
-                          if (join.single == true)
-                            UserAvatar(
-                              uid:
-                                  ChatService.instance.getOtherUid(join.roomId),
-                              width: 60,
-                              height: 60,
-                            ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  join.name ??
-                                      join.displayName ??
-                                      'No chat room name',
-                                ),
-                                Text(
-                                  'Single: ${join.single}, Group: ${join.group}, Open: ${join.open}',
-                                ),
-                                Text(
-                                  join.lastText ?? 'No last message',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                Text(room.name),
                               ],
                             ),
                           ),
@@ -119,10 +96,10 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               const Text(
-                                'Unread',
+                                'Users',
                               ),
                               Text(
-                                join.unreadMessageCount.toString(),
+                                room.users.length.toString(),
                               ),
                             ],
                           ),

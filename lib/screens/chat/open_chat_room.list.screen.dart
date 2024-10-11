@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:super_example/screens/chat/chat_room.screen.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
 
 class OpenChatRoomListScreen extends StatefulWidget {
@@ -16,7 +17,16 @@ class _OpenChatRoomListScreenState extends State<OpenChatRoomListScreen> {
       appBar: AppBar(
         title: const Text('OpenChatRoomList'),
       ),
-      body: const ChatRoomListView(),
+      body: OpenChatRoomListView(
+        onTap: (roomId) => showGeneralDialog(
+          context: context,
+          pageBuilder: (_, __, ___) {
+            return ChatRoomScreen(
+              roomId: roomId,
+            );
+          },
+        ),
+      ),
     );
   }
 }

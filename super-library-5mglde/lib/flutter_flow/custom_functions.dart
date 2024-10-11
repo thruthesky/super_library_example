@@ -1,4 +1,3 @@
-// Automatic FlutterFlow imports
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -6,15 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '/flutter_flow/lat_lng.dart';
-import '/flutter_flow/place.dart';
-import '/flutter_flow/uploaded_file.dart';
-import '/flutter_flow/custom_functions.dart';
+import 'lat_lng.dart';
+import 'place.dart';
+import 'uploaded_file.dart';
 
 String endRange(String str) {
-  /// MODIFY CODE ONLY BELOW THIS LINE
-
   return '$str\uf8ff';
-
-  /// MODIFY CODE ONLY ABOVE THIS LINE
 }

@@ -5,48 +5,49 @@ import 'package:super_example/screens/chat/chat_room.screen.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
 
-class ChatRoomListTileWidget extends StatefulWidget {
-  const ChatRoomListTileWidget({
+class OpenChatRoomListTileWidget extends StatefulWidget {
+  const OpenChatRoomListTileWidget({
     super.key,
     required this.roomId,
     required this.name,
+    required this.description,
     required this.iconUrl,
-    required this.displayName,
-    required this.photoUrl,
-    required this.group,
-    required this.single,
+    required this.users,
+    required this.blockedUsers,
+    required this.masterUsers,
+    required this.createdAt,
+    required this.updatedAt,
     required this.open,
+    required this.openCreatedAt,
+    required this.single,
+    required this.group,
     required this.lastMessageAt,
-    required this.lastMessageDeleted,
-    required this.lastText,
-    required this.lastUrl,
-    required this.lastProtocol,
-    required this.unreadMessageCount,
+    required this.allMembersCanInvite,
   });
 
   final String roomId;
-  final String? name;
+  final String name;
+  final String? description;
   final String? iconUrl;
-  final String? displayName;
-  final String? photoUrl;
-
-  final bool? group;
-  final bool? single;
-  final bool? open;
-
+  final Map<String, bool> users;
+  final List<String>? blockedUsers;
+  final List<String> masterUsers;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final bool open;
+  final DateTime? openCreatedAt;
+  final bool single;
+  final bool group;
   final DateTime? lastMessageAt;
-  final bool? lastMessageDeleted;
-  final String? lastText;
-  final String? lastUrl;
-  final String? lastProtocol;
-
-  final int unreadMessageCount;
+  final bool allMembersCanInvite;
 
   @override
-  State<ChatRoomListTileWidget> createState() => _ChatRoomListTileWidgetState();
+  State<OpenChatRoomListTileWidget> createState() =>
+      _OpenChatRoomListTileWidgetState();
 }
 
-class _ChatRoomListTileWidgetState extends State<ChatRoomListTileWidget> {
+class _OpenChatRoomListTileWidgetState
+    extends State<OpenChatRoomListTileWidget> {
   @override
   void setState(VoidCallback callback) {
     super.setState(callback);
@@ -66,14 +67,13 @@ class _ChatRoomListTileWidgetState extends State<ChatRoomListTileWidget> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        final room = await ChatRoom.get(widget.roomId);
-        if (room?.users[myUid] == false) {
+        if (widget.users[myUid] == false) {
           if (context.mounted) {
             final re = await confirm(
               context: context,
               title: const Text('New chat'),
-              message: Text(
-                  'Do you want to join this chat room - ${widget.name ?? widget.displayName}?'),
+              message:
+                  Text('Do you want to join this chat room - ${widget.name}?'),
             );
             if (re != true) {
               return;
@@ -109,16 +109,9 @@ class _ChatRoomListTileWidgetState extends State<ChatRoomListTileWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.name ?? widget.displayName ?? 'No chat room name',
-                    ),
+                    Text(widget.name),
                     Text(
                       'Single: ${widget.single}, Group: ${widget.group}, Open: ${widget.open}',
-                    ),
-                    Text(
-                      widget.lastText ?? 'No last message',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -128,11 +121,9 @@ class _ChatRoomListTileWidgetState extends State<ChatRoomListTileWidget> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Text(
-                    'Unread',
+                    'Users:',
                   ),
-                  Text(
-                    widget.unreadMessageCount.toString(),
-                  ),
+                  Text('${widget.users.length}'),
                 ],
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:super_example/screens/chat/chat_room.screen.dart';
 import 'package:super_example/screens/chat/chat_room_edit_dialog.dart';
 
 import 'package:super_library/custom_code/widgets/chat_room_list_view.dart';
@@ -26,10 +27,17 @@ class ChatRoomListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
+      body: Center(
         child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: ChatRoomListView(),
+          padding: const EdgeInsets.all(8.0),
+          child: ChatRoomListView(
+            onTap: (roomId) => showGeneralDialog(
+              context: context,
+              pageBuilder: (_, __, ___) {
+                return ChatRoomScreen(roomId: roomId);
+              },
+            ),
+          ),
         ),
       ),
     );
