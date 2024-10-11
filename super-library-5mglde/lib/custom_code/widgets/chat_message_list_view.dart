@@ -47,6 +47,7 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
     super.initState();
 
     ChatService.instance.join(roomId);
+    ChatService.instance.enter(roomId);
 
     // Listen and update the chat room data in memory. So, it can be used in
     // other widgets. By doing this, the 'users' field of the chat room is

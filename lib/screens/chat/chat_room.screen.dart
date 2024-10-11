@@ -35,7 +35,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               await showGeneralDialog(
                 context: context,
                 pageBuilder: (context, a1, a2) {
-                  return const ChatInviteUserScreen();
+                  return ChatInviteUserScreen(
+                    roomId: widget.roomId,
+                  );
                 },
               );
             },

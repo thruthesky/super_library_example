@@ -95,6 +95,8 @@ class ChatJoin {
     iconUrl: 'iconUrl',
     displayName: 'displayName',
     photoUrl: 'photoUrl',
+    inviterUid: 'inviterUid',
+    inviterName: 'inviterName',
   );
 
   final String roomId;
@@ -126,6 +128,11 @@ class ChatJoin {
   bool get single => singleOrder != null;
   bool get open => openOrder != null;
 
+  // Inviter's uid and name when the user is invited to the chat room.
+  // Use this to display who invited who.
+  String? inviterUid;
+  String? inviterName;
+
   ChatJoin({
     required this.roomId,
     required this.singleOrder,
@@ -143,6 +150,8 @@ class ChatJoin {
     this.iconUrl,
     this.displayName,
     this.photoUrl,
+    this.inviterUid,
+    this.inviterName,
   });
 
   factory ChatJoin.fromSnapshot(DataSnapshot snapshot) {
@@ -170,6 +179,8 @@ class ChatJoin {
       iconUrl: json[field.iconUrl],
       displayName: json[field.displayName],
       photoUrl: json[field.photoUrl],
+      inviterUid: json[field.inviterUid],
+      inviterName: json[field.inviterName],
     );
   }
 
@@ -191,6 +202,8 @@ class ChatJoin {
       field.iconUrl: iconUrl,
       field.displayName: displayName,
       field.photoUrl: photoUrl,
+      field.inviterUid: inviterUid,
+      field.inviterName: inviterName,
     };
   }
 
@@ -983,6 +996,59 @@ class ChatService {
     //   room,
     // protocol: protocol ?? ChatProtocol.join,
     // );
+  }
+
+  /// Invite a user to a chat room
+  ///
+  /// Only the group chat room can invite a user.
+  Future<void> invite({
+    required String roomId,
+    required String otherUid,
+  }) async {
+    dog("Inviting into roomId: $roomId, otherUid: $otherUid");
+    // Prepare
+    const f = ChatJoin.field;
+    ChatRoom? room = await ChatRoom.get(roomId);
+    if (room == null) {
+      throw SuperLibraryException(
+          'chat-room-join', 'Group chat room not found');
+    }
+    UserData my = await UserData.get(myUid) as UserData;
+
+    final timestamp = await getDatabaseServerTimestamp();
+    final negativeTimestamp = -1 * timestamp;
+    final joinValues = {
+      room.ref.child('users').child(otherUid).path: false,
+
+      // Should be in top in order
+      // This will make the newly joined room at top.
+      'chat/joins/$otherUid/${room.id}/${f.order}': negativeTimestamp,
+      if (room.group)
+        'chat/joins/$otherUid/${room.id}/${f.groupOrder}': negativeTimestamp,
+      if (room.open)
+        'chat/joins/$otherUid/${room.id}/${f.openOrder}': negativeTimestamp,
+
+      // Chat room information
+      if (room.name.isNotEmpty)
+        'chat/joins/$otherUid/${room.id}/${f.name}': room.name,
+
+      // Add the inviter's information
+      'chat/joins/$otherUid/${room.id}/${f.inviterUid}': my.uid,
+      'chat/joins/$otherUid/${room.id}/${f.inviterName}': my.displayName,
+    };
+    dog("Inviting: $joinValues");
+    await database.ref().update(joinValues);
+  }
+
+  /// Adjust chat data upon entering the chat room
+  Future<void> enter(String roomId) async {
+    const f = ChatJoin.field;
+    final enterValues = {
+      // TODO: don't update if these are not existing.
+      'chat/joins/$myUid/$roomId/${f.inviterUid}': null,
+      'chat/joins/$myUid/$roomId/${f.inviterName}': null,
+    };
+    await database.ref().update(enterValues);
   }
 }
 

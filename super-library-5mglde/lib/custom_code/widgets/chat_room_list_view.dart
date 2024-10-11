@@ -106,11 +106,18 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                 Text(
                                   'Single: ${join.single}, Group: ${join.group}, Open: ${join.open}',
                                 ),
-                                Text(
-                                  join.lastText ?? 'No last message',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                if (join.inviterUid != null &&
+                                    join.inviterUid!.isNotEmpty)
+                                  Text(
+                                    'Invited by: ${join.inviterName}',
+                                  ),
+                                if (join.lastText != null &&
+                                    join.lastText!.isNotEmpty)
+                                  Text(
+                                    join.lastText!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                               ],
                             ),
                           ),
