@@ -18,10 +18,12 @@ class ChatRoomListView extends StatefulWidget {
     super.key,
     this.width,
     this.height,
+    this.open,
   });
 
   final double? width;
   final double? height;
+  final bool? open;
 
   @override
   State<ChatRoomListView> createState() => _ChatRoomListViewState();
@@ -43,7 +45,20 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
 
             return Component.chatRoomListTile?.call(join) ??
                 InkWell(
-                  onTap: () {
+                  onTap: () async {
+                    final room = await ChatRoom.get(join.roomId);
+                    if (room?.users[myUid] == false) {
+                      final re = await confirm(
+                        context: context,
+                        title: const Text('New chat'),
+                        message:
+                            const Text('Do you want to join this chat room?'),
+                      );
+                      if (re != true) {
+                        return;
+                      }
+                    }
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(

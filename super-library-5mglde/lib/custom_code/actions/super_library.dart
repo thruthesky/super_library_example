@@ -903,6 +903,8 @@ class ChatService {
   Future<void> join(String roomId) async {
     dog("Joining into roomId: $roomId");
 
+    // Prepare
+    const f = ChatJoin.field;
     ChatRoom? room = await ChatRoom.get(roomId);
 
     if (room == null) {
@@ -915,15 +917,17 @@ class ChatService {
         throw SuperLibraryException(
             'chat-room-join', 'Group chat room not found');
       }
-    } else if (room.joined) {
-      // Already joined. just return.
+    } else if (room.joined &&
+        room.users.containsKey(myUid) &&
+        room.users[myUid] == true) {
+      // Already joined and accepted the invitation, then just return.
       return;
     } else {
       // Chat room exists but not joined yet.
     }
 
     // Hereby, [room] is ready.
-    dog("Room: $room");
+    dog("continue the join work for the room now: $room");
 
     final timestamp = await getDatabaseServerTimestamp();
     final negativeTimestamp = -1 * timestamp;
@@ -931,25 +935,33 @@ class ChatService {
     // int timestamp = await getDatabaseServerTimestamp();
     // final order = timestamp * -1; // int.parse("-1$timestamp");
     final joinValues = {
-      // Incase there is an invitation, remove the invitation
-      // TODO reimplement
-      // invitedUserRef(myUid!).child(room.id).path: null,
-      // In case, invitation was mistakenly rejected
-      // TODO reimplement
-      // rejectedUserRef(myUid!).child(room.id).path: null,
       // Add uid in users
       room!.ref.child('users').child(myUid).path: true,
 
       // Should be in top in order
       // This will make the newly joined room at top.
-      'chat/joins/$myUid/${room.id}/order': negativeTimestamp,
+      'chat/joins/$myUid/${room.id}/${f.order}': negativeTimestamp,
       if (room.single)
-        'chat/joins/$myUid/${room.id}/singleOrder': negativeTimestamp,
+        'chat/joins/$myUid/${room.id}/${f.singleOrder}': negativeTimestamp,
       if (room.group)
-        'chat/joins/$myUid/${room.id}/groupOrder': negativeTimestamp,
+        'chat/joins/$myUid/${room.id}/${f.groupOrder}': negativeTimestamp,
       if (room.open)
-        'chat/joins/$myUid/${room.id}/openOrder': negativeTimestamp,
+        'chat/joins/$myUid/${room.id}/${f.openOrder}': negativeTimestamp,
+
+      // Chat room information
+      if (room.name.isNotEmpty)
+        'chat/joins/$myUid/${room.id}/${f.name}': room.name,
     };
+    // If it's single chat, add the other user information to my room's join
+    if (room.single == true) {
+      final other = await UserData.get(getOtherUid(room.id));
+      if (other != null) {
+        joinValues.addAll({
+          'chat/joins/$myUid/${room.id}/${f.displayName}': other.displayName,
+          'chat/joins/$myUid/${room.id}/${f.photoUrl}': other.photoUrl,
+        });
+      }
+    }
 
     dog("Joining: $joinValues");
 
@@ -960,6 +972,76 @@ class ChatService {
     //   room,
     // protocol: protocol ?? ChatProtocol.join,
     // );
+  }
+}
+
+/// Confirm dialog
+///
+/// It requires build context.
+///
+/// Return true if the user taps on the 'Yes' button.
+///
+/// TODO: support custom design.
+Future<bool?> confirm({
+  required BuildContext context,
+  required Widget title,
+  Widget? subtitle,
+  required Widget message,
+}) {
+  return
+      //  HouseService.instance.confirmDialog
+      //         ?.call(context: context, title: title, message: message) ??
+      showDialog<bool?>(
+    context: context,
+    builder: (BuildContext context) {
+      return ConfirmDialog(
+        title: title,
+        subtitle: subtitle,
+        message: message,
+      );
+    },
+  );
+}
+
+/// Confirm dialog widget
+class ConfirmDialog extends StatelessWidget {
+  const ConfirmDialog({
+    super.key,
+    required this.title,
+    this.subtitle,
+    required this.message,
+  });
+
+  final Widget title;
+  final Widget? subtitle;
+  final Widget message;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: title,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (subtitle != null) ...[
+            subtitle!,
+            const SizedBox(height: 24),
+          ],
+          message,
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('no'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('yes'),
+        ),
+      ],
+    );
   }
 }
 

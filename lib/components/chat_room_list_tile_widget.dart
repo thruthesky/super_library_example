@@ -65,7 +65,19 @@ class _ChatRoomListTileWidgetState extends State<ChatRoomListTileWidget> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        final room = await ChatRoom.get(widget.roomId);
+        if (room?.users[myUid] == false) {
+          final re = await confirm(
+            context: context,
+            title: const Text('New chat'),
+            message: Text(
+                'Do you want to join this chat room - ${widget.name ?? widget.displayName}?'),
+          );
+          if (re != true) {
+            return;
+          }
+        }
         showGeneralDialog(
           context: context,
           pageBuilder: (_, __, ___) {

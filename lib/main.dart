@@ -6,6 +6,7 @@ import 'package:super_example/components/chat_room_list_tile_widget.dart';
 import 'package:super_example/screens/chat/chat_room.list.screen.dart';
 // import 'package:super_example/chat_room.screen.dart';
 import 'package:super_example/firebase_options.dart';
+import 'package:super_example/screens/chat/open_chat_room.list.screen.dart';
 import 'package:super_example/screens/user/custom.user_list_view.screen.dart';
 import 'package:super_example/screens/user/custom_component.user_list_view.screen.dart';
 import 'package:super_example/screens/user/horizontal.custom_component.user_list_view.screen.dart';
@@ -325,7 +326,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       return const ChatRoomListScreen();
                     },
                   ),
-                  child: const Text('My chat room list view'),
+                  child: const Text('My chat room list'),
+                ),
+                ElevatedButton(
+                  onPressed: () => showGeneralDialog(
+                    context: context,
+                    pageBuilder: (_, __, ___) {
+                      return const OpenChatRoomListScreen();
+                    },
+                  ),
+                  child: const Text('Open chat room list'),
                 ),
               ],
             ),

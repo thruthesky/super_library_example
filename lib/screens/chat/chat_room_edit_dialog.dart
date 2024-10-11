@@ -64,26 +64,36 @@ class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
                 ),
               ],
             ),
-            ElevatedButton(
-              onPressed: () async {
-                final roomId = await createChatRoom(
-                  nameController.text,
-                  descriptionController.text,
-                  null,
-                  open,
-                  canInvite,
-                );
-                Navigator.of(context).pop();
-                showGeneralDialog(
-                  context: context,
-                  pageBuilder: (_, __, ___) {
-                    return ChatRoomScreen(
-                      roomId: roomId,
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final roomId = await createChatRoom(
+                      nameController.text,
+                      descriptionController.text,
+                      null,
+                      open,
+                      canInvite,
+                    );
+                    Navigator.of(context).pop();
+                    showGeneralDialog(
+                      context: context,
+                      pageBuilder: (_, __, ___) {
+                        return ChatRoomScreen(
+                          roomId: roomId,
+                        );
+                      },
                     );
                   },
-                );
-              },
-              child: const Text('Save'),
+                  child: const Text('Save'),
+                ),
+              ],
             ),
           ],
         ),
