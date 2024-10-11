@@ -1,4 +1,6 @@
 // Automatic FlutterFlow imports
+import 'package:firebase_database/firebase_database.dart';
+
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
@@ -16,8 +18,8 @@ Future<String> createChatRoom(
   bool? canInvite,
 ) async {
   // Add your function code here!
-  final ref = await ChatRoom.create(
-    users: {},
+  final DatabaseReference ref = await ChatRoom.create(
+    users: <String, bool>{},
     name: name,
     description: description,
     iconUrl: iconUrl,
