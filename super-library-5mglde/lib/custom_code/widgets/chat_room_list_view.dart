@@ -31,7 +31,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
   @override
   Widget build(BuildContext context) {
     return ValueListView(
-      query: ChatService.instance.joinsRef,
+      query: ChatService.instance.joinsRef.orderByChild(ChatJoin.field.order),
       builder: (snapshot, fetchMore) {
         return ListView.separated(
           itemCount: snapshot.docs.length,

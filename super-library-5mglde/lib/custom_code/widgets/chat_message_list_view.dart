@@ -17,30 +17,28 @@ import '/custom_code/actions/super_library.dart';
 ///
 /// If this widget is shown to screen, it is considered that the user has
 /// joined the chat room. So, it has the logic of joining the chat room.
+///
+/// [roomId] can be the other user uid in 1:1 chat. or it can be a group chat
+/// room id or single chat room id.
 class ChatMessageListView extends StatefulWidget {
   const ChatMessageListView({
     super.key,
     this.width,
     this.height,
-    this.otherUid,
-    this.roomId,
+    required this.roomId,
   });
 
   final double? width;
   final double? height;
-  final String? otherUid;
-  final String? roomId;
+  final String roomId;
 
   @override
   State<ChatMessageListView> createState() => _ChatMessageListViewState();
 }
 
 class _ChatMessageListViewState extends State<ChatMessageListView> {
-  String get roomId =>
-      widget.roomId ??
-      ChatService.instance.makeSingleChatRoomId(
-        myUid,
-        widget.otherUid,
+  String get roomId => ChatService.instance.mayConvertSingleChatRoomId(
+        widget.roomId,
       );
 
   @override

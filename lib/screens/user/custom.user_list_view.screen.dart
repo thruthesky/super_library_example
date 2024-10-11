@@ -109,7 +109,7 @@ class _CustomTileState extends State<CustomTile> {
                     context: context,
                     pageBuilder: (_, __, ___) {
                       return ChatRoomScreen(
-                        otherUid: widget.user.uid,
+                        roomId: widget.user.uid,
                       );
                     },
                   );

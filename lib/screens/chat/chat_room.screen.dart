@@ -11,12 +11,10 @@ class ChatRoomScreen extends StatefulWidget {
   static const String routeName = '/ChatRoom';
   const ChatRoomScreen({
     super.key,
-    this.otherUid,
-    this.roomId,
+    required this.roomId,
   });
 
-  final String? otherUid;
-  final String? roomId;
+  final String roomId;
 
   @override
   State<ChatRoomScreen> createState() => _ChatRoomScreenState();
@@ -39,7 +37,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             children: <Widget>[
               Expanded(
                 child: ChatMessageListView(
-                  otherUid: widget.otherUid,
                   roomId: widget.roomId,
                 ),
               ),
@@ -51,7 +48,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     suffixIcon: IconButton(
                       onPressed: () async {
                         await sendChatMessage(
-                          widget.otherUid,
                           widget.roomId,
                           textController.text,
                         );

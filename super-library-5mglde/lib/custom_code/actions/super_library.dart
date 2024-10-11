@@ -642,17 +642,12 @@ class ChatService {
       database.ref('chat/rooms').child(roomId);
 
   Future sendMessage({
-    String? receiverUid,
-    String? roomId,
+    required String roomId,
     String? text,
     String? photoUrl,
   }) async {
     // Add your function code here!
-    assert(
-      receiverUid != null || roomId != null,
-      "receiverUid or roomId must be provided",
-    );
-
+    roomId = mayConvertSingleChatRoomId(roomId);
     // Get the cached user data
     final my = await UserData.get(myUid);
 
@@ -664,7 +659,7 @@ class ChatService {
       createdAt: ServerValue.timestamp,
       text: text,
     );
-    roomId = roomId ?? makeSingleChatRoomId(myUid, receiverUid!);
+
     final messageRef = messagesRef(roomId).push();
     await messageRef.set(message);
 
@@ -791,6 +786,42 @@ class ChatService {
     final arr = [loginUid, otherUid];
     arr.sort();
     return arr.join(joinSeparator);
+  }
+
+  /// Returns the chat room id from the other user uid.
+  ///
+  /// If the [otherUid] is not a uid, it should be the chat room id. then, it
+  /// will return it as it is.
+  ///
+  /// If the [otherUid] is a uid, it will return the single chat room id.
+  ///
+  /// Why?
+  /// - For listing chat messages and seding a chat message, it needs to know
+  /// the chat room id.
+  /// - To make it clean code, it will automatically convert the other uid into
+  /// chat room id. So, the developer can simply pass the other user's uid or
+  /// chat room id.
+  String mayConvertSingleChatRoomId(String otherUid) {
+    // If it's a node key, return it as it is.
+    if (otherUid.startsWith('-')) {
+      return otherUid;
+    }
+    // If it's a node key, return it as it is.
+    if (otherUid.length == 20) {
+      return otherUid;
+    }
+    // If it's a single chat room id, return it as it is.
+    if (isSingleChatRoom(otherUid)) {
+      return otherUid;
+    }
+    // If it's a UID, then convert it to single chat room id.
+    if (otherUid.length == 28) {
+      return makeSingleChatRoomId(myUid, otherUid);
+    }
+
+    // If it does not look like a node key, nor a single chat room id, nor a UID,
+    // then return it as it is.
+    return otherUid;
   }
 
   /// [isSingleChatRoom] returns true if the room id is single chat room.
