@@ -19,12 +19,14 @@ class UserListView extends StatefulWidget {
     this.height,
     this.horizontalScroll,
     this.reverse,
+    this.onTap,
   });
 
   final double? width;
   final double? height;
   final bool? horizontalScroll;
   final bool? reverse;
+  final Future Function(String userId)? onTap;
 
   @override
   State<UserListView> createState() => _UserListViewState();
@@ -59,6 +61,7 @@ class _UserListViewState extends State<UserListView> {
                   ),
                   title: Text(user.displayName),
                   subtitle: Text(user.createdAt.toDateTime.short),
+                  onTap: () => widget.onTap?.call(user.uid),
                 );
           },
         );

@@ -1304,6 +1304,11 @@ class UserData {
     };
   }
 
+  @override
+  String toString() {
+    return 'UserData(${toJson()})';
+  }
+
   factory UserData.fromJson(Map<dynamic, dynamic> json, String key) {
     return UserData(
       uid: key,

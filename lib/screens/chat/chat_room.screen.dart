@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:super_example/screens/chat/chat_invite_user.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
@@ -28,6 +29,19 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ChatRoom'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await showGeneralDialog(
+                context: context,
+                pageBuilder: (context, a1, a2) {
+                  return const ChatInviteUserScreen();
+                },
+              );
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: Center(
         child: Padding(

@@ -38,7 +38,7 @@ void main() async {
 
   UserService.instance.collectionName = 'users';
 
-  Component.userListTile = (user) => CustomTile(user: user);
+  // Component.userListTile = (user) => CustomTile(user: user);
   // Component.chatRoomListTile = (join) => ChatRoomListTileWidget(
   //       roomId: join.roomId,
   //       name: join.name,
