@@ -46,6 +46,7 @@ class _HorizontalUserListViewScreenState
             height: 106,
             child: UserListView(
               horizontalScroll: true,
+              reverse: true,
             ),
           ),
         ],

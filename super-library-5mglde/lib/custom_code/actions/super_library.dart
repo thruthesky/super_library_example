@@ -34,11 +34,51 @@ String get myUid {
   return fa.FirebaseAuth.instance.currentUser!.uid;
 }
 
+/// AuthStateChanges
+///
+/// Use this widget to listen to the login user's authentication state changes
+/// and rebuild the UI accordingly. It simply wraps
+/// [FirebaseAuth.instance.authStateChanges] insdie a [StreamBuilder].
+///
+/// [builder] is the UI builder callback that will be called when the user's
+/// authentication state changes.
+///
+class AuthStateChanges extends StatelessWidget {
+  const AuthStateChanges({super.key, required this.builder});
+
+  final Widget Function(fa.User?) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      // To reduce the flickering
+      initialData: fa.FirebaseAuth.instance.currentUser,
+      stream: fa.FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            snapshot.hasData == false) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text('Something went wrong'),
+          );
+        }
+
+        final user = snapshot.data;
+        return builder(user);
+      },
+    );
+  }
+}
+
 /// Realtime database chat join model
 class ChatJoin {
   /// For field names
   static const field = (
-    joinedAt: 'joinedAt',
     singleOrder: 'singleOrder',
     groupOrder: 'groupOrder',
     openOrder: 'openOrder',
@@ -57,7 +97,6 @@ class ChatJoin {
   );
 
   final String roomId;
-  final int joinedAt;
   final int? singleOrder;
   final int? groupOrder;
   final int? openOrder;
@@ -88,7 +127,6 @@ class ChatJoin {
 
   ChatJoin({
     required this.roomId,
-    required this.joinedAt,
     required this.singleOrder,
     required this.groupOrder,
     required this.openOrder,
@@ -113,9 +151,6 @@ class ChatJoin {
   factory ChatJoin.fromJson(Map<dynamic, dynamic> json, String roomId) {
     return ChatJoin(
       roomId: roomId,
-      joinedAt: json[field.joinedAt] is ServerValue
-          ? DateTime.now().millisecondsSinceEpoch
-          : json[field.joinedAt],
       singleOrder: json[field.singleOrder],
       groupOrder: json[field.groupOrder],
       openOrder: json[field.openOrder],
@@ -140,7 +175,6 @@ class ChatJoin {
   Map<String, dynamic> toJson() {
     return {
       'roomId': roomId,
-      field.joinedAt: joinedAt,
       field.singleOrder: singleOrder,
       field.groupOrder: groupOrder,
       field.openOrder: openOrder,
@@ -256,7 +290,7 @@ class ChatMessage {
         ? null
         : Map<String, dynamic>.from(json[field.replyTo] as Map);
 
-    dog('ChatMessage.fromJson: $json');
+    // dog('ChatMessage.fromJson: $json');
     return ChatMessage(
       id: id,
       roomId: roomId,
@@ -530,7 +564,7 @@ class ChatRoom {
       field.single: single,
       field.group: group,
       // if (invitedUsers != null) field.invitedUsers: invitedUsers,
-      field.users: [],
+      field.users: users,
       field.masterUsers: [myUid],
       field.allMembersCanInvite: allMembersCanInvite,
       field.createdAt: ServerValue.timestamp,
@@ -559,7 +593,10 @@ class ChatRoom {
       open: false,
       single: true,
       id: ChatService.instance.makeSingleChatRoomId(myUid, otherUid),
-      users: {},
+      users: {
+        myUid: true,
+        otherUid: false,
+      },
       masterUsers: [myUid],
     );
 
@@ -682,6 +719,7 @@ class ChatService {
     final Map<String, Object?> updates = {};
     const f = ChatJoin.field;
     for (String uid in room.userUids) {
+      dog('sendMessage() user uid: $uid');
       if (uid == myUid) {
         // If it's my join data, the order must not have -11 infront since I
         // have already read that chat room. (I am in the chat room)
@@ -856,15 +894,14 @@ class ChatService {
   ///
   ///
   /// Where:
-  /// - It is called after the chat room created.
-  /// - It is called after the user accepted the invitation.
+  /// - It is called in chat message list view.
   ///
   /// Logic:
-  /// - It update the room.users with current user's uid. It's called as
-  /// call-by-reference. So, the parent can use the updated room.users which
-  /// includes the current user's uid.
+  /// - It update the room.users with current user's uid.
+  /// - If it's single chat room, it will add the other user's uid in the
+  ///   room.users field with requireConsent: true.
   Future<void> join(String roomId) async {
-    dog("Joining");
+    dog("Joining into roomId: $roomId");
 
     ChatRoom? room = await ChatRoom.get(roomId);
 
@@ -902,8 +939,7 @@ class ChatService {
       // rejectedUserRef(myUid!).child(room.id).path: null,
       // Add uid in users
       room!.ref.child('users').child(myUid).path: true,
-      // Add in chat joins
-      'chat/joins/$myUid/${room.id}/joinedAt': ServerValue.timestamp,
+
       // Should be in top in order
       // This will make the newly joined room at top.
       'chat/joins/$myUid/${room.id}/order': negativeTimestamp,
@@ -924,6 +960,36 @@ class ChatService {
     //   room,
     // protocol: protocol ?? ChatProtocol.join,
     // );
+  }
+}
+
+/// Component holder class.
+class Component {
+  static Widget Function(UserData)? userListTile;
+  static Widget Function(ChatJoin)? chatRoomListTile;
+}
+
+/// Memory
+///
+/// A static memory class to store data in memory
+///
+/// Note that any data that might be re-used must be stored in the memory (like
+/// user data, chat room data, etc) with this Memeory class to not fetch the
+/// data again and again. And this will help to reduce flickering and improve
+/// the performance.
+///
+/// Usage:
+/// ```dart
+/// Memory.set('key', 'value);
+/// final value = Memory.get<String>('key');
+/// ```
+class Memory {
+  static final Map<String, dynamic> _data = {};
+
+  static T? get<T>(String key) => _data[key] as T?;
+
+  static void set<T>(String key, T value) {
+    _data[key] = value;
   }
 }
 
@@ -1110,71 +1176,6 @@ class ValueListView extends StatelessWidget {
   }
 }
 
-/// Memory
-///
-/// A static memory class to store data in memory
-///
-/// Note that any data that might be re-used must be stored in the memory (like
-/// user data, chat room data, etc) with this Memeory class to not fetch the
-/// data again and again. And this will help to reduce flickering and improve
-/// the performance.
-///
-/// Usage:
-/// ```dart
-/// Memory.set('key', 'value);
-/// final value = Memory.get<String>('key');
-/// ```
-class Memory {
-  static final Map<String, dynamic> _data = {};
-
-  static T? get<T>(String key) => _data[key] as T?;
-
-  static void set<T>(String key, T value) {
-    _data[key] = value;
-  }
-}
-
-/// AuthStateChanges
-///
-/// Use this widget to listen to the login user's authentication state changes
-/// and rebuild the UI accordingly. It simply wraps
-/// [FirebaseAuth.instance.authStateChanges] insdie a [StreamBuilder].
-///
-/// [builder] is the UI builder callback that will be called when the user's
-/// authentication state changes.
-///
-class AuthStateChanges extends StatelessWidget {
-  const AuthStateChanges({super.key, required this.builder});
-
-  final Widget Function(fa.User?) builder;
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      // To reduce the flickering
-      initialData: fa.FirebaseAuth.instance.currentUser,
-      stream: fa.FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            snapshot.hasData == false) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return const Center(
-            child: Text('Something went wrong'),
-          );
-        }
-
-        final user = snapshot.data;
-        return builder(user);
-      },
-    );
-  }
-}
-
 /// Realtime database user modeling class
 class UserData {
   ///
@@ -1273,7 +1274,7 @@ class UserService {
 
   init() {
     dog('UserService.init:');
-    mirror();
+    _mirrorUserData();
     initialized = true;
   }
 
@@ -1291,7 +1292,7 @@ class UserService {
   fs.DocumentReference doc(String uid) {
     final ref = firestore.collection(collectionName).doc(uid);
 
-    dog('path of ref: ${ref.path}');
+    // dog('path of ref: ${ref.path}');
     return ref;
   }
 
@@ -1309,7 +1310,7 @@ class UserService {
   DatabaseReference databaseUserRef(String uid) {
     final ref = database.ref().child(collectionName).child(uid);
 
-    dog('path of ref: ${ref.path}');
+    // dog('path of ref: ${ref.path}');
     return ref;
   }
 
@@ -1325,22 +1326,27 @@ class UserService {
   StreamSubscription<fa.User?>? mirrorSubscription;
   StreamSubscription? userDocumentSubscription;
 
-  /// Mirror user's displayName, photoURL, and created_time only from Firestore to Database
+  /// Mirror user's displayName, photoURL, and created_time only from Firestore
+  /// to Database.
+  ///
+  /// * It also copy the 'display_name` into 'dispaly_name_lowercase' for the
+  /// * case-insensitive search.
+  ///
   ///
   /// Why?
   /// The super library is using Firebase Realtime Database for chat and other
   /// functionalities. But the user's displayName and photoURL are stored in
   /// Firestore by FlutterFlow.
-  mirror() {
+  _mirrorUserData() {
     mirrorSubscription?.cancel();
     mirrorSubscription =
         fa.FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user == null) {
-        dog('Super library -> mirror() -> User is not signed in. So, return');
+        dog('Super library -> _mirrorUserData() -> User is not signed in. So, return');
         return;
       }
 
-      dog('Super library -> mirror() -> User is signed in. So, mirror the user data');
+      dog('Super library -> _mirrorUserData() -> User is signed in. So, mirror the user data');
 
       userDocumentSubscription?.cancel();
       userDocumentSubscription = doc(user.uid).snapshots().listen((snapshot) {
@@ -1348,40 +1354,46 @@ class UserService {
           return;
         }
 
-        final dataSnapshot = snapshot.data() as Map<String, dynamic>;
+        // Get user data
+        final Map<String, dynamic> data =
+            snapshot.data() as Map<String, dynamic>;
 
-        if (dataSnapshot.keys.contains('blockedUsers') == true) {
-          myBlockedUsersRef.set(dataSnapshot['blockedUsers']);
+        // TODO: improve the logic. Check if the blockedUsers has changed, then, update it.
+        if (data.keys.contains('blockedUsers') == true) {
+          myBlockedUsersRef.set(data['blockedUsers']);
           return;
         }
 
-        // TODO add a validation that will check if the field exists
+        // Copy the 'display_name' into 'dispaly_name_lowercase' for the
+        // case-insensitive search.
+        if (data['display_name'] != data['display_name_lowercase']) {
+          snapshot.reference.update({
+            'display_name_lowercase':
+                (data['display_name'] as String).toLowerCase(),
+          });
+        }
+
+        // Mirror user data to database.
+        // If a field does exist in the firestore, then save it as null in the
+        // database. So, it will be removed from the database.
         int stamp;
-        if (dataSnapshot['created_time'] != null &&
-            dataSnapshot['created_time'] is Timestamp) {
-          stamp = (dataSnapshot['created_time'] as Timestamp)
-              .millisecondsSinceEpoch;
+        if (data['created_time'] != null && data['created_time'] is Timestamp) {
+          stamp = (data['created_time'] as Timestamp).millisecondsSinceEpoch;
         } else {
           stamp = DateTime.now().millisecondsSinceEpoch;
         }
-        Map<String, dynamic> data = {
+        Map<String, dynamic> update = <String, dynamic>{
           UserData.field.creatAt: stamp,
-          UserData.field.displayName: dataSnapshot['display_name'] ?? '',
+          UserData.field.displayName: data['display_name'],
           UserData.field.displayNameLowerCase:
-              (dataSnapshot['display_name'] ?? '').toLowerCase(),
-          UserData.field.photoUrl: dataSnapshot['photo_url'] ?? '',
+              (data['display_name'] ?? '').toLowerCase(),
+          UserData.field.photoUrl: data['photo_url'],
         };
 
-        databaseUserRef(user.uid).update(data);
+        databaseUserRef(user.uid).update(update);
       });
     });
   }
-}
-
-/// Component holder class.
-class Component {
-  static Widget Function(UserData)? userListTile;
-  static Widget Function(ChatJoin)? chatRoomListTile;
 }
 
 extension SuperLibraryIntExtension on int {

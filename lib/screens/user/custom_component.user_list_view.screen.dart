@@ -37,7 +37,9 @@ class _CustomComponentUserListViewScreenState
         children: [
           Text("UserListView"),
           Expanded(
-            child: UserListView(),
+            child: UserListView(
+              reverse: true,
+            ),
           ),
         ],
       ),

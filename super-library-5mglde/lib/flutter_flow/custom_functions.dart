@@ -10,3 +10,11 @@ import '/flutter_flow/lat_lng.dart';
 import '/flutter_flow/place.dart';
 import '/flutter_flow/uploaded_file.dart';
 import '/flutter_flow/custom_functions.dart';
+
+String endRange(String str) {
+  /// MODIFY CODE ONLY BELOW THIS LINE
+
+  return '$str\uf8ff';
+
+  /// MODIFY CODE ONLY ABOVE THIS LINE
+}

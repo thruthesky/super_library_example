@@ -10,6 +10,7 @@ import 'package:super_example/screens/user/custom.user_list_view.screen.dart';
 import 'package:super_example/screens/user/custom_component.user_list_view.screen.dart';
 import 'package:super_example/screens/user/horizontal.custom_component.user_list_view.screen.dart';
 import 'package:super_example/screens/user/horizontal.user_list_view.screen.dart';
+import 'package:super_example/screens/user/profile.screen.dart';
 import 'package:super_example/screens/user/user_list_view.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 
@@ -90,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Super Library'),
+        title: const Text('Super Library Flutter Sample'),
         actions: [
           AuthStateChanges(builder: (user) {
             return PopupMenuButton(itemBuilder: (context) {
@@ -241,6 +242,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: const Text('Create 10 test users'),
                 ),
+                ElevatedButton(
+                    onPressed: () {
+                      showGeneralDialog(
+                        context: context,
+                        pageBuilder: (_, __, ___) {
+                          return const ProfileScreen();
+                        },
+                      );
+                    },
+                    child: const Text('Profile Edit')),
                 Wrap(
                   alignment: WrapAlignment.center,
                   children: [
