@@ -229,11 +229,20 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                UserAvatar(
-                  uid: myUid,
-                  width: 56,
-                  height: 56,
-                  radius: 24,
+                Stack(
+                  children: [
+                    UserAvatar(
+                      uid: myUid,
+                      width: 56,
+                      height: 56,
+                      radius: 24,
+                    ),
+                    const Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: ChatNewMessageCounter(),
+                    ),
+                  ],
                 ),
                 Text('UID: ${FirebaseAuth.instance.currentUser!.uid}'),
                 ElevatedButton(

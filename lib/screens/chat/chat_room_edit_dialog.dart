@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:super_example/screens/chat/chat_room.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
+import 'package:super_library/custom_code/actions/super_library.dart';
 
 class ChatRoomEditDialog extends StatefulWidget {
   const ChatRoomEditDialog({super.key, this.roomId});
@@ -16,6 +17,24 @@ class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
   final descriptionController = TextEditingController();
   bool open = true;
   bool canInvite = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.roomId != null) {
+      ChatRoom.get(widget.roomId!, cache: false).then((room) {
+        if (room == null) {
+          return;
+        }
+        setState(() {
+          nameController.text = room.name;
+          descriptionController.text = room.description;
+          open = room.open;
+          canInvite = room.allMembersCanInvite;
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
