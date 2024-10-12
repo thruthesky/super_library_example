@@ -702,6 +702,12 @@ class ChatService {
   DatabaseReference roomRef(String roomId) =>
       database.ref('chat/rooms').child(roomId);
 
+  DatabaseReference get mySettingRef => FirebaseDatabase.instance
+      .ref()
+      .child('chat')
+      .child('settings')
+      .child(myUid);
+
   Future sendMessage({
     required String roomId,
     String? text,

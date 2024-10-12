@@ -53,6 +53,12 @@
     "type": "W",
     "is_deleted": false
   },
+  "chat_new_message_counter.dart": {
+    "old_identifier_name": "ChatNewMessageCounter",
+    "new_identifier_name": "ChatNewMessageCounter",
+    "type": "W",
+    "is_deleted": false
+  },
   "chat_room_list_view.dart": {
     "old_identifier_name": "ChatRoomListView",
     "new_identifier_name": "ChatRoomListView",

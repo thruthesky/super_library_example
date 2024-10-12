@@ -4,3 +4,4 @@ export 'chat_room_list_view.dart' show ChatRoomListView;
 export 'user_avatar.dart' show UserAvatar;
 export 'open_chat_room_list_view.dart' show OpenChatRoomListView;
 export 'test_widget.dart' show TestWidget;
+export 'chat_new_message_counter.dart' show ChatNewMessageCounter;
