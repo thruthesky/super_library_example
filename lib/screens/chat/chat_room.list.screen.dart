@@ -27,17 +27,12 @@ class ChatRoomListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ChatRoomListView(
-            onTap: (roomId) => showGeneralDialog(
-              context: context,
-              pageBuilder: (_, __, ___) {
-                return ChatRoomScreen(roomId: roomId);
-              },
-            ),
-          ),
+      body: ChatRoomListView(
+        onTap: (roomId) => showGeneralDialog(
+          context: context,
+          pageBuilder: (_, __, ___) {
+            return ChatRoomScreen(roomId: roomId);
+          },
         ),
       ),
     );

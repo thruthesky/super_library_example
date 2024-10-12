@@ -43,7 +43,9 @@ class _UserListViewState extends State<UserListView> {
       builder: (snapshot, fetchMore) {
         return ListView.separated(
           itemCount: snapshot.docs.length,
-          separatorBuilder: (context, index) => const Divider(),
+          separatorBuilder: (context, index) => const Divider(
+            height: 0,
+          ),
           scrollDirection:
               widget.horizontalScroll == true ? Axis.horizontal : Axis.vertical,
           itemBuilder: (context, index) {
@@ -53,13 +55,12 @@ class _UserListViewState extends State<UserListView> {
 
             return Component.userListTile?.call(user) ??
                 ListTile(
-                  leading: CachedNetworkImage(
-                    imageUrl: user.photoUrl,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  title: Text(user.displayName),
+                  leading: UserAvatar(uid: user.uid),
+                  title: Text(user.displayName.or('...')),
                   subtitle: Text(user.createdAt.toDateTime.short),
                   onTap: () => widget.onTap?.call(user.uid),
                 );

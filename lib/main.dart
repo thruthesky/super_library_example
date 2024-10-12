@@ -53,7 +53,7 @@ void main() async {
   //       lastText: join.lastText,
   //       lastUrl: join.lastUrl,
   //       lastProtocol: join.lastProtocol,
-  //       unreadMessageCount: join.unreadMessageCount,
+  //       newMessageCount: join.newMessageCount,
   //     );
 
   // Component.openChatRoomListTile = (room) => OpenChatRoomListTileWidget(

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:super_example/screens/chat/chat_invite_user.screen.dart';
+import 'package:super_example/screens/chat/chat_room_edit_dialog.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
@@ -42,6 +43,19 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               );
             },
             icon: const Icon(Icons.add),
+          ),
+          IconButton(
+            onPressed: () async {
+              await showGeneralDialog(
+                context: context,
+                pageBuilder: (context, a1, a2) {
+                  return ChatRoomEditDialog(
+                    roomId: widget.roomId,
+                  );
+                },
+              );
+            },
+            icon: const Icon(Icons.settings),
           ),
         ],
       ),

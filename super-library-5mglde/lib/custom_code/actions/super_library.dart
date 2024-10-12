@@ -90,13 +90,13 @@ class ChatJoin {
     lastText: 'lastText',
     lastUrl: 'lastUrl',
     lastProtocol: 'lastProtocol',
-    unreadMessageCount: 'unreadMessageCount',
     name: 'name',
     iconUrl: 'iconUrl',
     displayName: 'displayName',
     photoUrl: 'photoUrl',
     inviterUid: 'inviterUid',
     inviterName: 'inviterName',
+    newMessageCount: 'newMessageCount',
   );
 
   final String roomId;
@@ -111,7 +111,7 @@ class ChatJoin {
   final String? lastUrl;
   final String? lastProtocol;
 
-  final int unreadMessageCount;
+  final int newMessageCount;
 
   // chat room name
   final String? name;
@@ -145,7 +145,7 @@ class ChatJoin {
     required this.lastText,
     required this.lastUrl,
     required this.lastProtocol,
-    this.unreadMessageCount = 0,
+    this.newMessageCount = 0,
     this.name,
     this.iconUrl,
     this.displayName,
@@ -174,7 +174,7 @@ class ChatJoin {
       lastUrl: json[field.lastUrl],
       lastText: json[field.lastText],
       lastProtocol: json[field.lastProtocol],
-      unreadMessageCount: json[field.unreadMessageCount] ?? 0,
+      newMessageCount: json[field.newMessageCount] ?? 0,
       name: json[field.name],
       iconUrl: json[field.iconUrl],
       displayName: json[field.displayName],
@@ -197,7 +197,7 @@ class ChatJoin {
       field.lastText: lastText,
       field.lastUrl: lastUrl,
       field.lastProtocol: lastProtocol,
-      field.unreadMessageCount: unreadMessageCount,
+      field.newMessageCount: newMessageCount,
       field.name: name,
       field.iconUrl: iconUrl,
       field.displayName: displayName,
@@ -745,8 +745,9 @@ class ChatService {
     for (String uid in room.userUids) {
       dog('sendMessage() user uid: $uid');
       if (uid == myUid) {
-        // If it's my join data, the order must not have -11 infront since I
-        // have already read that chat room. (I am in the chat room)
+        // If it's my join data
+        // The order must not have -11 infront since I have already read that
+        // chat room. (I am in the chat room)
         updates['chat/joins/$uid/${room.id}/order'] = lessImportant;
         if (room.single) {
           updates['chat/joins/$uid/${room.id}/${f.singleOrder}'] =
@@ -758,7 +759,7 @@ class ChatService {
         if (room.open) {
           updates['chat/joins/$uid/${room.id}/${f.openOrder}'] = lessImportant;
         }
-        // updates['chat/settings/$uid/unread-message-count/${room.id}'] = null;
+        updates['chat/settings/$uid/${f.newMessageCount}/${room.id}'] = null;
       } else {
         updates['chat/joins/$uid/${room.id}/order'] = moreImportant;
         if (room.single) {
@@ -781,9 +782,9 @@ class ChatService {
         //     protocol != ChatProtocol.left &&
         //     protocol != ChatProtocol.invitationNotSent) {
 
-        updates['chat/settings/$uid/unread-message-count/${room.id}'] =
+        updates['chat/settings/$uid/${f.newMessageCount}/${room.id}'] =
             ServerValue.increment(1);
-        updates['chat/joins/$uid/${room.id}/unread-message-count'] =
+        updates['chat/joins/$uid/${room.id}/${f.newMessageCount}'] =
             ServerValue.increment(1);
 
         // }
@@ -798,21 +799,23 @@ class ChatService {
       updates['chat/joins/$uid/${room.id}/${f.lastUrl}'] = photoUrl;
       // TODO: Protocol support
       // updates['chat/joins/$uid/${room.id}/${f.lastProtocol}'] = protocol;
-      updates['chat/joins/$uid/${room.id}/lastMessageDeleted'] = null;
+      updates['chat/joins/$uid/${room.id}/${f.lastMessageDeleted}'] = null;
 
       // If it's single chat, add the my information to the other user's join
       if (room.single && uid != myUid) {
-        updates['chat/joins/$uid/${room.id}/displayName'] = my?.displayName;
-        updates['chat/joins/$uid/${room.id}/photoUrl'] = my?.photoUrl;
+        updates['chat/joins/$uid/${room.id}/${f.displayName}'] =
+            my?.displayName;
+        updates['chat/joins/$uid/${room.id}/${f.photoUrl}'] = my?.photoUrl;
       } else if (room.group) {
-        updates['chat/joins/$uid/${room.id}/name'] = room.name;
-        updates['chat/joins/$uid/${room.id}/iconUrl'] = room.iconUrl;
+        updates['chat/joins/$uid/${room.id}/${f.name}'] = room.name;
+        updates['chat/joins/$uid/${room.id}/${f.iconUrl}'] = room.iconUrl;
       }
 
       // If it's group chat, add the sender's information
       if (room.group) {
-        updates['chat/joins/$uid/${room.id}/displayName'] = my?.displayName;
-        updates['chat/joins/$uid/${room.id}/photoUrl'] = my?.photoUrl;
+        updates['chat/joins/$uid/${room.id}/${f.displayName}'] =
+            my?.displayName;
+        updates['chat/joins/$uid/${room.id}/${f.photoUrl}'] = my?.photoUrl;
       }
     }
 
@@ -826,8 +829,8 @@ class ChatService {
     if (room.single) {
       UserData? user = await UserData.get(getOtherUid(roomId));
       await database.ref().update({
-        'chat/joins/$myUid/${room.id}/displayName': user?.displayName,
-        'chat/joins/$myUid/${room.id}/photoUrl': user?.photoUrl,
+        'chat/joins/$myUid/${room.id}/${f.displayName}': user?.displayName,
+        'chat/joins/$myUid/${room.id}/${f.photoUrl}': user?.photoUrl,
       });
     }
 
@@ -1213,129 +1216,6 @@ class SuperLibraryException implements Exception {
   }
 }
 
-class Value<T> extends StatelessWidget {
-  const Value({
-    super.key,
-    required this.ref,
-    required this.builder,
-    this.initialData,
-    this.onLoading,
-    this.sync = true,
-  });
-
-  final DatabaseReference ref;
-
-  final dynamic initialData;
-
-  /// [dynamic] is the value of the node.
-  /// [String] is the path of the node.
-  final Widget Function(dynamic value, DatabaseReference ref) builder;
-  final Widget? onLoading;
-
-  final bool sync;
-
-  @override
-  Widget build(BuildContext context) {
-    if (sync) {
-      return StreamBuilder<dynamic>(
-        initialData: initialData,
-        stream: ref.onValue.map((event) {
-          return event.snapshot.value;
-        }),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            // log('Error; path: ${widget.ref.path}, message: ${snapshot.error}');
-            return Text('Error; path: ${ref.path}, message: ${snapshot.error}');
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              snapshot.hasData == false) {
-            // log('--> Value() -> Waiting; path: ${ref.path} connectionState: ${snapshot.connectionState}, hasData: ${snapshot.hasData}');
-            return onLoading ?? const SizedBox.shrink();
-          }
-
-          // value may be null.
-          return builder(snapshot.data as T, ref);
-        },
-      );
-    } else {
-      return FutureBuilder<dynamic>(
-        initialData: initialData,
-        future: ref.once().then((event) => event.snapshot.value),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              snapshot.hasData == false) {
-            return onLoading ?? const SizedBox.shrink();
-          }
-          if (snapshot.hasError) {
-            // log('---> Value.once() -> Error; path: ${widget.ref.path}, message: ${snapshot.error}');
-            return Text('Error; ${snapshot.error}');
-          }
-
-          return builder(snapshot.data as T, ref);
-        },
-      );
-    }
-  }
-}
-
-/// ValueListView
-///
-///
-class ValueListView extends StatelessWidget {
-  const ValueListView({
-    super.key,
-    required this.query,
-    required this.builder,
-    this.pageSize = 20,
-    this.loadingBuilder,
-    this.errorBuilder,
-    this.emptyBuilder,
-    this.reverseQuery = false,
-  });
-  final Query query;
-  final Widget Function(
-    FirebaseQueryBuilderSnapshot snapshot,
-    void Function(int index) fetchMore,
-  ) builder;
-
-  final int pageSize;
-  final Widget Function()? loadingBuilder;
-  final Widget Function(String)? errorBuilder;
-  final Widget Function()? emptyBuilder;
-  final bool reverseQuery;
-  @override
-  Widget build(BuildContext context) {
-    return FirebaseDatabaseQueryBuilder(
-      query: query,
-      pageSize: pageSize,
-      reverseQuery: reverseQuery,
-      builder: (context, snapshot, _) {
-        if (snapshot.hasError) {
-          return errorBuilder?.call(snapshot.error.toString()) ??
-              Center(child: Text('Something went wrong! ${snapshot.error}'));
-        }
-
-        if (snapshot.isFetching && snapshot.hasData == false) {
-          return loadingBuilder?.call() ??
-              const Center(child: CircularProgressIndicator.adaptive());
-        }
-
-        if (snapshot.hasData && snapshot.docs.isEmpty && !snapshot.hasMore) {
-          return emptyBuilder?.call() ??
-              const Center(child: Text('Value list is empty'));
-        }
-
-        return builder(snapshot, (index) {
-          if (snapshot.hasMore && index + 1 == snapshot.docs.length) {
-            snapshot.fetchMore();
-          }
-        });
-      },
-    );
-  }
-}
-
 /// Realtime database user modeling class
 class UserData {
   ///
@@ -1514,6 +1394,7 @@ class UserService {
       dog('Super library -> _mirrorUserData() -> User is signed in. So, mirror the user data');
 
       userDocumentSubscription?.cancel();
+      // ! Warning: careful for recursive call by updating the user document and listening to it.
       userDocumentSubscription = doc(user.uid).snapshots().listen((snapshot) {
         if (snapshot.exists == false) {
           return;
@@ -1531,6 +1412,7 @@ class UserService {
 
         // Copy the 'display_name' into 'dispaly_name_lowercase' for the
         // case-insensitive search.
+        // * careful for recursive update and listen to the user document.
         if (data['display_name'] != data['display_name_lowercase']) {
           snapshot.reference.update({
             'display_name_lowercase':
@@ -1561,9 +1443,170 @@ class UserService {
   }
 }
 
+class Value<T> extends StatelessWidget {
+  const Value({
+    super.key,
+    required this.ref,
+    required this.builder,
+    this.initialData,
+    this.onLoading,
+    this.sync = true,
+  });
+
+  final DatabaseReference ref;
+
+  final dynamic initialData;
+
+  /// [dynamic] is the value of the node.
+  /// [String] is the path of the node.
+  final Widget Function(dynamic value, DatabaseReference ref) builder;
+  final Widget? onLoading;
+
+  final bool sync;
+
+  @override
+  Widget build(BuildContext context) {
+    if (sync) {
+      return StreamBuilder<dynamic>(
+        initialData: initialData,
+        stream: ref.onValue.map((event) {
+          return event.snapshot.value;
+        }),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            // log('Error; path: ${widget.ref.path}, message: ${snapshot.error}');
+            return Text('Error; path: ${ref.path}, message: ${snapshot.error}');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              snapshot.hasData == false) {
+            // log('--> Value() -> Waiting; path: ${ref.path} connectionState: ${snapshot.connectionState}, hasData: ${snapshot.hasData}');
+            return onLoading ?? const SizedBox.shrink();
+          }
+
+          // value may be null.
+          return builder(snapshot.data as T, ref);
+        },
+      );
+    } else {
+      return FutureBuilder<dynamic>(
+        initialData: initialData,
+        future: ref.once().then((event) => event.snapshot.value),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              snapshot.hasData == false) {
+            return onLoading ?? const SizedBox.shrink();
+          }
+          if (snapshot.hasError) {
+            // log('---> Value.once() -> Error; path: ${widget.ref.path}, message: ${snapshot.error}');
+            return Text('Error; ${snapshot.error}');
+          }
+
+          return builder(snapshot.data as T, ref);
+        },
+      );
+    }
+  }
+}
+
+/// ValueListView
+///
+///
+class ValueListView extends StatelessWidget {
+  const ValueListView({
+    super.key,
+    required this.query,
+    required this.builder,
+    this.pageSize = 20,
+    this.loadingBuilder,
+    this.errorBuilder,
+    this.emptyBuilder,
+    this.reverseQuery = false,
+  });
+  final Query query;
+  final Widget Function(
+    FirebaseQueryBuilderSnapshot snapshot,
+    void Function(int index) fetchMore,
+  ) builder;
+
+  final int pageSize;
+  final Widget Function()? loadingBuilder;
+  final Widget Function(String)? errorBuilder;
+  final Widget Function()? emptyBuilder;
+  final bool reverseQuery;
+  @override
+  Widget build(BuildContext context) {
+    return FirebaseDatabaseQueryBuilder(
+      query: query,
+      pageSize: pageSize,
+      reverseQuery: reverseQuery,
+      builder: (context, snapshot, _) {
+        if (snapshot.hasError) {
+          return errorBuilder?.call(snapshot.error.toString()) ??
+              Center(child: Text('Something went wrong! ${snapshot.error}'));
+        }
+
+        if (snapshot.isFetching && snapshot.hasData == false) {
+          return loadingBuilder?.call() ??
+              const Center(child: CircularProgressIndicator.adaptive());
+        }
+
+        if (snapshot.hasData && snapshot.docs.isEmpty && !snapshot.hasMore) {
+          return emptyBuilder?.call() ??
+              const Center(child: Text('Value list is empty'));
+        }
+
+        return builder(snapshot, (index) {
+          if (snapshot.hasMore && index + 1 == snapshot.docs.length) {
+            snapshot.fetchMore();
+          }
+        });
+      },
+    );
+  }
+}
+
 extension SuperLibraryIntExtension on int {
   /// Change the integer of milliseconds to a DateTime object
   DateTime get toDateTime => DateTime.fromMillisecondsSinceEpoch(this);
+}
+
+extension SuperLibraryStringExtension on String {
+  /// If the string is empty, return the newString.
+  ///
+  /// example
+  /// ```dart
+  /// String gender = user.gender.or(null);
+  /// ```
+  String or(String newString) => isEmpty ? newString : this;
+
+  /// Cut the string
+  ///
+  /// [suffix] is the string to be added at the end of the string. You may want
+  /// to add '...' at the end of the string.
+  ///
+  /// ```dart
+  /// Text( comment.content.cut(56, suffix: '...') );
+  /// ```
+  String cut(int length, {String suffix = ''}) {
+    String temp = this;
+    temp = temp.trim();
+    temp = temp.replaceAll('\n', ' ');
+    temp = temp.replaceAll('\r', ' ');
+    temp = temp.replaceAll('\t', ' ');
+    return temp.length > length ? '${temp.substring(0, length)}$suffix' : temp;
+  }
+}
+
+/// String Extension to check if a string is null or empty
+///
+/// Checks if a String? is null or not in the extends clause.
+extension EasyHelperNullableStringExtension on String? {
+  /// Returns true if the string is null or empty
+  bool get isNullOrEmpty => this == null || this!.isEmpty;
+
+  /// If the string is null or empty, then it will return the newString
+  String or(String newString) => isNullOrEmpty ? newString : this!;
 }
 
 /// DateTime extension

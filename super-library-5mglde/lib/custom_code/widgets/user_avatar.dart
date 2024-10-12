@@ -31,6 +31,7 @@ class UserAvatar extends StatefulWidget {
 }
 
 class _UserAvatarState extends State<UserAvatar> {
+  final double _defaultSize = 50;
   @override
   Widget build(BuildContext context) {
     return Value(
@@ -40,12 +41,15 @@ class _UserAvatarState extends State<UserAvatar> {
       builder: (v, r) {
         final anonymousAvatar = ClipRRect(
           borderRadius: BorderRadius.circular(50),
-          child: SizedBox(
-            width: widget.width,
-            height: widget.height,
+          child: Container(
+            color: FlutterFlowTheme.of(context).alternate,
+            width: widget.width ?? _defaultSize,
+            height: widget.height ?? _defaultSize,
             child: Icon(
               Icons.person,
-              size: widget.width == null ? null : widget.width! * 0.75,
+              size:
+                  (widget.width == null ? _defaultSize : widget.width!) * 0.64,
+              color: FlutterFlowTheme.of(context).primaryText,
             ),
           ),
         );
@@ -61,8 +65,8 @@ class _UserAvatarState extends State<UserAvatar> {
           borderRadius: BorderRadius.circular(50),
           child: CachedNetworkImage(
             imageUrl: user.photoUrl,
-            width: widget.width,
-            height: widget.height,
+            width: widget.width ?? _defaultSize,
+            height: widget.height ?? _defaultSize,
             fit: BoxFit.cover,
           ),
         );

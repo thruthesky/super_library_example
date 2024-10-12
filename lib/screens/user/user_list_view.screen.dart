@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:super_example/screens/user/public_profile.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
 
@@ -26,12 +27,20 @@ class _UserListViewScreenState extends State<UserListViewScreen> {
       appBar: AppBar(
         title: const Text('UserListView'),
       ),
-      body: const Column(
+      body: Column(
         children: [
-          Text("UserListView"),
+          const Text("UserListView"),
           Expanded(
             child: UserListView(
               reverse: true,
+              onTap: (uid) => showGeneralDialog(
+                context: context,
+                pageBuilder: (_, __, ___) {
+                  return PublicProfileScreen(
+                    uid: uid,
+                  );
+                },
+              ),
             ),
           ),
         ],

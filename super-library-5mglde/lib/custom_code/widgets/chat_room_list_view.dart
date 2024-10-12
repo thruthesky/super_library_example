@@ -42,7 +42,9 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
       builder: (snapshot, fetchMore) {
         return ListView.separated(
           itemCount: snapshot.docs.length,
-          separatorBuilder: (context, index) => const Divider(),
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+          ),
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
@@ -82,7 +84,10 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                   child: SizedBox(
                     width: double.infinity,
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 24,
+                      ),
                       child: Row(
                         children: [
                           if (join.single == true)
@@ -102,9 +107,22 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                   join.name ??
                                       join.displayName ??
                                       'No chat room name',
+                                  style:
+                                      FlutterFlowTheme.of(context).titleMedium,
                                 ),
-                                Text(
-                                  'Single: ${join.single}, Group: ${join.group}, Open: ${join.open}',
+                                Row(
+                                  children: [
+                                    if (join.single == false)
+                                      const Icon(
+                                        Icons.supervisor_account_rounded,
+                                        size: 16,
+                                      ),
+                                    if (join.open == true)
+                                      const Icon(
+                                        Icons.lock_open_rounded,
+                                        size: 16,
+                                      ),
+                                  ],
                                 ),
                                 if (join.inviterUid != null &&
                                     join.inviterUid!.isNotEmpty)
@@ -125,12 +143,16 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              const Text(
-                                'Unread',
-                              ),
-                              Text(
-                                join.unreadMessageCount.toString(),
-                              ),
+                              if (join.lastMessageAt != null)
+                                Text(
+                                  join.lastMessageAt!.short,
+                                  style:
+                                      FlutterFlowTheme.of(context).labelSmall,
+                                ),
+                              if (join.newMessageCount > 0)
+                                Badge(
+                                  label: Text('${join.newMessageCount}'),
+                                ),
                             ],
                           ),
                         ],

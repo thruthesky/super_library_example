@@ -21,7 +21,7 @@ class ChatRoomListTileWidget extends StatefulWidget {
     required this.lastText,
     required this.lastUrl,
     required this.lastProtocol,
-    required this.unreadMessageCount,
+    required this.newMessageCount,
   });
 
   final String roomId;
@@ -40,7 +40,7 @@ class ChatRoomListTileWidget extends StatefulWidget {
   final String? lastUrl;
   final String? lastProtocol;
 
-  final int unreadMessageCount;
+  final int newMessageCount;
 
   @override
   State<ChatRoomListTileWidget> createState() => _ChatRoomListTileWidgetState();
@@ -127,12 +127,10 @@ class _ChatRoomListTileWidgetState extends State<ChatRoomListTileWidget> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text(
-                    'Unread',
-                  ),
-                  Text(
-                    widget.unreadMessageCount.toString(),
-                  ),
+                  if (widget.newMessageCount > 0)
+                    Badge(
+                      label: Text('${widget.newMessageCount}'),
+                    ),
                 ],
               ),
             ],

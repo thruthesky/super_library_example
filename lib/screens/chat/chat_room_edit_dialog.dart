@@ -3,7 +3,9 @@ import 'package:super_example/screens/chat/chat_room.screen.dart';
 import 'package:super_library/custom_code/actions/index.dart';
 
 class ChatRoomEditDialog extends StatefulWidget {
-  const ChatRoomEditDialog({super.key});
+  const ChatRoomEditDialog({super.key, this.roomId});
+
+  final String? roomId;
 
   @override
   State<ChatRoomEditDialog> createState() => _ChatRoomEditDialogState();
