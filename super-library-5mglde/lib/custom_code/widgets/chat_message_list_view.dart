@@ -66,50 +66,65 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
       reverseQuery: true,
       query: ChatService.instance.messagesRef(roomId),
       builder: (snapshot, fetchMore) {
-        return ListView.builder(
+        return ListView.separated(
           itemCount: snapshot.docs.length,
           reverse: true,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
 
             final message = ChatMessage.fromSnapshot(doc);
-            // TODO - support custom ui
 
-            return Container(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  UserAvatar(
-                    uid: message.senderUid,
-                    width: 60,
-                    height: 60,
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (message.displayName != null)
-                        Text(
-                          message.displayName!,
-                          style: FlutterFlowTheme.of(context).labelSmall,
-                        ),
-                      if (message.text != null)
-                        Text(
-                          message.text!,
-                          style: FlutterFlowTheme.of(context).bodyMedium,
-                        ),
+            bool isMine = message.senderUid == myUid;
+            bool isNotMine = !isMine;
+
+            return Component.chatMessageListTile?.call(message) ??
+                Row(
+                  children: [
+                    if (isNotMine) ...[
+                      UserAvatar(
+                        uid: message.senderUid,
+                        width: 60,
+                        height: 60,
+                      ),
+                      const SizedBox(width: 8),
                     ],
-                  ),
-                ],
-              ),
-            );
-
-            //  ListTile(
-            //   shape: const OutlineInputBorder(),
-            //   title: Text(doc.key!),
-            //   subtitle: Text(doc.value.toString()),
-            // );
+                    if (isMine) const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isMine
+                            ? FlutterFlowTheme.of(context).accent3
+                            : FlutterFlowTheme.of(context).alternate,
+                        borderRadius: BorderRadius.only(
+                          topLeft:
+                              isMine ? const Radius.circular(16) : Radius.zero,
+                          topRight: isNotMine
+                              ? const Radius.circular(16)
+                              : Radius.zero,
+                          bottomLeft: const Radius.circular(16),
+                          bottomRight: const Radius.circular(16),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (message.displayName != null)
+                            Text(
+                              message.displayName!,
+                              style: FlutterFlowTheme.of(context).labelSmall,
+                            ),
+                          if (message.text != null)
+                            Text(
+                              message.text!,
+                              style: FlutterFlowTheme.of(context).bodyMedium,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
           },
         );
       },

@@ -1136,6 +1136,7 @@ class Component {
   static Widget Function(UserData)? userListTile;
   static Widget Function(ChatJoin)? chatRoomListTile;
   static Widget Function(ChatRoom)? openChatRoomListTile;
+  static Widget Function(ChatMessage)? chatMessageListTile;
 }
 
 /// Memory
