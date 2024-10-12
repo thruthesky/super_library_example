@@ -20,11 +20,13 @@ class UserAvatar extends StatefulWidget {
     this.width,
     this.height,
     required this.uid,
+    this.radius,
   });
 
   final double? width;
   final double? height;
   final String uid;
+  final double? radius;
 
   @override
   State<UserAvatar> createState() => _UserAvatarState();
@@ -40,7 +42,7 @@ class _UserAvatarState extends State<UserAvatar> {
       sync: true,
       builder: (v, r) {
         final anonymousAvatar = ClipRRect(
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(widget.radius ?? _defaultSize),
           child: Container(
             color: FlutterFlowTheme.of(context).alternate,
             width: widget.width ?? _defaultSize,
@@ -62,7 +64,7 @@ class _UserAvatarState extends State<UserAvatar> {
         }
 
         return ClipRRect(
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(widget.radius ?? _defaultSize),
           child: CachedNetworkImage(
             imageUrl: user.photoUrl,
             width: widget.width ?? _defaultSize,

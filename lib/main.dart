@@ -230,8 +230,9 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 UserAvatar(
                   uid: myUid,
-                  width: 48,
-                  height: 48,
+                  width: 56,
+                  height: 56,
+                  radius: 24,
                 ),
                 Text('UID: ${FirebaseAuth.instance.currentUser!.uid}'),
                 ElevatedButton(
@@ -292,6 +293,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       child: const Text('Sign Out'),
                     ),
+                  ],
+                ),
+                const Row(
+                  children: [
+                    Text('No. of new messages: '),
+                    ChatNewMessageCounter(),
                   ],
                 ),
                 ElevatedButton(
