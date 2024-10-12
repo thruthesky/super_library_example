@@ -6,3 +6,5 @@ export 'report_exists.dart' show reportExists;
 export 'unblock_user.dart' show unblockUser;
 export 'create_chat_room.dart' show createChatRoom;
 export 'invite_chat_user.dart' show inviteChatUser;
+export 'update_chat_room.dart' show updateChatRoom;
+export 'edit_chat_room.dart' show editChatRoom;

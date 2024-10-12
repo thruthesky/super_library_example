@@ -17,6 +17,7 @@ class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
   final descriptionController = TextEditingController();
   bool open = true;
   bool canInvite = true;
+  String? iconUrl;
 
   @override
   void initState() {
@@ -95,10 +96,22 @@ class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
+                    if (widget.roomId != null) {
+                      await updateChatRoom(
+                        widget.roomId!,
+                        nameController.text,
+                        descriptionController.text,
+                        iconUrl,
+                        open,
+                        canInvite,
+                      );
+                      Navigator.of(context).pop();
+                      return;
+                    }
                     final roomId = await createChatRoom(
                       nameController.text,
                       descriptionController.text,
-                      null,
+                      iconUrl,
                       open,
                       canInvite,
                     );

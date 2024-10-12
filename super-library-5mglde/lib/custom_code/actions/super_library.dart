@@ -649,36 +649,36 @@ class ChatRoom {
   }
 
   /// [update] updates the chat room.
+  ///
+  ///
+  /// Note that the chat room cannot be turn into single chat room if it's group chat room.
   Future<void> update({
     String? name,
     String? description,
     String? iconUrl,
     bool? open,
-    bool? single,
-    bool? group,
-    // bool? verifiedUserOnly,
-    // bool? urlForVerifiedUserOnly,
-    // bool? uploadForVerifiedUserOnly,
     bool? allMembersCanInvite,
-    // String? gender,
-    // String? domain,
-    // Object? lastMessageAt,
   }) async {
     if (single == true && (group == true || open == true)) {
-      throw 'chat-room-update/single-cannot-be-group-or-open Single chat room cannot be group or open';
+      throw SuperLibraryException(
+        'chat-room-update/single-cannot-be-group-or-open',
+        'Single chat room cannot be group or open',
+      );
     }
     if (single == false && group == false) {
-      throw 'chat-room-update/single-or-group Single or group chat room must be selected';
+      throw SuperLibraryException(
+        'chat-room-update/single-or-group',
+        'Single or group chat room must be selected',
+      );
     }
     final updateData = {
-      if (name != null) field.name: name,
-      if (description != null) field.description: description,
-      if (iconUrl != null) field.iconUrl: iconUrl,
-      if (open != null) field.open: open,
-      if (single != null) field.single: single,
-      if (group != null) field.group: group,
-      if (allMembersCanInvite != null)
-        field.allMembersCanInvite: allMembersCanInvite,
+      field.name: name,
+      field.description: description,
+      field.iconUrl: iconUrl,
+      field.open: open,
+      field.single: single,
+      field.group: group,
+      field.allMembersCanInvite: allMembersCanInvite,
       field.updatedAt: ServerValue.timestamp,
     };
 

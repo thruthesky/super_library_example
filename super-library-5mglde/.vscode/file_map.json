@@ -11,6 +11,12 @@
     "type": "A",
     "is_deleted": false
   },
+  "edit_chat_room.dart": {
+    "old_identifier_name": "editChatRoom",
+    "new_identifier_name": "editChatRoom",
+    "type": "A",
+    "is_deleted": false
+  },
   "invite_chat_user.dart": {
     "old_identifier_name": "inviteChatUser",
     "new_identifier_name": "inviteChatUser",
@@ -44,6 +50,12 @@
   "unblock_user.dart": {
     "old_identifier_name": "unblockUser",
     "new_identifier_name": "unblockUser",
+    "type": "A",
+    "is_deleted": false
+  },
+  "update_chat_room.dart": {
+    "old_identifier_name": "updateChatRoom",
+    "new_identifier_name": "updateChatRoom",
     "type": "A",
     "is_deleted": false
   },
