@@ -17,10 +17,19 @@ import 'package:super_library/custom_code/actions/super_library.dart';
 
 Future initApp() async {
   SuperLibrary.instance.init(
-    getDatabaseUrl: () => FFDevEnvironmentValues().databaseURL,
+    getDatabaseUrl: () => 'https://withcenter-test-4-default-rtdb.firebaseio.com',
     debug: true,
   );
 }
+```
+
+
+If you are using Dev Environment variable, you can initialize it like below;
+
+```dart
+  SuperLibrary.instance.init(
+    getDatabaseUrl: () => FFDevEnvironmentValues().databaseURL,
+  );
 ```
 
 ## Explanation
