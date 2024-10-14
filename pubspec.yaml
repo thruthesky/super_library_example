@@ -9,6 +9,9 @@ environment:
   sdk: ^3.4.3
 
 dependencies:
+  common_library:
+    path: ./common-library-1i4ez9
+
   cupertino_icons: ^1.0.8
 
   flutter:

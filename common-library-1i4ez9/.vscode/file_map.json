@@ -1,0 +1,26 @@
+{
+  "common_safe_area.dart": {
+    "old_identifier_name": "CommonSafeArea",
+    "new_identifier_name": "CommonSafeArea",
+    "type": "W",
+    "is_deleted": false
+  },
+  "linky_text.dart": {
+    "old_identifier_name": "LinkyText",
+    "new_identifier_name": "LinkyText",
+    "type": "W",
+    "is_deleted": false
+  },
+  "site_preview.dart": {
+    "old_identifier_name": "SitePreview",
+    "new_identifier_name": "SitePreview",
+    "type": "W",
+    "is_deleted": false
+  },
+  "custom_functions.dart": {
+    "old_identifier_name": "CustomFunctions",
+    "new_identifier_name": "CustomFunctions",
+    "type": "F",
+    "is_deleted": false
+  }
+}
