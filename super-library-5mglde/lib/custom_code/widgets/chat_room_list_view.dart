@@ -70,6 +70,8 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
 
                     if (context.mounted) {
                       widget.onTap?.call(join.roomId) ??
+                          // * FlutterFlow provides an action(callback) with empty body
+                          // * so, there is less chance that users would see tis toast.
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
