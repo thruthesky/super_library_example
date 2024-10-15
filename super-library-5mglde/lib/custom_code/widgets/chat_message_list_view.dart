@@ -38,6 +38,11 @@ class ChatMessageListView extends StatefulWidget {
 }
 
 class _ChatMessageListViewState extends State<ChatMessageListView> {
+  double iconSize = 52;
+  double iconPadding = 8;
+  double textPadding = 10;
+  double leftRightBubblePadding = 80;
+
   String get roomId => ChatService.instance.mayConvertSingleChatRoomId(
         widget.roomId,
       );
@@ -79,52 +84,93 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
             bool isMine = message.senderUid == myUid;
             bool isNotMine = !isMine;
 
-            return Component.chatMessageListTile?.call(message) ??
+            final listTile = Component.chatMessageListTile?.call(message) ??
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment:
+                      isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
                     if (isNotMine) ...[
                       UserAvatar(
                         uid: message.senderUid,
-                        width: 60,
-                        height: 60,
+                        width: iconSize,
+                        height: iconSize,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: iconPadding),
                     ],
-                    if (isMine) const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isMine
-                            ? FlutterFlowTheme.of(context).accent3
-                            : FlutterFlowTheme.of(context).alternate,
-                        borderRadius: BorderRadius.only(
-                          topLeft:
-                              isMine ? const Radius.circular(16) : Radius.zero,
-                          topRight: isNotMine
-                              ? const Radius.circular(16)
-                              : Radius.zero,
-                          bottomLeft: const Radius.circular(16),
-                          bottomRight: const Radius.circular(16),
+
+                    // Text message bubble
+                    Flexible(
+                      child: Container(
+                        margin: EdgeInsets.only(
+                          right: isMine ? 0 : leftRightBubblePadding,
+                          left: isNotMine ? 0 : leftRightBubblePadding,
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (message.displayName != null)
-                            Text(
-                              message.displayName!,
-                              style: FlutterFlowTheme.of(context).labelSmall,
+                        padding: const EdgeInsets.all(8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: isMine
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                                children: [
+                                  if (message.displayName != null)
+                                    Text(
+                                      message.displayName!,
+                                      style: FlutterFlowTheme.of(context)
+                                          .labelSmall,
+                                    ),
+                                  if (message.text != null)
+                                    Container(
+                                      padding: EdgeInsets.all(textPadding),
+                                      decoration: BoxDecoration(
+                                        color: isMine
+                                            ? FlutterFlowTheme.of(context)
+                                                .accent3
+                                            : FlutterFlowTheme.of(context)
+                                                .alternate,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: isMine
+                                              ? const Radius.circular(16)
+                                              : Radius.zero,
+                                          topRight: isNotMine
+                                              ? const Radius.circular(16)
+                                              : Radius.zero,
+                                          bottomLeft: const Radius.circular(16),
+                                          bottomRight:
+                                              const Radius.circular(16),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        message.text!,
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium,
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          if (message.text != null)
-                            Text(
-                              message.text!,
-                              style: FlutterFlowTheme.of(context).bodyMedium,
-                            ),
-                        ],
+                            if (isNotMine) ...[
+                              SizedBox(width: iconPadding),
+                              Text(
+                                message.createdAt.toDateTime.short,
+                                style: FlutterFlowTheme.of(context).labelSmall,
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 );
+            return Container(
+              // The key is to prevent image blinking when there is a new message.
+              key: ValueKey(message.id),
+              child: listTile,
+            );
           },
         );
       },

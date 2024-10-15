@@ -902,7 +902,7 @@ class ChatService {
 
   /// [getOtherUid] returns the other user's uid from the single chat room id.
   String getOtherUid(String singleChatRoomId) {
-    dog('getOtherUid: $singleChatRoomId');
+    // dog('getOtherUid: $singleChatRoomId');
     final uids = singleChatRoomId.split(joinSeparator);
     if (uids.length != 2) {
       throw SuperLibraryException(
@@ -1269,14 +1269,23 @@ class UserData {
     return 'UserData(${toJson()})';
   }
 
+  /// Returns the user data from the json as UserData model
+  ///
+  /// * Warning: This method caches the user data in the memory automatically.
+  /// * So, you would use `UserData.get(cache: false)` method to get the user data
+  /// * from the database without caching.
   factory UserData.fromJson(Map<dynamic, dynamic> json, String key) {
-    return UserData(
+    final userData = UserData(
       uid: key,
       createdAt: json[field.creatAt] ?? DateTime.now(),
       displayName: json[field.displayName] ?? '',
       displayNameLowerCase: json[field.displayNameLowerCase] ?? '',
       photoUrl: json[field.photoUrl] ?? '',
     );
+
+    Memory.set(key, userData);
+
+    return userData;
   }
 
   factory UserData.fromSnapshot(DataSnapshot snapshot) {
@@ -1310,11 +1319,7 @@ class UserData {
       return null;
     }
 
-    final userData = UserData.fromSnapshot(snapshot);
-
-    Memory.set(uid, userData);
-
-    return userData;
+    return UserData.fromSnapshot(snapshot);
   }
 }
 

@@ -36,25 +36,12 @@ class _UserAvatarState extends State<UserAvatar> {
   final double _defaultSize = 50;
   @override
   Widget build(BuildContext context) {
+    dog('initialData: ${Memory.get<UserData>(widget.uid)?.toJson()}');
     return Value(
       ref: UserService.instance.databaseUserRef(widget.uid),
       initialData: Memory.get<UserData>(widget.uid)?.toJson(),
       sync: true,
       builder: (v, r) {
-        final anonymousAvatar = ClipRRect(
-          borderRadius: BorderRadius.circular(widget.radius ?? _defaultSize),
-          child: Container(
-            color: FlutterFlowTheme.of(context).alternate,
-            width: widget.width ?? _defaultSize,
-            height: widget.height ?? _defaultSize,
-            child: Icon(
-              Icons.person,
-              size:
-                  (widget.width == null ? _defaultSize : widget.width!) * 0.64,
-              color: FlutterFlowTheme.of(context).primaryText,
-            ),
-          ),
-        );
         if (v == null) {
           return anonymousAvatar;
         }
@@ -75,4 +62,18 @@ class _UserAvatarState extends State<UserAvatar> {
       },
     );
   }
+
+  Widget get anonymousAvatar => ClipRRect(
+        borderRadius: BorderRadius.circular(widget.radius ?? _defaultSize),
+        child: Container(
+          color: FlutterFlowTheme.of(context).alternate,
+          width: widget.width ?? _defaultSize,
+          height: widget.height ?? _defaultSize,
+          child: Icon(
+            Icons.person,
+            size: (widget.width == null ? _defaultSize : widget.width!) * 0.64,
+            color: FlutterFlowTheme.of(context).primaryText,
+          ),
+        ),
+      );
 }
