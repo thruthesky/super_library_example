@@ -938,7 +938,8 @@ class ChatService {
 
     // Prepare
     const f = ChatJoin.field;
-    ChatRoom? room = await ChatRoom.get(roomId);
+    // Get the chat room data from the database.
+    ChatRoom? room = await ChatRoom.get(roomId, cache: false);
 
     if (room == null) {
       if (isSingleChatRoom(roomId)) {
@@ -984,6 +985,8 @@ class ChatService {
       // Chat room information
       if (room.name.isNotEmpty)
         'chat/joins/$myUid/${room.id}/${f.name}': room.name,
+      if (room.iconUrl != null)
+        'chat/joins/$myUid/${room.id}/${f.iconUrl}': room.iconUrl,
     };
     // If it's single chat, add the other user information to my room's join
     if (room.single == true) {
