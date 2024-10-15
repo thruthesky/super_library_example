@@ -1056,9 +1056,13 @@ class ChatService {
   Future<void> enter(String roomId) async {
     const f = ChatJoin.field;
     final enterValues = {
-      // TODO: don't update if these are not existing.
+      // TODO: Don't update if these fields are not existing for the performance improvement.
       'chat/joins/$myUid/$roomId/${f.inviterUid}': null,
       'chat/joins/$myUid/$roomId/${f.inviterName}': null,
+
+      // Remove the no of new messages in each chat room and in the settings
+      'chat/settings/$myUid/${f.newMessageCount}/$roomId': null,
+      'chat/joins/$myUid/$roomId/${f.newMessageCount}': null,
     };
     await database.ref().update(enterValues);
   }
