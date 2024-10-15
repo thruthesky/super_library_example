@@ -1,0 +1,79 @@
+{
+  "project_info": {
+    "project_number": "732860815667",
+    "firebase_url": "https://withcenter-school-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "withcenter-school",
+    "storage_bucket": "withcenter-school.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732860815667:android:3d2c6416533affa0efc646",
+        "android_client_info": {
+          "package_name": "com.withcenter.primary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "732860815667-020ujov0khnimv75niulosibicmh1a93.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.withcenter.primary",
+            "certificate_hash": "ce75562d37508b0a3b8cc9e8cf91462f3c2987a2"
+          }
+        },
+        {
+          "client_id": "732860815667-22icjlhquhrns8tnk39o5oovjttd6s2b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.withcenter.primary",
+            "certificate_hash": "5688774ad092db4ae69f5a1cd7cba718c0880bfa"
+          }
+        },
+        {
+          "client_id": "732860815667-eo52p1e8ervseq9dmh14vcqju346h9kl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.withcenter.primary",
+            "certificate_hash": "a70b7b656c0cfb649b249d1a157c59d7c52f4b06"
+          }
+        },
+        {
+          "client_id": "732860815667-flsgegvm2knogf0c724aubpfj4t2fpbd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.withcenter.primary",
+            "certificate_hash": "96008f68e8ecc9cd27286a82a8d89a99e9c66acb"
+          }
+        },
+        {
+          "client_id": "732860815667-n2l31lg866o16g6hdusiuneeadnq2v5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb8PtO_FZCWGMRt4lVNi4J4k4ep0W1Xsk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "732860815667-n2l31lg866o16g6hdusiuneeadnq2v5g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "732860815667-pkpr96hbm287bsusi1miuoo44i3ijvd0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.withcenter.test4"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

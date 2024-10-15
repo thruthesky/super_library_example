@@ -1,4 +1,4 @@
-# Common Library
+# AI COOL
 
 A new Flutter project.
 

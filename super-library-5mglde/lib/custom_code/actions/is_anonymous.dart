@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+/// [isAnonymous] checks if the current user is anonymous.
 Future<bool> isAnonymous() async {
   // Add your function code here!
 
@@ -16,14 +17,14 @@ Future<bool> isAnonymous() async {
   // If the user signed in,
   if (currentUser != null) {
     // If the user is anonymous, then return true.
-    if (currentUser?.isAnonymous == true) {
+    if (currentUser.isAnonymous == true) {
       return true;
     }
 
     // If the user signed in but the email and phone number are empty, then
     // consider the user is anonymous.
-    if ((currentUser?.email == null || currentUser?.email == '') &&
-        (currentUser?.phoneNumber == null || currentUser?.phoneNumber == '')) {
+    if ((currentUser.email == null || currentUser.email == '') &&
+        (currentUser.phoneNumber == null || currentUser.phoneNumber == '')) {
       return true;
     }
   }

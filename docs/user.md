@@ -129,3 +129,11 @@ To search for users whose `display_name` begins with "you" (case-insensitive), y
 ### Important Note
 
 Allowing users to search for other users with a single letter, like `a`, can result in a large number of users being listed. This can lead to spam messages being sent to users whom they don't know. To prevent this, it is recommended to limit the search to words that are longer than 3 or 4 characters. This helps ensure that search results are more specific and reduces the likelihood of spam.
+
+
+
+## Functions
+
+### isAnonymous
+
+See the custom actions page

@@ -1,4 +1,4 @@
-package com.mycompany.commonlibrary
+package com.withcenter.primary
 
 import io.flutter.embedding.android.FlutterActivity
 

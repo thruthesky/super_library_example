@@ -8,593 +8,1094 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'lat_lng.dart';
 import 'place.dart';
 import 'uploaded_file.dart';
+import '/backend/backend.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '/backend/schema/structs/index.dart';
+import '/auth/firebase_auth/auth_util.dart';
 
-String? getFirstUrl(String? text) {
-  /// Returns the first URL in the given text.
-  /// The URL must start with 'http' or 'https'.
-  /// If no URL is found, returns null.
-  if (text == null) return null;
-  final RegExp urlRegex = RegExp(r'https?:\/\/\S+');
-  final Match? match = urlRegex.firstMatch(text);
-  return match?.group(0);
+bool? checkAnswer(
+  String operation,
+  List<int> numbers,
+  int? answer,
+) {
+  if (answer == null) return null;
+  if (operation == "addition") {
+    return numbers[0] + numbers[1] == answer;
+  }
+  if (operation == "subtraction") {
+    return numbers[0] - numbers[1] == answer;
+  }
+  if (operation == "multiplication") {
+    return (numbers[0] * numbers[1]) == answer;
+  }
+  if (operation == "division") {
+    return (numbers[0] / numbers[1]) == answer;
+  }
+  if (operation == "percentage") {
+    return (numbers[0] * numbers[1] / 100).ceil() == answer;
+  }
+  return null;
 }
 
-List<dynamic> countryPicker(
-  String? countryName,
-  List<String>? favorites,
-) {
-  List<Map<String, dynamic>> countries = [
-    {"name": "Afghanistan", "flag": "🇦🇫", "code": "AF", "dial_code": "+93"},
-    {
-      "name": "Åland Islands",
-      "flag": "🇦🇽",
-      "code": "AX",
-      "dial_code": "+358"
+List<YoutubeStruct> getEnglishTutorialYoutubes() {
+  final result = {
+    'wc2saYCVGFo': {
+      'channelTitle': "Teaching Kit",
+      'youtubeId': "wc2saYCVGFo",
+      'viewCount': 434784,
+      'title':
+          "CVC Reading Lesson 2 | CVC Words in Sentences | Sentences with Short Vowel Ee"
     },
-    {"name": "Albania", "flag": "🇦🇱", "code": "AL", "dial_code": "+355"},
-    {"name": "Algeria", "flag": "🇩🇿", "code": "DZ", "dial_code": "+213"},
-    {
-      "name": "American Samoa",
-      "flag": "🇦🇸",
-      "code": "AS",
-      "dial_code": "+1684"
+    'OTQkqR2LlgU': {
+      'channelTitle': "Read Kids",
+      'youtubeId': "OTQkqR2LlgU",
+      'viewCount': 2348646,
+      'title':
+          "PRACTICE READING 3-LETTER WORD / COLLECTION VOWELS / A  E  I  O  U /"
     },
-    {"name": "Andorra", "flag": "🇦🇩", "code": "AD", "dial_code": "+376"},
-    {"name": "Angola", "flag": "🇦🇴", "code": "AO", "dial_code": "+244"},
-    {"name": "Anguilla", "flag": "🇦🇮", "code": "AI", "dial_code": "+1264"},
-    {"name": "Antarctica", "flag": "🇦🇶", "code": "AQ", "dial_code": "+672"},
-    {
-      "name": "Antigua and Barbuda",
-      "flag": "🇦🇬",
-      "code": "AG",
-      "dial_code": "+1268"
+    'Fw0rdSHzWFY': {
+      'channelTitle': "English Singsing",
+      'youtubeId': "Fw0rdSHzWFY",
+      'viewCount': 7459970,
+      'title':
+          "Theme 1. Greeting - Good morning. Good bye. | ESL Song & Story - Learning English for Kids"
     },
-    {"name": "Argentina", "flag": "🇦🇷", "code": "AR", "dial_code": "+54"},
-    {"name": "Armenia", "flag": "🇦🇲", "code": "AM", "dial_code": "+374"},
-    {"name": "Aruba", "flag": "🇦🇼", "code": "AW", "dial_code": "+297"},
-    {"name": "Australia", "flag": "🇦🇺", "code": "AU", "dial_code": "+61"},
-    {"name": "Austria", "flag": "🇦🇹", "code": "AT", "dial_code": "+43"},
-    {"name": "Azerbaijan", "flag": "🇦🇿", "code": "AZ", "dial_code": "+994"},
-    {"name": "Bahamas", "flag": "🇧🇸", "code": "BS", "dial_code": "+1242"},
-    {"name": "Bahrain", "flag": "🇧🇭", "code": "BH", "dial_code": "+973"},
-    {"name": "Bangladesh", "flag": "🇧🇩", "code": "BD", "dial_code": "+880"},
-    {"name": "Barbados", "flag": "🇧🇧", "code": "BB", "dial_code": "+1246"},
-    {"name": "Belarus", "flag": "🇧🇾", "code": "BY", "dial_code": "+375"},
-    {"name": "Belgium", "flag": "🇧🇪", "code": "BE", "dial_code": "+32"},
-    {"name": "Belize", "flag": "🇧🇿", "code": "BZ", "dial_code": "+501"},
-    {"name": "Benin", "flag": "🇧🇯", "code": "BJ", "dial_code": "+229"},
-    {"name": "Bermuda", "flag": "🇧🇲", "code": "BM", "dial_code": "+1441"},
-    {"name": "Bhutan", "flag": "🇧🇹", "code": "BT", "dial_code": "+975"},
-    {
-      "name": "Bolivia, Plurinational State of bolivia",
-      "flag": "🇧🇴",
-      "code": "BO",
-      "dial_code": "+591"
+    'nkWhvzcvKdc': {
+      'channelTitle': "Teacher Aya Online Tutor",
+      'youtubeId': "nkWhvzcvKdc",
+      'viewCount': 2542872,
+      'title':
+          "Learn how to spell some of the basic words || Learn how to spell || Spelling || Lesson with quiz"
     },
-    {
-      "name": "Bosnia and Herzegovina",
-      "flag": "🇧🇦",
-      "code": "BA",
-      "dial_code": "+387"
+    'BRZajMzxjeY': {
+      'channelTitle': "Periwinkle",
+      'youtubeId': "BRZajMzxjeY",
+      'viewCount': 1144008,
+      'title':
+          "Vowels and Consonants | English Grammar & Composition Grade 1 | Periwinkle"
     },
-    {"name": "Botswana", "flag": "🇧🇼", "code": "BW", "dial_code": "+267"},
-    {"name": "Bouvet Island", "flag": "🇧🇻", "code": "BV", "dial_code": "+47"},
-    {"name": "Brazil", "flag": "🇧🇷", "code": "BR", "dial_code": "+55"},
-    {
-      "name": "British Indian Ocean Territory",
-      "flag": "🇮🇴",
-      "code": "IO",
-      "dial_code": "+246"
+    'HG361wJyDY0': {
+      'channelTitle': "Scratch Garden",
+      'youtubeId': "HG361wJyDY0",
+      'viewCount': 6495329,
+      'title': "The Spelling the Numbers Song | Counting Songs | Scratch Garden"
     },
-    {
-      "name": "Brunei Darussalam",
-      "flag": "🇧🇳",
-      "code": "BN",
-      "dial_code": "+673"
+    '78GhhuwR7M4': {
+      'channelTitle': "LucyMax English",
+      'youtubeId': "78GhhuwR7M4",
+      'viewCount': 1226290,
+      'title':
+          "Ch.10 What is your name? | Basic English Conversation Practice for Kids"
     },
-    {"name": "Bulgaria", "flag": "🇧🇬", "code": "BG", "dial_code": "+359"},
-    {"name": "Burkina Faso", "flag": "🇧🇫", "code": "BF", "dial_code": "+226"},
-    {"name": "Burundi", "flag": "🇧🇮", "code": "BI", "dial_code": "+257"},
-    {"name": "Cambodia", "flag": "🇰🇭", "code": "KH", "dial_code": "+855"},
-    {"name": "Cameroon", "flag": "🇨🇲", "code": "CM", "dial_code": "+237"},
-    {"name": "Canada", "flag": "🇨🇦", "code": "CA", "dial_code": "+1"},
-    {"name": "Cape Verde", "flag": "🇨🇻", "code": "CV", "dial_code": "+238"},
-    {
-      "name": "Cayman Islands",
-      "flag": "🇰🇾",
-      "code": "KY",
-      "dial_code": "+345"
+    'Qh7hCqyfaPs': {
+      'channelTitle': "Jack Hartmann Kids Music Channel",
+      'youtubeId': "Qh7hCqyfaPs",
+      'viewCount': 1280718,
+      'title':
+          "Parts of a Sentence | Pre-K and Kindergarten Version | Jack Hartmann"
     },
-    {
-      "name": "Central African Republic",
-      "flag": "🇨🇫",
-      "code": "CF",
-      "dial_code": "+236"
+    'nM91WToFCSE': {
+      'channelTitle': "TPK Learning",
+      'youtubeId': "nM91WToFCSE",
+      'viewCount': 814927,
+      'title': "K12 Grade 1 - English: Plural and Singular"
     },
-    {"name": "Chad", "flag": "🇹🇩", "code": "TD", "dial_code": "+235"},
-    {"name": "Chile", "flag": "🇨🇱", "code": "CL", "dial_code": "+56"},
-    {"name": "China", "flag": "🇨🇳", "code": "CN", "dial_code": "+86"},
-    {
-      "name": "Christmas Island",
-      "flag": "🇨🇽",
-      "code": "CX",
-      "dial_code": "+61"
+    'sMEKaZ8h1qg': {
+      'channelTitle': "NS LEARNING TOOLS",
+      'youtubeId': "sMEKaZ8h1qg",
+      'viewCount': 187505,
+      'title':
+          "Singular & Plural nouns list, Singular & Plural nouns for kids, English Grammar, 40 Singular-Plural"
     },
-    {
-      "name": "Cocos (Keeling) Islands",
-      "flag": "🇨🇨",
-      "code": "CC",
-      "dial_code": "+61"
+    'DdI6qJbi8gE': {
+      'channelTitle': "Badanamu",
+      'youtubeId': "DdI6qJbi8gE",
+      'viewCount': 1612594,
+      'title': "Consonant Song Cartoon Mix l Nursery Rhymes & Kids Songs"
     },
-    {"name": "Colombia", "flag": "🇨🇴", "code": "CO", "dial_code": "+57"},
-    {"name": "Comoros", "flag": "🇰🇲", "code": "KM", "dial_code": "+269"},
-    {"name": "Congo", "flag": "🇨🇬", "code": "CG", "dial_code": "+242"},
-    {
-      "name": "Congo, The Democratic Republic of the Congo",
-      "flag": "🇨🇩",
-      "code": "CD",
-      "dial_code": "+243"
+    'HzmG8uJFU2I': {
+      'channelTitle': "COLORTIME",
+      'youtubeId': "HzmG8uJFU2I",
+      'viewCount': 14,
+      'title':
+          "SPELLING NUMBERS 1-10 | NUMBER NAME 1-10 | SPELLING NUMBERS | SPELLING NUMBERS 1-20 | KIDS NUMBERS"
     },
-    {"name": "Cook Islands", "flag": "🇨🇰", "code": "CK", "dial_code": "+682"},
-    {"name": "Costa Rica", "flag": "🇨🇷", "code": "CR", "dial_code": "+506"},
-    {
-      "name": "Cote d'Ivoire",
-      "flag": "🇨🇮",
-      "code": "CI",
-      "dial_code": "+225"
+    'kKVGDmmXbVY': {
+      'channelTitle': "Teaching Kit",
+      'youtubeId': "kKVGDmmXbVY",
+      'viewCount': 43388,
+      'title':
+          "CVC Reading Lesson 5 | CVC Words in Sentences | Sentences with Short Vowel Uu"
     },
-    {"name": "Croatia", "flag": "🇭🇷", "code": "HR", "dial_code": "+385"},
-    {"name": "Cuba", "flag": "🇨🇺", "code": "CU", "dial_code": "+53"},
-    {"name": "Cyprus", "flag": "🇨🇾", "code": "CY", "dial_code": "+357"},
-    {
-      "name": "Czech Republic",
-      "flag": "🇨🇿",
-      "code": "CZ",
-      "dial_code": "+420"
+    '0Wrv_ZviMEc': {
+      'channelTitle': "Scratch Garden",
+      'youtubeId': "0Wrv_ZviMEc",
+      'viewCount': 7637585,
+      'title': "The Sentence Song | English Songs | Scratch Garden"
     },
-    {"name": "Denmark", "flag": "🇩🇰", "code": "DK", "dial_code": "+45"},
-    {"name": "Djibouti", "flag": "🇩🇯", "code": "DJ", "dial_code": "+253"},
-    {"name": "Dominica", "flag": "🇩🇲", "code": "DM", "dial_code": "+1767"},
-    {
-      "name": "Dominican Republic",
-      "flag": "🇩🇴",
-      "code": "DO",
-      "dial_code": "+1849"
+    'x83FKya5Yh4': {
+      'channelTitle': "ABC kindergarten",
+      'youtubeId': "x83FKya5Yh4",
+      'viewCount': 9096451,
+      'title':
+          "ABC for Kids | Alphabet writing for kids | A to Z | Write the alphabet along the dotted line"
     },
-    {"name": "Ecuador", "flag": "🇪🇨", "code": "EC", "dial_code": "+593"},
-    {"name": "Egypt", "flag": "🇪🇬", "code": "EG", "dial_code": "+20"},
-    {"name": "El Salvador", "flag": "🇸🇻", "code": "SV", "dial_code": "+503"},
-    {
-      "name": "Equatorial Guinea",
-      "flag": "🇬🇶",
-      "code": "GQ",
-      "dial_code": "+240"
+    '8NYeMoz9pjI': {
+      'channelTitle': "Nessy",
+      'youtubeId': "8NYeMoz9pjI",
+      'viewCount': 549812,
+      'title':
+          "Syllable Division | Learn the six rules of syllables | Chunking words | Learn to Read"
     },
-    {"name": "Eritrea", "flag": "🇪🇷", "code": "ER", "dial_code": "+291"},
-    {"name": "Estonia", "flag": "🇪🇪", "code": "EE", "dial_code": "+372"},
-    {"name": "Ethiopia", "flag": "🇪🇹", "code": "ET", "dial_code": "+251"},
-    {
-      "name": "Falkland Islands (Malvinas)",
-      "flag": "🇫🇰",
-      "code": "FK",
-      "dial_code": "+500"
+    '4x_G21KhcEw': {
+      'channelTitle': "ABC Moonsweeti",
+      'youtubeId': "4x_G21KhcEw",
+      'viewCount': 22526086,
+      'title':
+          "ABC Letter Sounds - Capital and Lowercase Alphabet - Learn to Read English with Phonics"
     },
-    {
-      "name": "Faroe Islands",
-      "flag": "🇫🇴",
-      "code": "FO",
-      "dial_code": "+298"
+    'uVeEAFy1z68': {
+      'channelTitle': "Little Fox - Kids Stories and Songs",
+      'youtubeId': "uVeEAFy1z68",
+      'viewCount': 5409181,
+      'title':
+          "Word Families 1 |  -at, -am, -an, -ad  | Phonics CVC Words for Kindergarten"
     },
-    {"name": "Fiji", "flag": "🇫🇯", "code": "FJ", "dial_code": "+679"},
-    {"name": "Finland", "flag": "🇫🇮", "code": "FI", "dial_code": "+358"},
-    {"name": "France", "flag": "🇫🇷", "code": "FR", "dial_code": "+33"},
-    {
-      "name": "French Guiana",
-      "flag": "🇬🇫",
-      "code": "GF",
-      "dial_code": "+594"
+    'FY_aB03_hJA': {
+      'channelTitle': "Read Kids",
+      'youtubeId': "FY_aB03_hJA",
+      'viewCount': 687297,
+      'title':
+          "PRACTICE READING SENTENCES / PART 1 / IMPROVE YOUR READING & VOCABULARY SKILLS"
     },
-    {
-      "name": "French Polynesia",
-      "flag": "🇵🇫",
-      "code": "PF",
-      "dial_code": "+689"
+    'pM-gzdUsEmQ': {
+      'channelTitle': "Teaching Kit",
+      'youtubeId': "pM-gzdUsEmQ",
+      'viewCount': 76733,
+      'title':
+          "CVC Reading Lesson 3 | CVC Words in Sentences | Sentences with Short Vowel Ii"
     },
-    {
-      "name": "French Southern Territories",
-      "flag": "🇹🇫",
-      "code": "TF",
-      "dial_code": "+262"
+    'UcGm_PM2IwY': {
+      'channelTitle': "Kiddos World TV",
+      'youtubeId': "UcGm_PM2IwY",
+      'viewCount': 21366629,
+      'title':
+          "Fruits and Vegetables Names - Learn Fruits And Vegetables English Vocabulary"
     },
-    {"name": "Gabon", "flag": "🇬🇦", "code": "GA", "dial_code": "+241"},
-    {"name": "Gambia", "flag": "🇬🇲", "code": "GM", "dial_code": "+220"},
-    {"name": "Georgia", "flag": "🇬🇪", "code": "GE", "dial_code": "+995"},
-    {"name": "Germany", "flag": "🇩🇪", "code": "DE", "dial_code": "+49"},
-    {"name": "Ghana", "flag": "🇬🇭", "code": "GH", "dial_code": "+233"},
-    {"name": "Gibraltar", "flag": "🇬🇮", "code": "GI", "dial_code": "+350"},
-    {"name": "Greece", "flag": "🇬🇷", "code": "GR", "dial_code": "+30"},
-    {"name": "Greenland", "flag": "🇬🇱", "code": "GL", "dial_code": "+299"},
-    {"name": "Grenada", "flag": "🇬🇩", "code": "GD", "dial_code": "+1473"},
-    {"name": "Guadeloupe", "flag": "🇬🇵", "code": "GP", "dial_code": "+590"},
-    {"name": "Guam", "flag": "🇬🇺", "code": "GU", "dial_code": "+1671"},
-    {"name": "Guatemala", "flag": "🇬🇹", "code": "GT", "dial_code": "+502"},
-    {"name": "Guernsey", "flag": "🇬🇬", "code": "GG", "dial_code": "+44"},
-    {"name": "Guinea", "flag": "🇬🇳", "code": "GN", "dial_code": "+224"},
-    {
-      "name": "Guinea-Bissau",
-      "flag": "🇬🇼",
-      "code": "GW",
-      "dial_code": "+245"
+    'drlIUqRYM-w': {
+      'channelTitle': "Kiddos World TV",
+      'youtubeId': "drlIUqRYM-w",
+      'viewCount': 20501429,
+      'title': "Learning ABC Letters and Basic English Vocabulary"
     },
-    {"name": "Guyana", "flag": "🇬🇾", "code": "GY", "dial_code": "+592"},
-    {"name": "Haiti", "flag": "🇭🇹", "code": "HT", "dial_code": "+509"},
-    {
-      "name": "Heard Island and Mcdonald Islands",
-      "flag": "🇭🇲",
-      "code": "HM",
-      "dial_code": "+672"
+    'txe2ZgHFWrM': {
+      'channelTitle': "WorldCom EDU",
+      'youtubeId': "txe2ZgHFWrM",
+      'viewCount': 2824012,
+      'title':
+          "Learn English through Sight Words 100 LEVEL 3 Full | Easy English with Brian Stuart"
     },
-    {
-      "name": "Holy See (Vatican City State)",
-      "flag": "🇻🇦",
-      "code": "VA",
-      "dial_code": "+379"
+    'lc-uLipc09s': {
+      'channelTitle': "Teaching Kit",
+      'youtubeId': "lc-uLipc09s",
+      'viewCount': 49191,
+      'title':
+          "CVC Reading Lesson 4 | CVC Words in Sentences | Sentences with Short Vowel Oo"
     },
-    {"name": "Honduras", "flag": "🇭🇳", "code": "HN", "dial_code": "+504"},
-    {"name": "Hong Kong", "flag": "🇭🇰", "code": "HK", "dial_code": "+852"},
-    {"name": "Hungary", "flag": "🇭🇺", "code": "HU", "dial_code": "+36"},
-    {"name": "Iceland", "flag": "🇮🇸", "code": "IS", "dial_code": "+354"},
-    {"name": "India", "flag": "🇮🇳", "code": "IN", "dial_code": "+91"},
-    {"name": "Indonesia", "flag": "🇮🇩", "code": "ID", "dial_code": "+62"},
-    {
-      "name": "Iran, Islamic Republic of Persian Gulf",
-      "flag": "🇮🇷",
-      "code": "IR",
-      "dial_code": "+98"
+    '1uAs44DbHE4': {
+      'channelTitle': "Casey's Clever Cookies",
+      'youtubeId': "1uAs44DbHE4",
+      'viewCount': 80390,
+      'title': "Synonyms and Antonyms [children's song!]"
     },
-    {"name": "Iraq", "flag": "🇮🇶", "code": "IQ", "dial_code": "+964"},
-    {"name": "Ireland", "flag": "🇮🇪", "code": "IE", "dial_code": "+353"},
-    {"name": "Isle of Man", "flag": "🇮🇲", "code": "IM", "dial_code": "+44"},
-    {"name": "Israel", "flag": "🇮🇱", "code": "IL", "dial_code": "+972"},
-    {"name": "Italy", "flag": "🇮🇹", "code": "IT", "dial_code": "+39"},
-    {"name": "Jamaica", "flag": "🇯🇲", "code": "JM", "dial_code": "+1876"},
-    {"name": "Japan", "flag": "🇯🇵", "code": "JP", "dial_code": "+81"},
-    {"name": "Jersey", "flag": "🇯🇪", "code": "JE", "dial_code": "+44"},
-    {"name": "Jordan", "flag": "🇯🇴", "code": "JO", "dial_code": "+962"},
-    {"name": "Kazakhstan", "flag": "🇰🇿", "code": "KZ", "dial_code": "+7"},
-    {"name": "Kenya", "flag": "🇰🇪", "code": "KE", "dial_code": "+254"},
-    {"name": "Kiribati", "flag": "🇰🇮", "code": "KI", "dial_code": "+686"},
-    {
-      "name": "Korea, Democratic People's Republic of Korea",
-      "flag": "🇰🇵",
-      "code": "KP",
-      "dial_code": "+850"
+    'hyh_FvdoMh0': {
+      'channelTitle': "Hopscotch",
+      'youtubeId': "hyh_FvdoMh0",
+      'viewCount': 914390,
+      'title': "Antonyms (The Opposites Song)"
     },
-    {
-      "name": "대한민국 (South Korea)",
-      "flag": "🇰🇷",
-      "code": "KR",
-      "dial_code": "+82"
+    'PDI2xlOBcM4': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "PDI2xlOBcM4",
+      'viewCount': 358860,
+      'title':
+          "SYNONYMS and ANTONYMS | Compilation | What is the difference between synonyms and antonyms?"
     },
-    {"name": "Kosovo", "flag": "🇽🇰", "code": "XK", "dial_code": "+383"},
-    {"name": "Kuwait", "flag": "🇰🇼", "code": "KW", "dial_code": "+965"},
-    {"name": "Kyrgyzstan", "flag": "🇰🇬", "code": "KG", "dial_code": "+996"},
-    {"name": "Laos", "flag": "🇱🇦", "code": "LA", "dial_code": "+856"},
-    {"name": "Latvia", "flag": "🇱🇻", "code": "LV", "dial_code": "+371"},
-    {"name": "Lebanon", "flag": "🇱🇧", "code": "LB", "dial_code": "+961"},
-    {"name": "Lesotho", "flag": "🇱🇸", "code": "LS", "dial_code": "+266"},
-    {"name": "Liberia", "flag": "🇱🇷", "code": "LR", "dial_code": "+231"},
-    {
-      "name": "Libyan Arab Jamahiriya",
-      "flag": "🇱🇾",
-      "code": "LY",
-      "dial_code": "+218"
+    'PEYlyt7C94E': {
+      'channelTitle': "Teaching Kit",
+      'youtubeId': "PEYlyt7C94E",
+      'viewCount': 1503171,
+      'title':
+          "CVC Reading Lesson 1 | CVC words in Sentences | Sentences with Short Vowel Aa"
     },
-    {
-      "name": "Liechtenstein",
-      "flag": "🇱🇮",
-      "code": "LI",
-      "dial_code": "+423"
+    'RUSCz41aDug': {
+      'channelTitle': "A*List! English Learning Videos for Kids",
+      'youtubeId': "RUSCz41aDug",
+      'viewCount': 18910858,
+      'title': "The Short Vowel Song | Best Phonics"
     },
-    {"name": "Lithuania", "flag": "🇱🇹", "code": "LT", "dial_code": "+370"},
-    {"name": "Luxembourg", "flag": "🇱🇺", "code": "LU", "dial_code": "+352"},
-    {"name": "Macao", "flag": "🇲🇴", "code": "MO", "dial_code": "+853"},
-    {"name": "Macedonia", "flag": "🇲🇰", "code": "MK", "dial_code": "+389"},
-    {"name": "Madagascar", "flag": "🇲🇬", "code": "MG", "dial_code": "+261"},
-    {"name": "Malawi", "flag": "🇲🇼", "code": "MW", "dial_code": "+265"},
-    {"name": "Malaysia", "flag": "🇲🇾", "code": "MY", "dial_code": "+60"},
-    {"name": "Maldives", "flag": "🇲🇻", "code": "MV", "dial_code": "+960"},
-    {"name": "Mali", "flag": "🇲🇱", "code": "ML", "dial_code": "+223"},
-    {"name": "Malta", "flag": "🇲🇹", "code": "MT", "dial_code": "+356"},
-    {
-      "name": "Marshall Islands",
-      "flag": "🇲🇭",
-      "code": "MH",
-      "dial_code": "+692"
+    'BI1Syz9I2n0': {
+      'channelTitle': "Periwinkle",
+      'youtubeId': "BI1Syz9I2n0",
+      'viewCount': 2836341,
+      'title':
+          "Nouns: Singular & Plural | English Grammar & Composition Grade 2 | Periwinkle"
     },
-    {"name": "Martinique", "flag": "🇲🇶", "code": "MQ", "dial_code": "+596"},
-    {"name": "Mauritania", "flag": "🇲🇷", "code": "MR", "dial_code": "+222"},
-    {"name": "Mauritius", "flag": "🇲🇺", "code": "MU", "dial_code": "+230"},
-    {"name": "Mayotte", "flag": "🇾🇹", "code": "YT", "dial_code": "+262"},
-    {"name": "Mexico", "flag": "🇲🇽", "code": "MX", "dial_code": "+52"},
-    {
-      "name": "Micronesia, Federated States of Micronesia",
-      "flag": "🇫🇲",
-      "code": "FM",
-      "dial_code": "+691"
+    '_TM_-0-ayFk': {
+      'channelTitle': "Tora the Teacher",
+      'youtubeId': "_TM_-0-ayFk",
+      'viewCount': 442315,
+      'title':
+          "Short and Long Vowel Chant | Sounds and Actions for a, e, i, o, u"
     },
-    {"name": "Moldova", "flag": "🇲🇩", "code": "MD", "dial_code": "+373"},
-    {"name": "Monaco", "flag": "🇲🇨", "code": "MC", "dial_code": "+377"},
-    {"name": "Mongolia", "flag": "🇲🇳", "code": "MN", "dial_code": "+976"},
-    {"name": "Montenegro", "flag": "🇲🇪", "code": "ME", "dial_code": "+382"},
-    {"name": "Montserrat", "flag": "🇲🇸", "code": "MS", "dial_code": "+1664"},
-    {"name": "Morocco", "flag": "🇲🇦", "code": "MA", "dial_code": "+212"},
-    {"name": "Mozambique", "flag": "🇲🇿", "code": "MZ", "dial_code": "+258"},
-    {"name": "Myanmar", "flag": "🇲🇲", "code": "MM", "dial_code": "+95"},
-    {"name": "Namibia", "flag": "🇳🇦", "code": "NA", "dial_code": "+264"},
-    {"name": "Nauru", "flag": "🇳🇷", "code": "NR", "dial_code": "+674"},
-    {"name": "Nepal", "flag": "🇳🇵", "code": "NP", "dial_code": "+977"},
-    {"name": "Netherlands", "flag": "🇳🇱", "code": "NL", "dial_code": "+31"},
-    {
-      "name": "Netherlands Antilles",
-      "flag": "",
-      "code": "AN",
-      "dial_code": "+599"
-    },
-    {
-      "name": "New Caledonia",
-      "flag": "🇳🇨",
-      "code": "NC",
-      "dial_code": "+687"
-    },
-    {"name": "New Zealand", "flag": "🇳🇿", "code": "NZ", "dial_code": "+64"},
-    {"name": "Nicaragua", "flag": "🇳🇮", "code": "NI", "dial_code": "+505"},
-    {"name": "Niger", "flag": "🇳🇪", "code": "NE", "dial_code": "+227"},
-    {"name": "Nigeria", "flag": "🇳🇬", "code": "NG", "dial_code": "+234"},
-    {"name": "Niue", "flag": "🇳🇺", "code": "NU", "dial_code": "+683"},
-    {
-      "name": "Norfolk Island",
-      "flag": "🇳🇫",
-      "code": "NF",
-      "dial_code": "+672"
-    },
-    {
-      "name": "Northern Mariana Islands",
-      "flag": "🇲🇵",
-      "code": "MP",
-      "dial_code": "+1670"
-    },
-    {"name": "Norway", "flag": "🇳🇴", "code": "NO", "dial_code": "+47"},
-    {"name": "Oman", "flag": "🇴🇲", "code": "OM", "dial_code": "+968"},
-    {"name": "Pakistan", "flag": "🇵🇰", "code": "PK", "dial_code": "+92"},
-    {"name": "Palau", "flag": "🇵🇼", "code": "PW", "dial_code": "+680"},
-    {
-      "name": "Palestinian Territory, Occupied",
-      "flag": "🇵🇸",
-      "code": "PS",
-      "dial_code": "+970"
-    },
-    {"name": "Panama", "flag": "🇵🇦", "code": "PA", "dial_code": "+507"},
-    {
-      "name": "Papua New Guinea",
-      "flag": "🇵🇬",
-      "code": "PG",
-      "dial_code": "+675"
-    },
-    {"name": "Paraguay", "flag": "🇵🇾", "code": "PY", "dial_code": "+595"},
-    {"name": "Peru", "flag": "🇵🇪", "code": "PE", "dial_code": "+51"},
-    {
-      "name": "필리핀 (Philippines)",
-      "flag": "🇵🇭",
-      "code": "PH",
-      "dial_code": "+63"
-    },
-    {"name": "Pitcairn", "flag": "🇵🇳", "code": "PN", "dial_code": "+64"},
-    {"name": "Poland", "flag": "🇵🇱", "code": "PL", "dial_code": "+48"},
-    {"name": "Portugal", "flag": "🇵🇹", "code": "PT", "dial_code": "+351"},
-    {"name": "Puerto Rico", "flag": "🇵🇷", "code": "PR", "dial_code": "+1939"},
-    {"name": "Qatar", "flag": "🇶🇦", "code": "QA", "dial_code": "+974"},
-    {"name": "Romania", "flag": "🇷🇴", "code": "RO", "dial_code": "+40"},
-    {"name": "Russia", "flag": "🇷🇺", "code": "RU", "dial_code": "+7"},
-    {"name": "Rwanda", "flag": "🇷🇼", "code": "RW", "dial_code": "+250"},
-    {"name": "Reunion", "flag": "🇷🇪", "code": "RE", "dial_code": "+262"},
-    {
-      "name": "Saint Barthelemy",
-      "flag": "🇧🇱",
-      "code": "BL",
-      "dial_code": "+590"
-    },
-    {
-      "name": "Saint Helena, Ascension and Tristan Da Cunha",
-      "flag": "🇸🇭",
-      "code": "SH",
-      "dial_code": "+290"
-    },
-    {
-      "name": "Saint Kitts and Nevis",
-      "flag": "🇰🇳",
-      "code": "KN",
-      "dial_code": "+1869"
-    },
-    {"name": "Saint Lucia", "flag": "🇱🇨", "code": "LC", "dial_code": "+1758"},
-    {"name": "Saint Martin", "flag": "🇲🇫", "code": "MF", "dial_code": "+590"},
-    {
-      "name": "Saint Pierre and Miquelon",
-      "flag": "🇵🇲",
-      "code": "PM",
-      "dial_code": "+508"
-    },
-    {
-      "name": "Saint Vincent and the Grenadines",
-      "flag": "🇻🇨",
-      "code": "VC",
-      "dial_code": "+1784"
-    },
-    {"name": "Samoa", "flag": "🇼🇸", "code": "WS", "dial_code": "+685"},
-    {"name": "San Marino", "flag": "🇸🇲", "code": "SM", "dial_code": "+378"},
-    {
-      "name": "Sao Tome and Principe",
-      "flag": "🇸🇹",
-      "code": "ST",
-      "dial_code": "+239"
-    },
-    {"name": "Saudi Arabia", "flag": "🇸🇦", "code": "SA", "dial_code": "+966"},
-    {"name": "Senegal", "flag": "🇸🇳", "code": "SN", "dial_code": "+221"},
-    {"name": "Serbia", "flag": "🇷🇸", "code": "RS", "dial_code": "+381"},
-    {"name": "Seychelles", "flag": "🇸🇨", "code": "SC", "dial_code": "+248"},
-    {"name": "Sierra Leone", "flag": "🇸🇱", "code": "SL", "dial_code": "+232"},
-    {"name": "Singapore", "flag": "🇸🇬", "code": "SG", "dial_code": "+65"},
-    {"name": "Slovakia", "flag": "🇸🇰", "code": "SK", "dial_code": "+421"},
-    {"name": "Slovenia", "flag": "🇸🇮", "code": "SI", "dial_code": "+386"},
-    {
-      "name": "Solomon Islands",
-      "flag": "🇸🇧",
-      "code": "SB",
-      "dial_code": "+677"
-    },
-    {"name": "Somalia", "flag": "🇸🇴", "code": "SO", "dial_code": "+252"},
-    {"name": "South Africa", "flag": "🇿🇦", "code": "ZA", "dial_code": "+27"},
-    {"name": "South Sudan", "flag": "🇸🇸", "code": "SS", "dial_code": "+211"},
-    {
-      "name": "South Georgia and the South Sandwich Islands",
-      "flag": "🇬🇸",
-      "code": "GS",
-      "dial_code": "+500"
-    },
-    {"name": "Spain", "flag": "🇪🇸", "code": "ES", "dial_code": "+34"},
-    {"name": "Sri Lanka", "flag": "🇱🇰", "code": "LK", "dial_code": "+94"},
-    {"name": "Sudan", "flag": "🇸🇩", "code": "SD", "dial_code": "+249"},
-    {"name": "Suriname", "flag": "🇸🇷", "code": "SR", "dial_code": "+597"},
-    {
-      "name": "Svalbard and Jan Mayen",
-      "flag": "🇸🇯",
-      "code": "SJ",
-      "dial_code": "+47"
-    },
-    {"name": "Eswatini", "flag": "🇸🇿", "code": "SZ", "dial_code": "+268"},
-    {"name": "Sweden", "flag": "🇸🇪", "code": "SE", "dial_code": "+46"},
-    {"name": "Switzerland", "flag": "🇨🇭", "code": "CH", "dial_code": "+41"},
-    {
-      "name": "Syrian Arab Republic",
-      "flag": "🇸🇾",
-      "code": "SY",
-      "dial_code": "+963"
-    },
-    {"name": "Taiwan", "flag": "🇹🇼", "code": "TW", "dial_code": "+886"},
-    {"name": "Tajikistan", "flag": "🇹🇯", "code": "TJ", "dial_code": "+992"},
-    {
-      "name": "Tanzania, United Republic of Tanzania",
-      "flag": "🇹🇿",
-      "code": "TZ",
-      "dial_code": "+255"
-    },
-    {"name": "Thailand", "flag": "🇹🇭", "code": "TH", "dial_code": "+66"},
-    {"name": "Timor-Leste", "flag": "🇹🇱", "code": "TL", "dial_code": "+670"},
-    {"name": "Togo", "flag": "🇹🇬", "code": "TG", "dial_code": "+228"},
-    {"name": "Tokelau", "flag": "🇹🇰", "code": "TK", "dial_code": "+690"},
-    {"name": "Tonga", "flag": "🇹🇴", "code": "TO", "dial_code": "+676"},
-    {
-      "name": "Trinidad and Tobago",
-      "flag": "🇹🇹",
-      "code": "TT",
-      "dial_code": "+1868"
-    },
-    {"name": "Tunisia", "flag": "🇹🇳", "code": "TN", "dial_code": "+216"},
-    {"name": "Turkey", "flag": "🇹🇷", "code": "TR", "dial_code": "+90"},
-    {"name": "Turkmenistan", "flag": "🇹🇲", "code": "TM", "dial_code": "+993"},
-    {
-      "name": "Turks and Caicos Islands",
-      "flag": "🇹🇨",
-      "code": "TC",
-      "dial_code": "+1649"
-    },
-    {"name": "Tuvalu", "flag": "🇹🇻", "code": "TV", "dial_code": "+688"},
-    {"name": "Uganda", "flag": "🇺🇬", "code": "UG", "dial_code": "+256"},
-    {"name": "Ukraine", "flag": "🇺🇦", "code": "UA", "dial_code": "+380"},
-    {
-      "name": "United Arab Emirates",
-      "flag": "🇦🇪",
-      "code": "AE",
-      "dial_code": "+971"
-    },
-    {
-      "name": "United Kingdom",
-      "flag": "🇬🇧",
-      "code": "GB",
-      "dial_code": "+44"
-    },
-    {"name": "United States", "flag": "🇺🇸", "code": "US", "dial_code": "+1"},
-    {"name": "Uruguay", "flag": "🇺🇾", "code": "UY", "dial_code": "+598"},
-    {"name": "Uzbekistan", "flag": "🇺🇿", "code": "UZ", "dial_code": "+998"},
-    {"name": "Vanuatu", "flag": "🇻🇺", "code": "VU", "dial_code": "+678"},
-    {
-      "name": "Venezuela, Bolivarian Republic of Venezuela",
-      "flag": "🇻🇪",
-      "code": "VE",
-      "dial_code": "+58"
-    },
-    {"name": "Vietnam", "flag": "🇻🇳", "code": "VN", "dial_code": "+84"},
-    {
-      "name": "Virgin Islands, British",
-      "flag": "🇻🇬",
-      "code": "VG",
-      "dial_code": "+1284"
-    },
-    {
-      "name": "Virgin Islands, U.S.",
-      "flag": "🇻🇮",
-      "code": "VI",
-      "dial_code": "+1340"
-    },
-    {
-      "name": "Wallis and Futuna",
-      "flag": "🇼🇫",
-      "code": "WF",
-      "dial_code": "+681"
-    },
-    {"name": "Yemen", "flag": "🇾🇪", "code": "YE", "dial_code": "+967"},
-    {"name": "Zambia", "flag": "🇿🇲", "code": "ZM", "dial_code": "+260"},
-    {"name": "Zimbabwe", "flag": "🇿🇼", "code": "ZW", "dial_code": "+263"}
-  ];
-
-  if (countryName != null && countryName.isNotEmpty) {
-    countryName = countryName.toLowerCase();
-    List<Map<String, dynamic>> newCountries = [];
-
-    for (var i = 0; i < countries.length; i++) {
-      if (countries[i]['name']!.toLowerCase().contains(countryName)) {
-        newCountries.add(countries[i]);
-      } else if (countries[i]['code']!.toLowerCase() == countryName) {
-        newCountries.add(countries[i]);
-      } else if (countries[i]['dial_code']!
-          .toLowerCase()
-          .contains(countryName)) {
-        newCountries.add(countries[i]);
-      }
+    '4SNdy7q6b8g': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "4SNdy7q6b8g",
+      'viewCount': 286149,
+      'title': "Learning each letter's sound - The Alphabet - Phonics For Kids"
     }
-    return newCountries;
-  } else {
-    if (favorites != null) {
-      List<Map<String, dynamic>> foundFavorites = [];
-      for (var i = 0; i < countries.length; i++) {
-        if (favorites.contains(countries[i]['dial_code']) ||
-            favorites.contains(countries[i]['name'])) {
-          foundFavorites.add({...countries[i], "isFavorite": true});
-        }
-      }
-      countries = [
-        ...foundFavorites,
-        {
-          "name": "Divider",
-          "flag": "",
-          "code": "",
-          "dial_code": "",
-          "isDivider": true
-        },
-        ...countries
-      ];
-    }
+  };
+  return result.entries
+      .map((v) => YoutubeStruct(
+          title: v.value["title"] as String,
+          channel: v.value["channelTitle"] as String,
+          youtubeId: v.key,
+          viewCount: v.value["viewCount"] as int))
+      .toList();
+}
 
-    return countries;
+List<YoutubeStruct> getMusicYoutubes() {
+  final result = {
+    'rXqu2gwO0T0': {
+      'channelTitle': "BANGTANTV",
+      'youtubeId': "rXqu2gwO0T0",
+      'viewCount': 2665042,
+      'title': "지민 (Jimin) 'Who' @ The Tonight Show Starring Jimmy Fallon"
+    },
+    '11iZcYbq_is': {
+      'channelTitle': "이영지",
+      'youtubeId': "11iZcYbq_is",
+      'viewCount': 26400305,
+      'title': "[MV] 이영지 - Small girl feat. 도경수 (D.O.)"
+    },
+    'DdLYSziSXII': {
+      'channelTitle': "TWICE JAPAN OFFICIAL YouTube Channel",
+      'youtubeId': "DdLYSziSXII",
+      'viewCount': 75182257,
+      'title': "TWICE「Wake Me Up」Music Video"
+    },
+    'Bo_dgP7bilM': {
+      'channelTitle': "Red Velvet",
+      'youtubeId': "Bo_dgP7bilM",
+      'viewCount': 56825,
+      'title': "Red Velvet 레드벨벳 'Night Drive' (Official Audio)"
+    },
+    'fMIn43MiwG8': {
+      'channelTitle': "TWICE JAPAN OFFICIAL YouTube Channel",
+      'youtubeId': "fMIn43MiwG8",
+      'viewCount': 78306033,
+      'title': "TWICE 「Celebrate」 Music Video"
+    },
+    'bizQRBt4xeY': {
+      'channelTitle': "jisooschild",
+      'youtubeId': "bizQRBt4xeY",
+      'viewCount': 459027,
+      'title':
+          "JISOO (지수) - CLARITY (Live SOLO STAGE, In Your Area Tour, Seoul)"
+    },
+    '9WKzt9QEmD4': {
+      'channelTitle': "이지금 [IU Official]",
+      'youtubeId': "9WKzt9QEmD4",
+      'viewCount': 4181637,
+      'title': "IU 'Shopper' Live Clip (2024 IU WORLD TOUR CONCERT IN SEOUL)"
+    },
+    'ax1csKKQnns': {
+      'channelTitle': "이지금 [IU Official]",
+      'youtubeId': "ax1csKKQnns",
+      'viewCount': 11334788,
+      'title':
+          "IU 'Love wins all' Live Clip (2024 IU WORLD TOUR CONCERT IN SEOUL)"
+    },
+    'Cxzzg7L3Xgc': {
+      'channelTitle': "이지금 [IU Official]",
+      'youtubeId': "Cxzzg7L3Xgc",
+      'viewCount': 14748136,
+      'title':
+          "[IU] '에잇(eight)' Live Clip (2022 IU Concert 'The Golden Hour : 오렌지 태양 아래')"
+    },
+    'ZETQ1MKypC8': {
+      'channelTitle': "NewJeans",
+      'youtubeId': "ZETQ1MKypC8",
+      'viewCount': 3496509,
+      'title':
+          "NewJeans (뉴진스) 'Ditto' Stage Cam @ 2023 FNS Music Festival Summer"
+    },
+    'SN1Gb4Pqdo4': {
+      'channelTitle': "NewJeans",
+      'youtubeId': "SN1Gb4Pqdo4",
+      'viewCount': 2764572,
+      'title': "NewJeans (뉴진스) ‘OMG’ Stage Cam @ ONGAKUNOHI 2023"
+    },
+    'PFrrQdmq_ws': {
+      'channelTitle': "ks",
+      'youtubeId': "PFrrQdmq_ws",
+      'viewCount': 9478,
+      'title': "NewJeans (뉴진스) - Supernatural (Citypop R&B Remix)"
+    },
+    'QGCkDOkpWf8': {
+      'channelTitle': "TWICE JAPAN OFFICIAL YouTube Channel",
+      'youtubeId': "QGCkDOkpWf8",
+      'viewCount': 10526902,
+      'title': "TWICE『DIVE』Music Video"
+    },
+    '3YqPKLZF_WU': {
+      'channelTitle': "Coldplay",
+      'youtubeId': "3YqPKLZF_WU",
+      'viewCount': 307736093,
+      'title': "Coldplay X BTS - My Universe (Official Video)"
+    },
+    'kRT174IdxuM': {
+      'channelTitle': "TWICE JAPAN OFFICIAL YouTube Channel",
+      'youtubeId': "kRT174IdxuM",
+      'viewCount': 87911490,
+      'title': "TWICE 「Fanfare」Music Video"
+    },
+    '8ExNmYax-ms': {
+      'channelTitle': "ITZY JAPAN OFFICIAL YouTube Channel",
+      'youtubeId': "8ExNmYax-ms",
+      'viewCount': 2893387,
+      'title': "ITZY「Algorhythm」Music Video"
+    },
+    'o4GHoqGtRkg': {
+      'channelTitle': "BLACKPINK",
+      'youtubeId': "o4GHoqGtRkg",
+      'viewCount': 70188552,
+      'title': "BLACKPINK - ‘Don't Know What To Do’ 0407 SBS Inkigayo"
+    },
+    'a7GITgqwDVg': {
+      'channelTitle': "Charlie Puth",
+      'youtubeId': "a7GITgqwDVg",
+      'viewCount': 421228074,
+      'title':
+          "Charlie Puth - Left And Right (feat. Jung Kook of BTS) [Official Video]"
+    },
+    'mX8rMMS-MbI': {
+      'channelTitle': "Rosesarerosie",
+      'youtubeId': "mX8rMMS-MbI",
+      'viewCount': 25944693,
+      'title': "ROSÉ - Viva La Vida (Coldplay) Live Studio Cover"
+    },
+    'Bl0s-1c5L0M': {
+      'channelTitle': "Red Velvet",
+      'youtubeId': "Bl0s-1c5L0M",
+      'viewCount': 43157300,
+      'title': "Red Velvet 레드벨벳 'Feel My Rhythm' Performance Video"
+    }
+  };
+  return result.entries
+      .map((v) => YoutubeStruct(
+          title: v.value["title"] as String,
+          channel: v.value["channelTitle"] as String,
+          youtubeId: v.key,
+          viewCount: v.value["viewCount"] as int))
+      .toList();
+}
+
+PhonicStruct? getNextPhonic(PhonicStruct currentPhonic) {
+  final phonics = getPhonics();
+  final indexOfCurrentPhonic = phonics.indexOf(currentPhonic);
+  if (indexOfCurrentPhonic == -1) return null;
+  if (indexOfCurrentPhonic + 1 >= phonics.length) return null;
+  return phonics[indexOfCurrentPhonic + 1];
+}
+
+PhonicStruct? getPreviousPhonic(PhonicStruct currentPhonic) {
+  final phonics = getPhonics();
+  final indexOfCurrentPhonic = phonics.indexOf(currentPhonic);
+  if (indexOfCurrentPhonic - 1 < 0) return null;
+  return phonics[indexOfCurrentPhonic - 1];
+}
+
+String getPhonicAudioPath(String word) {
+  return 'https://raw.githubusercontent.com/thruthesky/aicool_assets/refs/heads/main/phonics/audio/$word.mp3';
+}
+
+String getPhonicExampleAudioPath(String word) {
+  return 'https://raw.githubusercontent.com/thruthesky/aicool_assets/refs/heads/main/phonics/audio/$word-example.mp3';
+}
+
+String getPhonicImagePath(String word) {
+  return 'https://raw.githubusercontent.com/thruthesky/aicool_assets/refs/heads/main/phonics/images/$word.webp';
+}
+
+List<PhonicStruct> getPhonics() {
+  final values = {
+    'airplane': {'example': 'The airplane flies high in the sky.'},
+    'apple': {'example': 'The apple is red and round.'},
+    'axe': {'example': 'The axe cuts the wood.'},
+    'ball': {'example': 'The ball rolls on the ground.'},
+    'banana': {'example': 'The banana is yellow and tasty.'},
+    'basket': {'example': 'The basket holds apples.'},
+    'bell': {'example': 'The bell makes a loud sound.'},
+    'bicycle': {'example': 'I ride my bicycle to the park.'},
+    'bird': {'example': 'The bird sings in the tree.'},
+    'boat': {'example': 'The boat floats on the water.'},
+    'book': {'example': 'I like to read a book.'},
+    'bread': {'example': 'The bread is soft and warm.'},
+    'broom': {'example': 'I use the broom to clean the floor.'},
+    'bucket': {'example': 'The bucket is full of water.'},
+    'bus': {'example': 'The bus takes us to school.'},
+    'butterfly': {'example': 'The butterfly flies from flower to flower.'},
+    'cactus': {'example': 'The cactus has sharp spines.'},
+    'cake': {'example': 'The cake is sweet and yummy.'},
+    'camera': {'example': 'The camera takes pictures.'},
+    'candle': {'example': "The candle gives light when it's dark."},
+    'candy': {'example': 'The candy is sweet and colorful.'},
+    'car': {'example': 'The car drives down the road.'},
+    'carrot': {'example': 'The carrot is orange and crunchy.'},
+    'cat': {'example': 'The cat sits on the mat.'},
+    'chair': {'example': 'I sit on the chair.'},
+    'chicken': {'example': 'The chicken lays eggs.'},
+    'clock': {'example': 'The clock tells the time.'},
+    'comb': {'example': 'I use the comb to fix my hair.'},
+    'corn': {'example': 'The corn is yellow and sweet.'},
+    'cow': {'example': 'The cow gives us milk.'},
+    'crocodile': {'example': 'The crocodile swims in the river.'},
+    'deer': {'example': 'The deer runs fast in the forest.'},
+    'dice': {'example': 'I roll the dice to play the game.'},
+    'dinosaur': {'example': 'The dinosaur is big and strong.'},
+    'dog': {'example': 'The dog sits on the mat.'},
+    'donut': {'example': 'The donut is sweet and round.'},
+    'drum': {'example': 'The drum makes a loud noise.'},
+    'duck': {'example': 'The duck swims in the pond.'},
+    'egg': {'example': 'The egg is white and oval.'},
+    'eggplant': {'example': 'The eggplant is purple and shiny.'},
+    'elephant': {'example': 'The elephant has a long trunk.'},
+    'fence': {'example': 'The fence keeps the animals safe.'},
+    'firetruck': {'example': 'The firetruck is red and big.'},
+    'fish': {'example': 'The fish swims in the water.'},
+    'flashlight': {'example': 'The flashlight helps us see in the dark.'},
+    'flower': {'example': 'The flower is bright and pretty.'},
+    'frog': {'example': 'The frog jumps into the pond.'},
+    'grapes': {'example': 'The grapes are small and purple.'},
+    'guitar': {'example': 'The guitar makes music.'},
+    'hat': {'example': 'The hat protects me from the sun.'},
+    'helicopter': {'example': 'The helicopter flies in the air.'},
+    'helmet': {'example': 'The helmet keeps my head safe.'},
+    'horse': {'example': 'The horse runs in the field.'},
+    'house': {'example': 'The house is big and cozy.'},
+    'icecream': {'example': 'The ice cream is cold and sweet.'},
+    'key': {'example': 'The key opens the door.'},
+    'kite': {'example': 'The kite flies in the sky.'},
+    'ladder': {'example': 'The ladder helps me reach high places.'},
+    'lamp': {'example': 'The lamp gives light to the room.'},
+    'leaves': {'example': 'The leaves fall from the tree.'},
+    'log': {'example': 'The log is heavy and brown.'},
+    'magnet': {'example': 'The magnet sticks to metal.'},
+    'mirror': {'example': 'The mirror shows my reflection.'},
+    'moon': {'example': 'The moon shines at night.'},
+    'mouse': {'example': 'The mouse is small and quick.'},
+    'mug': {'example': 'The mug holds my drink.'},
+    'mushroom': {'example': 'The mushroom grows in the forest.'},
+    'nest': {'example': 'The bird builds a nest in the tree.'},
+    'newspaper': {'example': "The newspaper has today's news."},
+    'orange': {'example': 'The orange is juicy and sweet.'},
+    'owl': {'example': 'The owl hoots at night.'},
+    'peas': {'example': 'The peas are small and green.'},
+    'pencil': {'example': 'I use the pencil to write.'},
+    'penguin': {'example': 'The penguin waddles on the ice.'},
+    'pig': {'example': 'The pig rolls in the mud.'},
+    'pillow': {'example': 'I rest my head on the pillow.'},
+    'pineapple': {'example': 'The pineapple is sweet and spiky.'},
+    'pizza': {'example': 'The pizza is hot and cheesy.'},
+    'potato': {'example': 'The potato is brown and round.'},
+    'rabbit': {'example': 'The rabbit hops in the garden.'},
+    'sandwich': {'example': 'The sandwich is tasty and filling.'},
+    'scissor': {'example': 'I use the scissors to cut paper.'},
+    'scooter': {'example': 'I ride my scooter down the street.'},
+    'shark': {'example': 'The shark swims in the ocean.'},
+    'shoe': {'example': 'The shoe protects my feet.'},
+    'skateboard': {'example': 'I ride my skateboard at the park.'},
+    'snake': {'example': 'The snake slithers on the ground.'},
+    'snowman': {'example': 'The snowman has a carrot nose.'},
+    'sock': {'example': 'The sock keeps my feet warm.'},
+    'spider': {'example': 'The spider spins a web.'},
+    'star': {'example': 'The star shines brightly in the sky.'},
+    'stopwatch': {'example': 'The stopwatch helps me time the race.'},
+    'sun': {'example': 'The sun is bright and hot.'},
+    'tent': {'example': 'We sleep in the tent when we camp.'},
+    'train': {'example': 'The train moves fast on the tracks.'},
+    'tree': {'example': 'The tree grows tall and strong.'},
+    'truck': {'example': 'The truck carries heavy things.'},
+    'umbrella': {'example': 'The umbrella keeps me dry in the rain.'},
+    'watch': {'example': 'The watch helps me tell the time.'},
+    'whale': {'example': 'The whale is big and swims in the ocean.'},
+    'zebra': {'example': 'The zebra has black and white stripes.'}
+  };
+  return values.entries
+      .map((e) => PhonicStruct(
+          key: e.key,
+          title: '${e.key[0].toUpperCase()}${e.key.substring(1).toLowerCase()}',
+          example: e.value["example"]))
+      .toList();
+}
+
+List<OperationPracticeQuestionStruct>? getPracticeQuestions(String operation) {
+  List<List<int>> values = [];
+  if (operation == "percentage") {
+    final List<List<int>> percentageQuestions = [
+      [20, 50],
+      [30, 20],
+      [10, 70],
+      [25, 40],
+      [15, 60],
+      [50, 20],
+      [60, 80],
+      [80, 75],
+      [90, 50],
+      [85, 40]
+    ];
+    values = percentageQuestions;
   }
+  if (operation == "addition") {
+    final List<List<int>> additionQuestions = [
+      [3, 2],
+      [5, 4],
+      [7, 1],
+      [6, 3],
+      [8, 2],
+      [10, 5],
+      [12, 8],
+      [15, 9],
+      [18, 7],
+      [25, 15]
+    ];
+    values = additionQuestions;
+  }
+  if (operation == "subtraction") {
+    final List<List<int>> subtractionQuestions = [
+      [5, 2],
+      [8, 3],
+      [10, 4],
+      [7, 5],
+      [9, 6],
+      [14, 8],
+      [20, 9],
+      [25, 10],
+      [30, 15],
+      [40, 20]
+    ];
+    values = subtractionQuestions;
+  }
+  if (operation == "multiplication") {
+    final List<List<int>> multiplicationQuestions = [
+      [2, 2],
+      [3, 3],
+      [4, 2],
+      [5, 3],
+      [6, 2],
+      [7, 5],
+      [8, 4],
+      [9, 6],
+      [10, 7],
+      [12, 8]
+    ];
+    values = multiplicationQuestions;
+  }
+  if (operation == "division") {
+    final List<List<int>> divisionQuestions = [
+      [4, 2],
+      [6, 3],
+      [8, 2],
+      [9, 3],
+      [12, 4],
+      [15, 5],
+      [18, 6],
+      [24, 8],
+      [28, 7],
+      [36, 9]
+    ];
+    values = divisionQuestions;
+  }
+  return values
+      .map((e) => OperationPracticeQuestionStruct(numbers: [e[0], e[1]]))
+      .toList();
+}
+
+String getYoutubeUrl(String youtubeId) {
+  return "https://www.youtube.com/watch?v=$youtubeId";
+}
+
+String getQuestion(
+  String operation,
+  List<int> numbers,
+) {
+  if (operation == "addition") {
+    return "${numbers[0]} + ${numbers[1]} = ?";
+  }
+  if (operation == "subtraction") {
+    return "${numbers[0]} - ${numbers[1]} = ?";
+  }
+  if (operation == "multiplication") {
+    return "${numbers[0]} \u00D7 ${numbers[1]} = ?";
+  }
+  if (operation == "division") {
+    return "${numbers[0]} ÷ ${numbers[1]} = ?";
+  }
+  if (operation == "percentage") {
+    return "${numbers[0]}% of ${numbers[1]} is ?";
+  }
+  return " ";
+}
+
+String? getYoutubeStandardThumbnail(String? youtubeId) {
+  return 'https://img.youtube.com/vi/$youtubeId/sddefault.jpg';
+}
+
+List<YoutubeStruct> getTedTalksYoutubes() {
+  final result = {
+    "iCi4jkb2hZQ": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "iCi4jkb2hZQ",
+      "viewCount": 44480,
+      "title":
+          "How Kids Can Benefit from Empathy and Love Language | Maple Zhang | TEDxKerrisdale"
+    },
+    "9S8KR_qL3OQ": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "9S8KR_qL3OQ",
+      "viewCount": 32,
+      "title":
+          "Animals' fun facts | Elisa Bonilha Lopes | TEDxMaple Bear Ribeirão Preto Youth"
+    },
+    "CqWBtnm2-LY": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "CqWBtnm2-LY",
+      "viewCount": 23,
+      "title":
+          "Scouting as a holistic movement  | Paulo Ferrara Motooka | TEDxMaple Bear Ribeirão Preto Youth"
+    },
+    "TU2PUkasdbM": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "TU2PUkasdbM",
+      "viewCount": 80398,
+      "title":
+          "I Thought You Were My Friend ... | Delphine Matta-Brown | TEDxYouth@DPL"
+    },
+    "wbftlDzIALA": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "wbftlDzIALA",
+      "viewCount": 278925,
+      "title": "The Effects of Lying | Georgia Haukom | TEDxKids@ElCajon"
+    },
+    "OMbNoo4mCcI": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "OMbNoo4mCcI",
+      "viewCount": 216801,
+      "title": "Education For All | Cameron Allen | TEDxKids@ElCajon"
+    },
+    "rW2r5uStgG0": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "rW2r5uStgG0",
+      "viewCount": 1269102,
+      "title":
+          "The Power and Importance of...READING! | Luke Bakic | TEDxYouth@TBSWarsaw"
+    },
+    "RtVSamE7stM": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "RtVSamE7stM",
+      "viewCount": 16826,
+      "title": "Kids Play: Fun Learning | Leen NasrAlla | TEDxEt Tagammo Kids"
+    },
+    "Fkd9TWUtFm0": {
+      "channelTitle": "TED",
+      "youtubeId": "Fkd9TWUtFm0",
+      "viewCount": 11216499,
+      "title": "A 12-year-old app developer | Thomas Suarez | TED"
+    },
+    "vNMOKdSilTA": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "vNMOKdSilTA",
+      "viewCount": 99102,
+      "title": "Smiles are Contagious | Giovanni Maroki | TEDxKids@ElCajon"
+    },
+    "px9CzSZsa0Y": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "px9CzSZsa0Y",
+      "viewCount": 1768499,
+      "title": "The Mindset of a Champion | Carson Byblow | TEDxYouth@AASSofia"
+    },
+    "RIwwPHeWQdA": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "RIwwPHeWQdA",
+      "viewCount": 69893,
+      "title":
+          "Empathy, Education, Inclusion: A Guide to Real Friendship | Emma Liu | TEDxYouth@GrandviewHeights"
+    },
+    "9fLlkOMrMq4": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "9fLlkOMrMq4",
+      "viewCount": 1238928,
+      "title": "The Power of Reading | April Qu | TEDxYouth@Suzhou"
+    },
+    "aISXCw0Pi94": {
+      "channelTitle": "TED",
+      "youtubeId": "aISXCw0Pi94",
+      "viewCount": 7067289,
+      "title": "Molly Wright: How every child can thrive by five | TED"
+    },
+    "S5RZF9fAjW4": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "S5RZF9fAjW4",
+      "viewCount": 196429,
+      "title": "Kids Can Too | Noah Diguangco | TEDxKids@BC"
+    },
+    "DRLcSSMiA3w": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "DRLcSSMiA3w",
+      "viewCount": 12221,
+      "title":
+          "Why You Should Compete With Yourself More Often  | Aaron Wang | TEDxYouth@GranvilleIsland"
+    },
+    "L3HKC9C4ae0": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "L3HKC9C4ae0",
+      "viewCount": 119,
+      "title":
+          "The power of storytelling | DeLiang Al Farabi | TEDxSMPI Al Abidin Surakarta Youth"
+    },
+    "IdIIPZU2QKI": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "IdIIPZU2QKI",
+      "viewCount": 36521,
+      "title":
+          "Lessons I Learnt From Football | Jason Yeka Baba | TEDxKids@Mbora"
+    },
+    "bC0hlK7WGcM": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "bC0hlK7WGcM",
+      "viewCount": 11025362,
+      "title":
+          "How a 13 year old changed 'Impossible' to 'I'm Possible' | Sparsh Shah | TEDxGateway"
+    },
+    "auSGX74O4bY": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "auSGX74O4bY",
+      "viewCount": 19662,
+      "title":
+          "The Power of Positive Thinking  | Mia Xu | TEDxYouth@GranvilleIsland"
+    },
+    "JLYOUGo0ml4": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "JLYOUGo0ml4",
+      "viewCount": 284212,
+      "title": "Lemons to lemonade | Senna | TEDxEncinitas"
+    },
+    "qROkHxeFpDs": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "qROkHxeFpDs",
+      "viewCount": 150912,
+      "title":
+          "Climate change - from one kid to another | Bandi Guan | TEDxYouth@GrandviewHeights"
+    },
+    "TdWEu0Ohoy8": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "TdWEu0Ohoy8",
+      "viewCount": 51588,
+      "title":
+          "Innovate for the Future by Developing a Makers Mindset | Berton Yang | TEDxYouth@GrandviewHeights"
+    },
+    "xJqLcJnRnnc": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "xJqLcJnRnnc",
+      "viewCount": 153839,
+      "title":
+          "Why Parents should Listen to Kids | Anyue Sun | TEDxYouth@Xujiahui"
+    },
+    "ICmok9ElvXI": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "ICmok9ElvXI",
+      "viewCount": 198848,
+      "title": "Friends = Happiness | Eyva Dusetzina | TEDxKids@ElCajon"
+    },
+    "2KoVNQz2BaM": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "2KoVNQz2BaM",
+      "viewCount": 84313,
+      "title": "A Positive Mindset Helps! | Sarah Good | TEDxYouth@Columbus"
+    },
+    "F7Id9caYw-Y": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "F7Id9caYw-Y",
+      "viewCount": 2157227,
+      "title":
+          "What's wrong with our food system | Birke Baehr | TEDxNextGenerationAsheville"
+    },
+    "66yaYmUNOx4": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "66yaYmUNOx4",
+      "viewCount": 298568,
+      "title":
+          "What Growth Mindset Means for Kids | Rebecca Chang | TEDxYouth@Jingshan"
+    },
+    "Kh9GbYugA1Y": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "Kh9GbYugA1Y",
+      "viewCount": 1041574,
+      "title": "Kids need recess | Simon Link | TEDxAmanaAcademy"
+    },
+    "JnNrxoxkg20": {
+      "channelTitle": "TEDx Talks",
+      "youtubeId": "JnNrxoxkg20",
+      "viewCount": 93805,
+      "title": "Kids Can Be Role Models | Jack Bonneau | TEDxBoulder"
+    }
+  };
+  return result.entries
+      .map((v) => YoutubeStruct(
+          title: v.value["title"] as String,
+          channel: v.value["channelTitle"] as String,
+          youtubeId: v.key,
+          viewCount: v.value["viewCount"] as int))
+      .toList();
+}
+
+List<YoutubeStruct> getMathYoutubes() {
+  final result = {
+    'T3h1HUVHLJo': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "T3h1HUVHLJo",
+      'viewCount': 249754,
+      'title': "Divisions - Learn to Divide with our Monkey Friends"
+    },
+    'RBiBnfh97Pk': {
+      'channelTitle': "Kuttu Kiddie Learning Space",
+      'youtubeId': "RBiBnfh97Pk",
+      'viewCount': 46,
+      'title':
+          "Learn Shapes for Kids with Circle, Square, Triangle & more | geometric shapes"
+    },
+    'OnJlGMgqBes': {
+      'channelTitle': "KiddiTube Channel",
+      'youtubeId': "OnJlGMgqBes",
+      'viewCount': 4529573,
+      'title':
+          "How to Write Numbers 1-10 | How to Write Numbers 1234. | Kids Learning Numbers 1-10."
+    },
+    'uup7IC7c1V8': {
+      'channelTitle': "Virtual Elementary School",
+      'youtubeId': "uup7IC7c1V8",
+      'viewCount': 383724,
+      'title': "Grade 3 Math: How to Use a Multiplication Table"
+    },
+    'twh4ydx7TQc': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "twh4ydx7TQc",
+      'viewCount': 11913,
+      'title': "📝 ROMAN NUMERALS for Kids 🏛 Compilation"
+    },
+    'h0RF0N5TOPE': {
+      'channelTitle': "True Curriculum",
+      'youtubeId': "h0RF0N5TOPE",
+      'viewCount': 139747,
+      'title': "What is Multiplication?"
+    },
+    'OKJI91YYQaM': {
+      'channelTitle': "Maths About You",
+      'youtubeId': "OKJI91YYQaM",
+      'viewCount': 16587,
+      'title': "Understanding Fractions - Grade 2"
+    },
+    'VvKAVy5MKLA': {
+      'channelTitle': "Math Quiz for Kids",
+      'youtubeId': "VvKAVy5MKLA",
+      'viewCount': 117184,
+      'title': "20 Math Quiz for Kids | One Digit Addition Quiz"
+    },
+    'KgZIXq04ee8': {
+      'channelTitle': "Virtual Elementary School",
+      'youtubeId': "KgZIXq04ee8",
+      'viewCount': 717290,
+      'title': "Grade 2 Math: Addition Solution"
+    },
+    'DhiklliLG80': {
+      'channelTitle': "Rock 'N Learn",
+      'youtubeId': "DhiklliLG80",
+      'viewCount': 997998,
+      'title':
+          "Skip Counting for Kids | Count by 2s through 12s and by 25s | Rock 'N Learn"
+    },
+    'FxrTNtClwrg': {
+      'channelTitle': "LoveToLearn with Subhashini Balakrishnan",
+      'youtubeId': "FxrTNtClwrg",
+      'viewCount': 668561,
+      'title':
+          "Basic Subtraction |Subtraction For Kids |Learn To Subtract |Subtract |Premath Concept |Subtraction"
+    },
+    'qM7B2nwpV1M': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "qM7B2nwpV1M",
+      'viewCount': 2913270,
+      'title':
+          "Subtraction for kids - Learn how to subtract - Mathematics for kids -"
+    },
+    'UffIn6yh7QQ': {
+      'channelTitle': "Periwinkle",
+      'youtubeId': "UffIn6yh7QQ",
+      'viewCount': 242657,
+      'title':
+          "Subtraction With The Help of Stories | Mathematics Grade 1 | Periwinkle"
+    },
+    'MQZHc9_x5x0': {
+      'channelTitle': "Boddle Learning",
+      'youtubeId': "MQZHc9_x5x0",
+      'viewCount': 4267,
+      'title': "Addition and subtraction within 20 - 1st Grade Math 1.OA.A.1"
+    },
+    'mjlsSYLLOSE': {
+      'channelTitle': "Noodle Kidz",
+      'youtubeId': "mjlsSYLLOSE",
+      'viewCount': 5228493,
+      'title':
+          "Basic Math Addition For Kids | Noodle Kidz Pre-K and Kindergarten Educational Video"
+    },
+    'kDFLcCOS7aw': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "kDFLcCOS7aw",
+      'viewCount': 178390,
+      'title':
+          "Percentages for Kids % - What is percentages in Math? - Math for Kids"
+    },
+    'FSTlQjxznUg': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "FSTlQjxznUg",
+      'viewCount': 963244,
+      'title': "Fractions for kids - Mathematics for kids"
+    },
+    '7J1OkxuyLD0': {
+      'channelTitle': "Scratch Garden",
+      'youtubeId': "7J1OkxuyLD0",
+      'viewCount': 3483511,
+      'title': "Adding & Subtracting! | Mini Math Movies | Scratch Garden"
+    },
+    'peSNdpGC14Q': {
+      'channelTitle': "Kiddos World TV",
+      'youtubeId': "peSNdpGC14Q",
+      'viewCount': 482174,
+      'title': "Learn How to Draw and Identifying the Different Types of Shapes"
+    },
+    'j9y2uSvEj3I': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "j9y2uSvEj3I",
+      'viewCount': 63177,
+      'title':
+          "2 DIGIT DIVISION ➗ Long Division 👨🏻‍🚀 Divide two digit numbers"
+    },
+    '2hVQLG-QTfI': {
+      'channelTitle': "EasyTeaching",
+      'youtubeId': "2hVQLG-QTfI",
+      'viewCount': 347577,
+      'title': "Prime and Composite Numbers | Maths | EasyTeaching"
+    },
+    'JnH7A2xGeMQ': {
+      'channelTitle': "Little Learners TV",
+      'youtubeId': "JnH7A2xGeMQ",
+      'viewCount': 3229,
+      'title':
+          "What Is Addition? | Fun Math Song for Kids | Learn Basic Addition"
+    },
+    'CFDCG1b4ahk': {
+      'channelTitle': "Learn and Play Online!",
+      'youtubeId': "CFDCG1b4ahk",
+      'viewCount': 384447,
+      'title': "Multiplication for Kids!"
+    },
+    'Ds226Vh7epg': {
+      'channelTitle': "Virtual Elementary School",
+      'youtubeId': "Ds226Vh7epg",
+      'viewCount': 303484,
+      'title': "Grade 2 Math: Subtraction Rocks with Base Ten Blocks"
+    },
+    'NDMPwZL47JY': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "NDMPwZL47JY",
+      'viewCount': 382043,
+      'title': "Geometric Shapes for kids - Preschool Vocabulary"
+    },
+    '64643Op6WJo': {
+      'channelTitle': "Free Animated Education",
+      'youtubeId': "64643Op6WJo",
+      'viewCount': 382475,
+      'title': "What is Mathematics?"
+    },
+    'GLrn08g9QKA': {
+      'channelTitle': "Smile and Learn - English",
+      'youtubeId': "GLrn08g9QKA",
+      'viewCount': 82552,
+      'title':
+          "PRIME AND COMPOSITE NUMBERS for Kids 🚀 What are Prime Numbers? 🪐 MATH for Kids"
+    },
+    'ohaXcHwUWY0': {
+      'channelTitle': "Teddy & Timmy Edutainment - Education & Kids Songs",
+      'youtubeId': "ohaXcHwUWY0",
+      'viewCount': 9798862,
+      'title':
+          "Shapes | Names of Shapes | Geometry | Shapes for Kids | Geometric Shapes"
+    },
+    'g9Fo3xkPlvM': {
+      'channelTitle': "Quizzy Cat",
+      'youtubeId': "g9Fo3xkPlvM",
+      'viewCount': 211,
+      'title':
+          "How Many Quiz for kids How Good are your observation & counting skills? ✅ 🧠"
+    },
+    'C1QG7etNF2U': {
+      'channelTitle': "ABC junior",
+      'youtubeId': "C1QG7etNF2U",
+      'viewCount': 30303,
+      'title': "Basic subtraction - Math made easy for kids"
+    },
+    'RwnqECUD6SI': {
+      'channelTitle': "ABC junior",
+      'youtubeId': "RwnqECUD6SI",
+      'viewCount': 571674,
+      'title': "Basic addition - Math made easy"
+    }
+  };
+  return result.entries
+      .map((v) => YoutubeStruct(
+          title: v.value["title"] as String,
+          channel: v.value["channelTitle"] as String,
+          youtubeId: v.key,
+          viewCount: v.value["viewCount"] as int))
+      .toList();
+}
+
+List<int> generateEmptyList(int length) {
+  return List.generate(length, (index) => index);
+}
+
+int? getAnswer(
+  String operation,
+  List<int> numbers,
+) {
+  if (operation == "addition") {
+    return numbers[0] + numbers[1];
+  }
+
+  if (operation == "subtraction") {
+    return numbers[0] - numbers[1];
+  }
+
+  if (operation == "multiplication") {
+    return (numbers[0] * numbers[1]);
+  }
+
+  if (operation == "division") {
+    return (numbers[0] / numbers[1]).round();
+  }
+  if (operation == "percentage") {
+    return (numbers[0] * numbers[1] / 100).ceil();
+  }
+  return null;
 }

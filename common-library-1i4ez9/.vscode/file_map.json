@@ -1,19 +1,55 @@
 {
-  "common_safe_area.dart": {
-    "old_identifier_name": "CommonSafeArea",
-    "new_identifier_name": "CommonSafeArea",
+  "chat_ai_library.dart": {
+    "old_identifier_name": "chatAiLibrary",
+    "new_identifier_name": "chatAiLibrary",
+    "type": "A",
+    "is_deleted": false
+  },
+  "init_super_library.dart": {
+    "old_identifier_name": "initSuperLibrary",
+    "new_identifier_name": "initSuperLibrary",
+    "type": "A",
+    "is_deleted": false
+  },
+  "is_anonymous.dart": {
+    "old_identifier_name": "isAnonymous",
+    "new_identifier_name": "isAnonymous",
+    "type": "A",
+    "is_deleted": false
+  },
+  "upload_library.dart": {
+    "old_identifier_name": "uploadLibrary",
+    "new_identifier_name": "uploadLibrary",
+    "type": "A",
+    "is_deleted": false
+  },
+  "user_ref_by_id.dart": {
+    "old_identifier_name": "userRefById",
+    "new_identifier_name": "userRefById",
+    "type": "A",
+    "is_deleted": false
+  },
+  "adaptive_circular_progress_indicator.dart": {
+    "old_identifier_name": "AdaptiveCircularProgressIndicator",
+    "new_identifier_name": "AdaptiveCircularProgressIndicator",
     "type": "W",
     "is_deleted": false
   },
-  "linky_text.dart": {
-    "old_identifier_name": "LinkyText",
-    "new_identifier_name": "LinkyText",
+  "chat_ai.dart": {
+    "old_identifier_name": "ChatAi",
+    "new_identifier_name": "ChatAi",
     "type": "W",
     "is_deleted": false
   },
-  "site_preview.dart": {
-    "old_identifier_name": "SitePreview",
-    "new_identifier_name": "SitePreview",
+  "homework_ai.dart": {
+    "old_identifier_name": "HomeworkAi",
+    "new_identifier_name": "HomeworkAi",
+    "type": "W",
+    "is_deleted": false
+  },
+  "photo_viewer.dart": {
+    "old_identifier_name": "PhotoViewer",
+    "new_identifier_name": "PhotoViewer",
     "type": "W",
     "is_deleted": false
   },
