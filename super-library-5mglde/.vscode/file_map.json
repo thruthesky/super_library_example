@@ -23,6 +23,12 @@
     "type": "A",
     "is_deleted": false
   },
+  "is_anonymous.dart": {
+    "old_identifier_name": "isAnonymous",
+    "new_identifier_name": "isAnonymous",
+    "type": "A",
+    "is_deleted": false
+  },
   "report.dart": {
     "old_identifier_name": "report",
     "new_identifier_name": "report",

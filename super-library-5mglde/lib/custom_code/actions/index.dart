@@ -8,3 +8,4 @@ export 'create_chat_room.dart' show createChatRoom;
 export 'invite_chat_user.dart' show inviteChatUser;
 export 'update_chat_room.dart' show updateChatRoom;
 export 'edit_chat_room.dart' show editChatRoom;
+export 'is_anonymous.dart' show isAnonymous;
