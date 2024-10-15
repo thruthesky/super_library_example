@@ -3,6 +3,11 @@ firebase_options.dart
 lib/firebase_options.dart
 **/firebase_options.dart
 
+**/GoogleService-Info.plist
+**/GoogleService-Info.json
+**/google-services.json
+
+
 venv/
 
 # Miscellaneous

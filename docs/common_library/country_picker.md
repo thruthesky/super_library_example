@@ -24,6 +24,8 @@ The Country Picker component allows you to easily get country dial codes and oth
 
 
 
+
+
 ## formatInternationalPhoneNumber function
 
 The function accepts `dialCode` and `mobileNumber` and returns the phone number in the international format. If it cannot format the phone number, it returns an empty string. If the phone number is an empty string, the FlutterFlow will display an error message of `Phone Number Validation Message`. You can customize this message to something like `Please input a valid phone number` in the language settings.
