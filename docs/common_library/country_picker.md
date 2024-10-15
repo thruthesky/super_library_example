@@ -26,11 +26,12 @@ The Country Picker component allows you to easily get country dial codes and oth
 
 ## formatInternationalPhoneNumber function
 
-The function accepts `dialCode` and `mobileNumber` and returns the phone number in the international format. If it cannot format the phone number, it returns an error.
+The function accepts `dialCode` and `mobileNumber` and returns the phone number in the international format. If it cannot format the phone number, it returns an empty string. If the phone number is an empty string, the FlutterFlow will display an error message of `Phone Number Validation Message`. You can customize this message to something like `Please input a valid phone number` in the language settings.
 
 Note: The returned value may not be an exact international phone number format, but it is sufficient for use in FirebaseAuth phone sign-in.
 
 Note: It's a good idea to allow users to input only numbers. Set the input keyboard type to "number" or "phone number" for better user experience.
+
 
 
 ```dart

@@ -21,11 +21,8 @@ Future<bool> isAnonymous() async {
       return true;
     }
 
-    // If the user signed in but the email and phone number are empty, then
-    // consider the user is anonymous.
-    if ((currentUser.email == null || currentUser.email == '') &&
-        (currentUser.phoneNumber == null || currentUser.phoneNumber == '')) {
-      return true;
+    if (currentUser.isAnonymous == false) {
+      return false;
     }
   }
 
