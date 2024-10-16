@@ -1277,7 +1277,7 @@ class UserData {
   factory UserData.fromJson(Map<dynamic, dynamic> json, String key) {
     final userData = UserData(
       uid: key,
-      createdAt: json[field.creatAt] ?? DateTime.now(),
+      createdAt: json[field.creatAt] ?? DateTime.now().millisecondsSinceEpoch,
       displayName: json[field.displayName] ?? '',
       displayNameLowerCase: json[field.displayNameLowerCase] ?? '',
       photoUrl: json[field.photoUrl] ?? '',
