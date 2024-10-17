@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>109766947030-d3jjndi0cm5qa021lgk32qfks0e141tg.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.109766947030-d3jjndi0cm5qa021lgk32qfks0e141tg</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>109766947030-4oi5i0u241r3aefqa7rtpf4ong4ckg12.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyC4JBZruWm7i8GI6W5Ge8HjXPN6LxEzZqM</string>
 	<key>GCM_SENDER_ID</key>
@@ -9,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.superchat.example</string>
+	<string>com.withcenter.test4</string>
 	<key>PROJECT_ID</key>
 	<string>withcenter-test-4</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:109766947030:ios:49114d0b9a1462fb239977</string>
+	<string>1:109766947030:ios:eae019b92ec00259239977</string>
 	<key>DATABASE_URL</key>
 	<string>https://withcenter-test-4-default-rtdb.firebaseio.com</string>
 </dict>

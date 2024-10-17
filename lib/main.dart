@@ -28,6 +28,8 @@ import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -404,6 +406,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         );
                       },
                       child: Text('Site Preview')),
+                  ElevatedButton(
+                      onPressed: () async {
+                        final String url = 'https://www.google.com';
+                        if (await canLaunchUrl(Uri.parse(url))) {
+                          await launchUrl(Uri.parse(url));
+                        } else {
+                          print('Could not launch $url');
+                        }
+                      },
+                      child: Text('Launch a URL')),
                 ],
               ),
             ),
