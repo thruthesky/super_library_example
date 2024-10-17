@@ -1,4 +1,5 @@
 // Automatic FlutterFlow imports
+
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
@@ -12,6 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as fs;
 import 'package:firebase_auth/firebase_auth.dart' as fa;
@@ -20,6 +22,11 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_ui_database/firebase_ui_database.dart';
+
+import 'package:dio/dio.dart';
+import 'package:html/dom.dart' hide Text;
+import 'package:html/parser.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 /// Helpers
 ///
@@ -1171,6 +1178,186 @@ class Component {
   static Widget Function(ChatJoin)? chatRoomListTile;
   static Widget Function(ChatRoom)? openChatRoomListTile;
   static Widget Function(ChatMessage)? chatMessageListTile;
+}
+
+class SitePreview extends StatelessWidget {
+  const SitePreview({
+    super.key,
+    required this.data,
+    this.maxLinesOfDescription = 3,
+  });
+
+  final SitePreviewData data;
+  final int maxLinesOfDescription;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        if (data.url == null) {
+          return;
+        }
+        if (await canLaunchUrlString(data.url!)) {
+          await launchUrlString(data.url!);
+        } else {
+          throw 'Could not launch {$data.url}';
+        }
+      },
+      child: Container(
+        /// [imageUrl] are sometimes smaller than the length of the [description] and leads to
+        /// inconsistent design of the [UrlPreview] in [ChatViewScreen] and [ForumChatViewScreen]
+        /// [BoxConstraints] to make it a single width and consistent design
+
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (data.imageUrl != null && data.imageUrl!.isNotEmpty) ...[
+              CachedNetworkImage(
+                imageUrl: data.imageUrl!,
+                // Don't show
+                errorWidget: (context, url, error) {
+                  dog("Not showing an image preview because there's a problem with the url: ${data.imageUrl}");
+                  return const SizedBox.shrink();
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+            if (data.title != null && data.title!.isNotEmpty) ...[
+              Text(
+                data.title!,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            if (data.description != null && data.description!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                data.description!.length > 100
+                    ? '${data.description!.substring(0, 90)}...'
+                    : data.description!,
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade800),
+                maxLines: maxLinesOfDescription,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SitePreviewData {
+  final String? url;
+  final String? title;
+  final String? description;
+  final String? imageUrl;
+  final String? siteName;
+
+  SitePreviewData({
+    this.url,
+    this.title,
+    this.description,
+    this.imageUrl,
+    this.siteName,
+  });
+}
+
+/// load site preview from the url
+///
+/// [text] is a text that contains the url.
+///
+/// It throws exception if it fails to get the site preview.
+///
+/// It returns null if it fails to get the site preview.
+///
+/// It returns the site preview data if it successfully gets the site preview.
+/// But the fields might be null if the site preview data is not found.
+Future<SitePreviewData?> loadSitePreview({
+  required String text,
+}) async {
+  // Get the first url of in the text
+  final RegExp urlRegex = RegExp(r'https?:\/\/\S+');
+  final Match? match = urlRegex.firstMatch(text);
+  final String? url = match?.group(0);
+  if (url == null) {
+    return null;
+  }
+
+  // Get the data from the url (internet)
+  final dio = Dio();
+  Response response;
+  try {
+    response = await dio.get(url);
+  } catch (e) {
+    dog('dio.get($url) Error: $e');
+    throw SuperLibraryException(
+        'load-site-preview/get-failed', 'Failed to get the site preview: $e');
+  }
+  dynamic res = response.data;
+  if (res == null) {
+    throw SuperLibraryException('load-site-preview/response-is-empty',
+        'Result from dio.get($url) is null');
+  }
+  String html = res.toString();
+
+  final Document doc = parse(html);
+
+  String? title =
+      getSitePreviewOGTag(doc, 'og:title') ?? getSitePreviewTag(doc, 'title');
+  String? description = getSitePreviewOGTag(doc, 'og:description') ??
+      getSitePreviewMeta(doc, 'description');
+  String? imageUrl = getSitePreviewOGTag(doc, 'og:image');
+  String? siteName = getSitePreviewOGTag(doc, 'og:site_name') ??
+      getSitePreviewTag(doc, 'title');
+
+  return SitePreviewData(
+    url: url,
+    title: title,
+    description: description,
+    imageUrl: imageUrl,
+    siteName: siteName,
+  );
+}
+
+String? getSitePreviewOGTag(Document document, String parameter) {
+  final metaTags = document.getElementsByTagName("meta");
+  if (metaTags.isEmpty) return null;
+  for (var meta in metaTags) {
+    if (meta.attributes['property'] == parameter) {
+      return meta.attributes['content']?.replaceAll('\n', " ");
+    }
+  }
+  return null;
+}
+
+String? getSitePreviewTag(Document document, String tag) {
+  final metaTags = document.getElementsByTagName(tag);
+  if (metaTags.isEmpty) return null;
+  for (var meta in metaTags) {
+    return meta.text.replaceAll('\n', " ");
+  }
+  return null;
+}
+
+String? getSitePreviewMeta(Document document, String parameter) {
+  final metaTags = document.getElementsByTagName("meta");
+  if (metaTags.isEmpty) return null;
+  for (var meta in metaTags) {
+    if (meta.attributes['name'] == parameter) {
+      return meta.attributes['content']?.replaceAll('\n', " ");
+    }
+  }
+  return null;
 }
 
 /// Memory
