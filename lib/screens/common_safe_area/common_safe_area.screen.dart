@@ -16,22 +16,23 @@ class _CommonSafeAreaScreenState extends State<CommonSafeAreaScreen> {
       appBar: AppBar(
         title: const Text('CommonSafeArea'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('CommonSafeArea'),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),
-            const CommonSafeArea(
-              minHeight: 16,
-            ),
-          ],
+      body: SafeArea(
+        top: true,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('CommonSafeArea'),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+              const SafeBottomArea(),
+            ],
+          ),
         ),
       ),
     );

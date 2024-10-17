@@ -249,6 +249,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   Text('UID: ${FirebaseAuth.instance.currentUser!.uid}'),
+                  ChatRoomIcon(
+                    roomId: '-O9JXcdeMWOaCxOMiKBP',
+                    width: 60,
+                    height: 60,
+                    radius: 24,
+                  ),
                   ElevatedButton(
                     onPressed: () async {
                       final String id = 'id${Random().nextInt(1000) + 9999}';

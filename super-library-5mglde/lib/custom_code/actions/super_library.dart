@@ -21,6 +21,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_ui_database/firebase_ui_database.dart';
 
+/// Helpers
+///
+/// Helper functions, variables -------------------------------------------------------------------
+///
 FirebaseDatabase get database => SuperLibrary.instance.database;
 fs.FirebaseFirestore get firestore => fs.FirebaseFirestore.instance;
 
@@ -34,6 +38,29 @@ String get myUid {
   }
   return fa.FirebaseAuth.instance.currentUser!.uid;
 }
+
+/// User references --------------------------------------------------------------------------------
+/// Database reference for the user with [uid]
+DatabaseReference databaseUserRef(String uid) {
+  return UserService.instance.databaseUserRef(uid);
+}
+
+/// Returns the user's photo url reference
+DatabaseReference userPhotoUrlRef(String uid) =>
+    databaseUserRef(uid).child(UserData.field.photoUrl);
+
+/// Chat helpers -----------------------------------------------------------------------------------
+
+/// Return true if the chat room is a single chat room.
+bool isSingleChatRoom(roomId) => ChatService.instance.isSingleChatRoom(roomId);
+
+/// Return the other user's uid from the single chat room id.
+String otherUid(roomId) => ChatService.instance.getOtherUid(roomId);
+
+DatabaseReference roomRef(String roomId) =>
+    ChatService.instance.roomRef(roomId);
+
+/// EO Helpers -------------------------------------------------------------------------------------
 
 /// AuthStateChanges
 ///

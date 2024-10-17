@@ -1,13 +1,13 @@
 {
-  "common_safe_area.dart": {
-    "old_identifier_name": "CommonSafeArea",
-    "new_identifier_name": "CommonSafeArea",
-    "type": "W",
-    "is_deleted": false
-  },
   "linky_text.dart": {
     "old_identifier_name": "LinkyText",
     "new_identifier_name": "LinkyText",
+    "type": "W",
+    "is_deleted": false
+  },
+  "safe_bottom_area.dart": {
+    "old_identifier_name": "SafeBottomArea",
+    "new_identifier_name": "SafeBottomArea",
     "type": "W",
     "is_deleted": false
   },

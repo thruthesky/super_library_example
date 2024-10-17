@@ -15,9 +15,9 @@ class ChatRoomEditDialog extends StatefulWidget {
 class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
+  final imageUrlController = TextEditingController();
   bool open = true;
   bool canInvite = true;
-  String? iconUrl;
 
   @override
   void initState() {
@@ -60,6 +60,12 @@ class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
               ),
             ),
             const SizedBox(height: 24.0),
+            TextField(
+              controller: imageUrlController,
+              decoration: InputDecoration(
+                hintText: 'Enter chat room icon URL',
+              ),
+            ),
             Row(
               children: [
                 const Text('Open'),
@@ -101,7 +107,7 @@ class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
                         widget.roomId!,
                         nameController.text,
                         descriptionController.text,
-                        iconUrl,
+                        imageUrlController.text,
                         open,
                         canInvite,
                       );
@@ -111,7 +117,7 @@ class _ChatRoomEditDialogState extends State<ChatRoomEditDialog> {
                     final roomId = await createChatRoom(
                       nameController.text,
                       descriptionController.text,
-                      iconUrl,
+                      imageUrlController.text,
                       open,
                       canInvite,
                     );

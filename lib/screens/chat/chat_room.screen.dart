@@ -29,7 +29,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ChatRoom'),
+        title: Row(
+          children: [
+            ChatRoomIcon(roomId: widget.roomId),
+            const Text('ChatRoom'),
+          ],
+        ),
         actions: [
           IconButton(
             onPressed: () async {

@@ -77,9 +77,21 @@
     "type": "W",
     "is_deleted": false
   },
+  "chat_room_icon.dart": {
+    "old_identifier_name": "ChatRoomIcon",
+    "new_identifier_name": "ChatRoomIcon",
+    "type": "W",
+    "is_deleted": false
+  },
   "chat_room_list_view.dart": {
     "old_identifier_name": "ChatRoomListView",
     "new_identifier_name": "ChatRoomListView",
+    "type": "W",
+    "is_deleted": false
+  },
+  "chat_room_name.dart": {
+    "old_identifier_name": "ChatRoomName",
+    "new_identifier_name": "ChatRoomName",
     "type": "W",
     "is_deleted": false
   },
