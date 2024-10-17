@@ -1,14 +1,13 @@
-import '/components/country_dial_code_picker/country_dial_code_picker_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
-import 'home_page_widget.dart' show HomePageWidget;
+import 'site_preview_screen_widget.dart' show SitePreviewScreenWidget;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class HomePageModel extends FlutterFlowModel<HomePageWidget> {
+class SitePreviewScreenModel extends FlutterFlowModel<SitePreviewScreenWidget> {
   ///  Local state fields for this page.
 
   String sitePreviewUrl = 'Input URL';
@@ -20,20 +19,13 @@ class HomePageModel extends FlutterFlowModel<HomePageWidget> {
   TextEditingController? sitePreviewUrlTextController;
   String? Function(BuildContext, String?)?
       sitePreviewUrlTextControllerValidator;
-  // Model for CountryDialCodePicker component.
-  late CountryDialCodePickerModel countryDialCodePickerModel;
 
   @override
-  void initState(BuildContext context) {
-    countryDialCodePickerModel =
-        createModel(context, () => CountryDialCodePickerModel());
-  }
+  void initState(BuildContext context) {}
 
   @override
   void dispose() {
     sitePreviewUrlFocusNode?.dispose();
     sitePreviewUrlTextController?.dispose();
-
-    countryDialCodePickerModel.dispose();
   }
 }

@@ -36,17 +36,37 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       initialLocation: '/',
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
-      errorBuilder: (context, state) => HomePageWidget(),
+      errorBuilder: (context, state) => HomeScreenWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => HomePageWidget(),
+          builder: (context, _) => HomeScreenWidget(),
         ),
         FFRoute(
-          name: 'HomePage',
-          path: '/homePage',
-          builder: (context, params) => HomePageWidget(),
+          name: 'HomeScreen',
+          path: '/homeScreen',
+          builder: (context, params) => HomeScreenWidget(),
+        ),
+        FFRoute(
+          name: 'CountryDialCodePickerScreen',
+          path: '/countryDialCodePickerScreen',
+          builder: (context, params) => CountryDialCodePickerScreenWidget(),
+        ),
+        FFRoute(
+          name: 'LinkyTextScreen',
+          path: '/linkyTextScreen',
+          builder: (context, params) => LinkyTextScreenWidget(),
+        ),
+        FFRoute(
+          name: 'SitePreviewScreen',
+          path: '/sitePreviewScreen',
+          builder: (context, params) => SitePreviewScreenWidget(),
+        ),
+        FFRoute(
+          name: 'SafeBottomAreaScreen',
+          path: '/safeBottomAreaScreen',
+          builder: (context, params) => SafeBottomAreaScreenWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

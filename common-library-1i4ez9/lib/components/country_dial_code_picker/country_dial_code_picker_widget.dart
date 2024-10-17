@@ -80,7 +80,7 @@ class _CountryDialCodePickerWidgetState
                 noSearchResult: widget!.noSearchResult,
                 onSelect: (country) async {
                   _model.selectedCountry = country;
-                  safeSetState(() {});
+                  _model.updatePage(() {});
                 },
               ),
             );
