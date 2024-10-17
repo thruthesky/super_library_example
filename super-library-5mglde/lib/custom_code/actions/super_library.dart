@@ -69,6 +69,63 @@ DatabaseReference roomRef(String roomId) =>
 
 /// EO Helpers -------------------------------------------------------------------------------------
 
+/// load site preview from the url
+///
+/// [text] is a text that contains the url.
+///
+/// It throws exception if it fails to get the site preview.
+///
+/// It returns null if it fails to get the site preview.
+///
+/// It returns the site preview data if it successfully gets the site preview.
+/// But the fields might be null if the site preview data is not found.
+Future<SitePreviewData?> loadSitePreview({
+  required String text,
+}) async {
+  // Get the first url of in the text
+  final RegExp urlRegex = RegExp(r'https?:\/\/\S+');
+  final Match? match = urlRegex.firstMatch(text);
+  final String? url = match?.group(0);
+  if (url == null) {
+    return null;
+  }
+
+  // Get the data from the url (internet)
+  final dio = Dio();
+  Response response;
+  try {
+    response = await dio.get(url);
+  } catch (e) {
+    dog('dio.get($url) Error: $e');
+    throw SuperLibraryException(
+        'load-site-preview/get-failed', 'Failed to get the site preview: $e');
+  }
+  dynamic res = response.data;
+  if (res == null) {
+    throw SuperLibraryException('load-site-preview/response-is-empty',
+        'Result from dio.get($url) is null');
+  }
+  String html = res.toString();
+
+  final Document doc = parse(html);
+
+  String? title =
+      getSitePreviewOGTag(doc, 'og:title') ?? getSitePreviewTag(doc, 'title');
+  String? description = getSitePreviewOGTag(doc, 'og:description') ??
+      getSitePreviewMeta(doc, 'description');
+  String? imageUrl = getSitePreviewOGTag(doc, 'og:image');
+  String? siteName = getSitePreviewOGTag(doc, 'og:site_name') ??
+      getSitePreviewTag(doc, 'title');
+
+  return SitePreviewData(
+    url: url,
+    title: title,
+    description: description,
+    imageUrl: imageUrl,
+    siteName: siteName,
+  );
+}
+
 /// AuthStateChanges
 ///
 /// Use this widget to listen to the login user's authentication state changes
@@ -1180,6 +1237,68 @@ class Component {
   static Widget Function(ChatMessage)? chatMessageListTile;
 }
 
+/// Print log message with emoji 🐶
+void dog(dynamic msg, {int level = 0}) {
+  if (kReleaseMode) return;
+  if (SuperLibrary.instance.debug == false) return;
+  log('--> ${msg.toString()}', time: DateTime.now(), name: '🐶', level: level);
+}
+
+String? getSitePreviewMeta(Document document, String parameter) {
+  final metaTags = document.getElementsByTagName("meta");
+  if (metaTags.isEmpty) return null;
+  for (var meta in metaTags) {
+    if (meta.attributes['name'] == parameter) {
+      return meta.attributes['content']?.replaceAll('\n', " ");
+    }
+  }
+  return null;
+}
+
+String? getSitePreviewOGTag(Document document, String parameter) {
+  final metaTags = document.getElementsByTagName("meta");
+  if (metaTags.isEmpty) return null;
+  for (var meta in metaTags) {
+    if (meta.attributes['property'] == parameter) {
+      return meta.attributes['content']?.replaceAll('\n', " ");
+    }
+  }
+  return null;
+}
+
+String? getSitePreviewTag(Document document, String tag) {
+  final metaTags = document.getElementsByTagName(tag);
+  if (metaTags.isEmpty) return null;
+  for (var meta in metaTags) {
+    return meta.text.replaceAll('\n', " ");
+  }
+  return null;
+}
+
+/// Memory
+///
+/// A static memory class to store data in memory
+///
+/// Note that any data that might be re-used must be stored in the memory (like
+/// user data, chat room data, etc) with this Memeory class to not fetch the
+/// data again and again. And this will help to reduce flickering and improve
+/// the performance.
+///
+/// Usage:
+/// ```dart
+/// Memory.set('key', 'value);
+/// final value = Memory.get<String>('key');
+/// ```
+class Memory {
+  static final Map<String, dynamic> _data = {};
+
+  static T? get<T>(String key) => _data[key] as T?;
+
+  static void set<T>(String key, T value) {
+    _data[key] = value;
+  }
+}
+
 class SitePreview extends StatelessWidget {
   const SitePreview({
     super.key,
@@ -1272,118 +1391,6 @@ class SitePreviewData {
   });
 }
 
-/// load site preview from the url
-///
-/// [text] is a text that contains the url.
-///
-/// It throws exception if it fails to get the site preview.
-///
-/// It returns null if it fails to get the site preview.
-///
-/// It returns the site preview data if it successfully gets the site preview.
-/// But the fields might be null if the site preview data is not found.
-Future<SitePreviewData?> loadSitePreview({
-  required String text,
-}) async {
-  // Get the first url of in the text
-  final RegExp urlRegex = RegExp(r'https?:\/\/\S+');
-  final Match? match = urlRegex.firstMatch(text);
-  final String? url = match?.group(0);
-  if (url == null) {
-    return null;
-  }
-
-  // Get the data from the url (internet)
-  final dio = Dio();
-  Response response;
-  try {
-    response = await dio.get(url);
-  } catch (e) {
-    dog('dio.get($url) Error: $e');
-    throw SuperLibraryException(
-        'load-site-preview/get-failed', 'Failed to get the site preview: $e');
-  }
-  dynamic res = response.data;
-  if (res == null) {
-    throw SuperLibraryException('load-site-preview/response-is-empty',
-        'Result from dio.get($url) is null');
-  }
-  String html = res.toString();
-
-  final Document doc = parse(html);
-
-  String? title =
-      getSitePreviewOGTag(doc, 'og:title') ?? getSitePreviewTag(doc, 'title');
-  String? description = getSitePreviewOGTag(doc, 'og:description') ??
-      getSitePreviewMeta(doc, 'description');
-  String? imageUrl = getSitePreviewOGTag(doc, 'og:image');
-  String? siteName = getSitePreviewOGTag(doc, 'og:site_name') ??
-      getSitePreviewTag(doc, 'title');
-
-  return SitePreviewData(
-    url: url,
-    title: title,
-    description: description,
-    imageUrl: imageUrl,
-    siteName: siteName,
-  );
-}
-
-String? getSitePreviewOGTag(Document document, String parameter) {
-  final metaTags = document.getElementsByTagName("meta");
-  if (metaTags.isEmpty) return null;
-  for (var meta in metaTags) {
-    if (meta.attributes['property'] == parameter) {
-      return meta.attributes['content']?.replaceAll('\n', " ");
-    }
-  }
-  return null;
-}
-
-String? getSitePreviewTag(Document document, String tag) {
-  final metaTags = document.getElementsByTagName(tag);
-  if (metaTags.isEmpty) return null;
-  for (var meta in metaTags) {
-    return meta.text.replaceAll('\n', " ");
-  }
-  return null;
-}
-
-String? getSitePreviewMeta(Document document, String parameter) {
-  final metaTags = document.getElementsByTagName("meta");
-  if (metaTags.isEmpty) return null;
-  for (var meta in metaTags) {
-    if (meta.attributes['name'] == parameter) {
-      return meta.attributes['content']?.replaceAll('\n', " ");
-    }
-  }
-  return null;
-}
-
-/// Memory
-///
-/// A static memory class to store data in memory
-///
-/// Note that any data that might be re-used must be stored in the memory (like
-/// user data, chat room data, etc) with this Memeory class to not fetch the
-/// data again and again. And this will help to reduce flickering and improve
-/// the performance.
-///
-/// Usage:
-/// ```dart
-/// Memory.set('key', 'value);
-/// final value = Memory.get<String>('key');
-/// ```
-class Memory {
-  static final Map<String, dynamic> _data = {};
-
-  static T? get<T>(String key) => _data[key] as T?;
-
-  static void set<T>(String key, T value) {
-    _data[key] = value;
-  }
-}
-
 class SuperLibrary {
   static SuperLibrary? _instance;
   static SuperLibrary get instance => _instance ??= SuperLibrary._();
@@ -1429,6 +1436,11 @@ class SuperLibrary {
   }
 }
 
+extension SuperLibraryIntExtension on int {
+  /// Change the integer of milliseconds to a DateTime object
+  DateTime get toDateTime => DateTime.fromMillisecondsSinceEpoch(this);
+}
+
 class SuperLibraryException implements Exception {
   final String code;
   final String message;
@@ -1441,6 +1453,44 @@ class SuperLibraryException implements Exception {
   @override
   String toString() {
     return 'SuperLibraryException: ($code) $message';
+  }
+}
+
+/// String Extension to check if a string is null or empty
+///
+/// Checks if a String? is null or not in the extends clause.
+extension SuperLibraryNullableStringExtension on String? {
+  /// Returns true if the string is null or empty
+  bool get isNullOrEmpty => this == null || this!.isEmpty;
+
+  /// If the string is null or empty, then it will return the newString
+  String or(String newString) => isNullOrEmpty ? newString : this!;
+}
+
+extension SuperLibraryStringExtension on String {
+  /// If the string is empty, return the newString.
+  ///
+  /// example
+  /// ```dart
+  /// String gender = user.gender.or(null);
+  /// ```
+  String or(String newString) => isEmpty ? newString : this;
+
+  /// Cut the string
+  ///
+  /// [suffix] is the string to be added at the end of the string. You may want
+  /// to add '...' at the end of the string.
+  ///
+  /// ```dart
+  /// Text( comment.content.cut(56, suffix: '...') );
+  /// ```
+  String cut(int length, {String suffix = ''}) {
+    String temp = this;
+    temp = temp.trim();
+    temp = temp.replaceAll('\n', ' ');
+    temp = temp.replaceAll('\r', ' ');
+    temp = temp.replaceAll('\t', ' ');
+    return temp.length > length ? '${temp.substring(0, length)}$suffix' : temp;
   }
 }
 
@@ -1799,49 +1849,6 @@ class ValueListView extends StatelessWidget {
   }
 }
 
-extension SuperLibraryIntExtension on int {
-  /// Change the integer of milliseconds to a DateTime object
-  DateTime get toDateTime => DateTime.fromMillisecondsSinceEpoch(this);
-}
-
-extension SuperLibraryStringExtension on String {
-  /// If the string is empty, return the newString.
-  ///
-  /// example
-  /// ```dart
-  /// String gender = user.gender.or(null);
-  /// ```
-  String or(String newString) => isEmpty ? newString : this;
-
-  /// Cut the string
-  ///
-  /// [suffix] is the string to be added at the end of the string. You may want
-  /// to add '...' at the end of the string.
-  ///
-  /// ```dart
-  /// Text( comment.content.cut(56, suffix: '...') );
-  /// ```
-  String cut(int length, {String suffix = ''}) {
-    String temp = this;
-    temp = temp.trim();
-    temp = temp.replaceAll('\n', ' ');
-    temp = temp.replaceAll('\r', ' ');
-    temp = temp.replaceAll('\t', ' ');
-    return temp.length > length ? '${temp.substring(0, length)}$suffix' : temp;
-  }
-}
-
-/// String Extension to check if a string is null or empty
-///
-/// Checks if a String? is null or not in the extends clause.
-extension EasyHelperNullableStringExtension on String? {
-  /// Returns true if the string is null or empty
-  bool get isNullOrEmpty => this == null || this!.isEmpty;
-
-  /// If the string is null or empty, then it will return the newString
-  String or(String newString) => isNullOrEmpty ? newString : this!;
-}
-
 /// DateTime extension
 ///
 ///
@@ -1932,13 +1939,6 @@ extension SuperLibraryDateTimeExtension on DateTime {
   DateTime get previousDay => subtract(const Duration(days: 1));
 }
 
-/// Print log message with emoji 🐶
-void dog(dynamic msg, {int level = 0}) {
-  if (kReleaseMode) return;
-  if (SuperLibrary.instance.debug == false) return;
-  log('--> ${msg.toString()}', time: DateTime.now(), name: '🐶', level: level);
-}
-
 class Report {
   final String id;
   final String reporter;
@@ -2001,6 +2001,7 @@ class Report {
   }
 }
 
+/// Put this at the bottom !!
 Future superLibrary() async {
   // Add your function code here!
 }
