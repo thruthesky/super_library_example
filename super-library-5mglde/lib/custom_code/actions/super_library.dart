@@ -12,7 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as fs;
 import 'package:firebase_auth/firebase_auth.dart' as fa;
@@ -50,6 +50,12 @@ String get myUid {
 DatabaseReference databaseUserRef(String uid) {
   return UserService.instance.databaseUserRef(uid);
 }
+
+/// Database reference for the user of the uid
+DatabaseReference userRef(String uid) => databaseUserRef(uid);
+
+/// Database reference for the current user
+DatabaseReference get myRef => userRef(myUid);
 
 /// Returns the user's photo url reference
 DatabaseReference userPhotoUrlRef(String uid) =>
@@ -1353,10 +1359,19 @@ class SitePreview extends StatelessWidget {
         if (data.url == null) {
           return;
         }
-        if (await canLaunchUrlString(data.url!)) {
-          await launchUrlString(data.url!);
-        } else {
-          throw 'Could not launch {$data.url}';
+// if (await canLaunchUrlString(data.url!)) {
+//   await launchUrlString(data.url!);
+// } else {
+//   throw 'Could not launch {$data.url}';
+// }
+        if (data.url == null) {
+          return;
+        }
+        var uri = Uri.parse(data.url!);
+        try {
+          await launchUrl(uri);
+        } catch (e) {
+          throw 'Could not launch $uri: $e';
         }
       },
       child: Container(

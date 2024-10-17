@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_example/screens/chat/chat_room.screen.dart';
+import 'package:super_library/custom_code/actions/index.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
 
@@ -35,6 +36,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
       body: Column(
         children: [
           const Text("PublicProfile"),
+          Text('Uid: ${widget.uid}'),
           UserAvatar(uid: widget.uid),
           if (user != null) Text(user!.displayName),
           Wrap(
@@ -53,7 +55,25 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                 child: const Text('Chat'),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final re = await confirm(
+                    context: context,
+                    title: const Text('Block'),
+                    message:
+                        const Text('Are you sure you want to block this user?'),
+                  );
+                  if (re != true) {
+                    return;
+                  }
+
+                  await blockUser(widget.uid);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User blocked'),
+                    ),
+                  );
+                },
                 child: const Text('Block'),
               ),
               ElevatedButton(

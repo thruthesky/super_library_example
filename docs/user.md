@@ -1,5 +1,35 @@
 # User
 
+- [User](#user)
+  - [Overview](#overview)
+  - [User Authentication](#user-authentication)
+  - [UserAvatar](#useravatar)
+  - [User List View](#user-list-view)
+    - [Alternative Option](#alternative-option)
+    - [Customizing the UI](#customizing-the-ui)
+    - [Horizontal Scrolling](#horizontal-scrolling)
+    - [Examples](#examples)
+  - [How to Customize UI Design in UserListView](#how-to-customize-ui-design-in-userlistview)
+    - [Step 1: Create UserListIcon Component](#step-1-create-userlisticon-component)
+    - [Step 2: Design UserListIcon Component](#step-2-design-userlisticon-component)
+    - [Step 3: Create PublicProfileScreen](#step-3-create-publicprofilescreen)
+    - [Step 4: Add onTap Action to UserListIcon](#step-4-add-ontap-action-to-userlisticon)
+    - [Step 5: Design PublicProfileScreen](#step-5-design-publicprofilescreen)
+  - [Different UI Design on Each Screen](#different-ui-design-on-each-screen)
+- [User Search](#user-search)
+  - [Setting Up User Search](#setting-up-user-search)
+  - [Search Options](#search-options)
+  - [Note](#note)
+  - [Search Users by `display_name` (Case-Insensitive)](#search-users-by-display_name-case-insensitive)
+    - [Example Users](#example-users)
+    - [Search Criteria](#search-criteria)
+    - [Important Note](#important-note)
+  - [Functions](#functions)
+    - [isAnonymous](#isanonymous)
+  - [Blocking User](#blocking-user)
+    - [Unblocking User](#unblocking-user)
+
+
 ## Overview
 
 - The user's `display_name` and `photo_url` are mirrored from Firestore to the Realtime Database.
@@ -137,3 +167,27 @@ Allowing users to search for other users with a single letter, like `a`, can res
 ### isAnonymous
 
 See the custom actions page
+
+
+## Blocking User
+
+- To block a user, you can call `blockUser` custom action to block a user. Or you can simply create your own Backend Query to save the other user's uid into the `blockedUsers` array field in your user document.
+
+- The `blockUser` custom action will save the user's uid into the `blockedUsers` array field. And the `blockedUsers` will be mirrored to `/blocked-users/<my-uid>/` by the `_mirrorUserData` method in the super library. So, you will simply save the other user uid into `blockedUsers` field of your own document.
+
+
+### Unblocking User
+
+- Super library does not provide any method to detect if a user is blocked by you or now because it's so easy. And it will be more complicated with super library.
+- To know if a user is blocked or not, simply do the way how the FlutterFlow goes
+  - The `blockedUsers` is in your document. Meaning, it will be automatically synced with the `Authenticated User` variable in FlutterFlow. So, you don't need to query to the Firestore to know if someone is blocked by you or not.
+  - To display if the user is blocked or not, check if the user's uid is in the `blockedUsers` of `Authenticated User`. And if the uid exists, then the user is blocked and you can unblock the user.
+    - Again super library does not provide any method for this. You can simply query the Firestore to remove the other user's uid from `blockedUsers` array field.
+      - And the super library will automatically remove the user's uid from the Realtime Database.
+
+
+
+
+
+
+

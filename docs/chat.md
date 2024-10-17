@@ -1,5 +1,28 @@
 # Chat
 
+
+- [Chat](#chat)
+  - [Chat Logic](#chat-logic)
+    - [User Invitation and Consent](#user-invitation-and-consent)
+    - [Chat Room Structure](#chat-room-structure)
+      - [Example of `users` Field](#example-of-users-field)
+    - [How It Works](#how-it-works)
+  - [Chat Room](#chat-room)
+    - [How to Create a Chat Room](#how-to-create-a-chat-room)
+    - [How to Update a Chat Room](#how-to-update-a-chat-room)
+    - [Example](#example)
+  - [How to list my Chat Room List](#how-to-list-my-chat-room-list)
+    - [Customizing Chat Room List with Custom Code](#customizing-chat-room-list-with-custom-code)
+    - [Customizing Chat Room List with Component](#customizing-chat-room-list-with-component)
+  - [How to list Open Chat Rooms](#how-to-list-open-chat-rooms)
+    - [Customizing Open Chat Room List with Custom Code](#customizing-open-chat-room-list-with-custom-code)
+    - [Customizing Open Chat Room List with Component](#customizing-open-chat-room-list-with-component)
+  - [Opening a chat room screen](#opening-a-chat-room-screen)
+  - [Inviting a user into a chat room](#inviting-a-user-into-a-chat-room)
+
+
+
+
 ## Chat Logic
 
 ### User Invitation and Consent

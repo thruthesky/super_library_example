@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:super_library/custom_code/actions/super_library.dart';
 import 'package:super_library/custom_code/widgets/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileScreen extends StatefulWidget {
   static const String routeName = '/Profile';
@@ -18,13 +19,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    UserData.get(myUid).then((user) {
-      if (user == null) return;
-      setState(() {
-        nameController.text = user.displayName;
-        this.user = user;
-      });
+    UserService.instance.myDoc.get().then((doc) {
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>?;
+        if (data != null) {
+          setState(() {
+            nameController.text = data['display_name'];
+            photoUrlController.text = data['photo_url'];
+          });
+        }
+      }
     });
+    // UserData.get(myUid, cache: false).then((user) {
+    //   dog(user);
+    //   if (user == null) return;
+    //   setState(() {
+    //     nameController.text = user.displayName;
+    //     this.user = user;
+    //   });
+    // });
   }
 
   @override
@@ -36,6 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Column(
         children: [
           const Text("Profile"),
+          Text('MyUid: $myUid'),
           if (user != null)
             UserAvatar(
               uid: user!.uid,
@@ -56,10 +70,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           ElevatedButton(
               onPressed: () {
-                UserService.instance.doc(myUid).update({
+                UserService.instance.doc(myUid).set({
                   'display_name': nameController.text,
                   'photo_url': photoUrlController.text
-                });
+                }, SetOptions(merge: true));
               },
               child: const Text('Save'))
         ],

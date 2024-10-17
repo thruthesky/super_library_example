@@ -21,6 +21,14 @@
             "deviceId": "iPhone SE",
         },
         {
+            "name": "SM A155F - Galaxy A15",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "program": "lib/main.dart",
+            "deviceId": "SM A155F",
+        },
+        {
             "name": "super_library_example (profile mode)",
             "request": "launch",
             "type": "dart",

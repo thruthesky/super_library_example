@@ -251,13 +251,27 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                   ),
+                  Value(
+                      ref: myRef.child(UserData.field.displayName),
+                      builder: (v, r) => Text('Name: $v')),
                   Text('UID: ${FirebaseAuth.instance.currentUser!.uid}'),
-                  ChatRoomIcon(
-                    roomId: '-O9JXcdeMWOaCxOMiKBP',
-                    width: 60,
-                    height: 60,
-                    radius: 24,
-                  ),
+
+                  ElevatedButton(
+                      onPressed: () {
+                        showGeneralDialog(
+                          context: context,
+                          pageBuilder: (_, __, ___) {
+                            return const ProfileScreen();
+                          },
+                        );
+                      },
+                      child: const Text('Profile Edit')),
+                  // ChatRoomIcon(
+                  //   roomId: '-O9JXcdeMWOaCxOMiKBP',
+                  //   width: 60,
+                  //   height: 60,
+                  //   radius: 24,
+                  // ),
                   ElevatedButton(
                     onPressed: () async {
                       final String id = 'id${Random().nextInt(1000) + 9999}';
@@ -286,16 +300,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                     child: const Text('Create 10 test users'),
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        showGeneralDialog(
-                          context: context,
-                          pageBuilder: (_, __, ___) {
-                            return const ProfileScreen();
-                          },
-                        );
-                      },
-                      child: const Text('Profile Edit')),
                   Wrap(
                     alignment: WrapAlignment.center,
                     children: [
