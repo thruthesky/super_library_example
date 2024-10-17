@@ -1,5 +1,4 @@
 // Automatic FlutterFlow imports
-
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'index.dart'; // Imports other custom actions
@@ -931,8 +930,24 @@ class ChatService {
       });
     }
 
-    // TODO: site preview
-    // await updateUrlPreview(newMessage, text);
+    updateUrlPreview(messageRef.key!, roomId, text);
+  }
+
+  Future<void> updateUrlPreview(
+      String messageId, String roomId, String? text) async {
+    if (text == null) return;
+
+    final SitePreviewData? previewSite = await loadSitePreview(text: text);
+    if (previewSite == null) return;
+
+    await database.ref('chat/messages/$roomId/$messageId').update({
+      ChatMessage.field.previewUrl: previewSite.url,
+      ChatMessage.field.previewTitle: previewSite.title,
+      ChatMessage.field.previewDescription: previewSite.description,
+      ChatMessage.field.previewImageUrl: previewSite.imageUrl,
+      // TODO how about the siteName?
+      // previewSite.siteName
+    });
   }
 
   String joinSeparator = '---';
@@ -1146,6 +1161,18 @@ class ChatService {
   /// Adjust chat data upon entering the chat room
   Future<void> enter(String roomId) async {
     const f = ChatJoin.field;
+
+    // Using get() is having problem, because sometimes it is getting the
+    // whole node (along with the other children or fields). For now, using
+    // once().
+    // Related issues:
+    // https://github.com/firebase/flutterfire/issues/10145
+    // https://github.com/firebase/firebase-ios-sdk/issues/12225
+    // https://github.com/firebase/firebase-ios-sdk/issues/12965
+    final lastMessageAt =
+        await database.ref('chat/rooms/$roomId/lastMessageAt').once();
+    final updatedOrder = -1 * ((lastMessageAt.snapshot.value ?? 0) as int);
+
     final enterValues = {
       // TODO: Don't update if these fields are not existing for the performance improvement.
       'chat/joins/$myUid/$roomId/${f.inviterUid}': null,
@@ -1154,6 +1181,16 @@ class ChatService {
       // Remove the no of new messages in each chat room and in the settings
       'chat/settings/$myUid/${f.newMessageCount}/$roomId': null,
       'chat/joins/$myUid/$roomId/${f.newMessageCount}': null,
+
+      // Reorder because it has been read.
+      'chat/joins/$myUid/$roomId/order': updatedOrder,
+
+      if (isSingleChatRoom(roomId))
+        'chat/joins/$myUid/$roomId/${f.singleOrder}': updatedOrder,
+      if (!isSingleChatRoom(roomId))
+        'chat/joins/$myUid/$roomId/${f.groupOrder}': updatedOrder,
+      // TODO how can we reorder the open chats
+      // 'chat/joins/$myUid/$roomId/${f.openOrder}': updatedOrder,
     };
     await database.ref().update(enterValues);
   }

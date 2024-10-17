@@ -38,10 +38,10 @@ class ChatMessageListView extends StatefulWidget {
 }
 
 class _ChatMessageListViewState extends State<ChatMessageListView> {
-  double iconSize = 52;
-  double iconPadding = 8;
-  double textPadding = 10;
-  double leftRightBubblePadding = 80;
+  double get iconSize => 52;
+  double get iconPadding => 8;
+  double get textPadding => 10;
+  double get leftRightBubblePadding => 16;
 
   String get roomId => ChatService.instance.mayConvertSingleChatRoomId(
         widget.roomId,
@@ -75,6 +75,9 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
           itemCount: snapshot.docs.length,
           reverse: true,
           separatorBuilder: (context, index) => const SizedBox(height: 8),
+          // the padding is needed to add space at the last messages.
+          // instead of adding padding outside that may look cut when scrolled
+          padding: const EdgeInsets.only(top: 16, bottom: 16),
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
@@ -86,9 +89,8 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
 
             final listTile = Component.chatMessageListTile?.call(message) ??
                 Row(
+                  // This row aligns the Photo and Name at top
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment:
-                      isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
                     if (isNotMine) ...[
                       UserAvatar(
@@ -98,70 +100,114 @@ class _ChatMessageListViewState extends State<ChatMessageListView> {
                       ),
                       SizedBox(width: iconPadding),
                     ],
-
-                    // Text message bubble
                     Flexible(
-                      child: Container(
-                        margin: EdgeInsets.only(
-                          right: isMine ? 0 : leftRightBubblePadding,
-                          left: isNotMine ? 0 : leftRightBubblePadding,
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: isMine
-                                    ? CrossAxisAlignment.end
-                                    : CrossAxisAlignment.start,
-                                children: [
-                                  if (message.displayName != null)
-                                    Text(
-                                      message.displayName!,
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelSmall,
-                                    ),
-                                  if (message.text != null)
-                                    Container(
-                                      padding: EdgeInsets.all(textPadding),
-                                      decoration: BoxDecoration(
-                                        color: isMine
-                                            ? FlutterFlowTheme.of(context)
-                                                .accent3
-                                            : FlutterFlowTheme.of(context)
-                                                .alternate,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: isMine
-                                              ? const Radius.circular(16)
-                                              : Radius.zero,
-                                          topRight: isNotMine
-                                              ? const Radius.circular(16)
-                                              : Radius.zero,
-                                          bottomLeft: const Radius.circular(16),
-                                          bottomRight:
-                                              const Radius.circular(16),
+                      child: Row(
+                        // This row aligns the bubble and the time at their bottom.
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: isMine
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                if (message.displayName != null)
+                                  Text(
+                                    message.displayName!,
+                                    style:
+                                        FlutterFlowTheme.of(context).labelSmall,
+                                  ),
+                                Row(
+                                  mainAxisAlignment: isMine
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (isMine) ...[
+                                      Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            // This gives space (to not overlap with other users' icon and message)
+                                            left: leftRightBubblePadding,
+                                            bottom: 6.0,
+                                          ),
+                                          child: Text(
+                                            message.createdAt.toDateTime.short,
+                                            style: FlutterFlowTheme.of(context)
+                                                .labelSmall,
+                                          ),
                                         ),
                                       ),
-                                      child: Text(
-                                        message.text!,
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium,
+                                      SizedBox(width: iconPadding),
+                                    ],
+                                    if (message.text != null)
+                                      Flexible(
+                                        child: Container(
+                                          padding: EdgeInsets.all(textPadding),
+                                          decoration: BoxDecoration(
+                                            color: isMine
+                                                ? FlutterFlowTheme.of(context)
+                                                    .accent3
+                                                : FlutterFlowTheme.of(context)
+                                                    .alternate,
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: isMine
+                                                  ? const Radius.circular(16)
+                                                  : Radius.zero,
+                                              topRight: isNotMine
+                                                  ? const Radius.circular(16)
+                                                  : Radius.zero,
+                                              bottomLeft:
+                                                  const Radius.circular(16),
+                                              bottomRight:
+                                                  const Radius.circular(16),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            message.text!,
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium,
+                                          ),
+                                        ),
+                                      ),
+                                    if (isNotMine) ...[
+                                      SizedBox(width: iconPadding),
+                                      Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom: 6.0,
+                                            right: leftRightBubblePadding,
+                                          ),
+                                          child: Text(
+                                            message.createdAt.toDateTime.short,
+                                            style: FlutterFlowTheme.of(context)
+                                                .labelSmall,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                if (message.previewUrl != null) ...[
+                                  Container(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    width: 220,
+                                    child: SitePreview(
+                                      data: SitePreviewData(
+                                        url: message.previewUrl,
+                                        title: message.previewTitle,
+                                        description: message.previewDescription,
+                                        imageUrl: message.previewImageUrl,
                                       ),
                                     ),
+                                  ),
                                 ],
-                              ),
+                              ],
                             ),
-                            if (isNotMine) ...[
-                              SizedBox(width: iconPadding),
-                              Text(
-                                message.createdAt.toDateTime.short,
-                                style: FlutterFlowTheme.of(context).labelSmall,
-                              ),
-                            ],
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

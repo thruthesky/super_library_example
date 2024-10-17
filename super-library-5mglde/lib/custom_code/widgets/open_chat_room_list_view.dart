@@ -38,10 +38,13 @@ class _OpenChatRoomListViewState extends State<OpenChatRoomListView> {
   Widget build(BuildContext context) {
     return ValueListView(
       query: query,
+      reverseQuery: true,
       builder: (snapshot, fetchMore) {
         return ListView.separated(
           itemCount: snapshot.docs.length,
-          separatorBuilder: (context, index) => const Divider(),
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+          ),
           itemBuilder: (context, index) {
             fetchMore(index);
             final DataSnapshot doc = snapshot.docs[index];
