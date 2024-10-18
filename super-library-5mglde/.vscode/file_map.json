@@ -113,6 +113,12 @@
     "type": "W",
     "is_deleted": false
   },
+  "user_display_name.dart": {
+    "old_identifier_name": "UserDisplayName",
+    "new_identifier_name": "UserDisplayName",
+    "type": "W",
+    "is_deleted": false
+  },
   "user_list_view.dart": {
     "old_identifier_name": "UserListView",
     "new_identifier_name": "UserListView",

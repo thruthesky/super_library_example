@@ -7,3 +7,4 @@ export 'test_widget.dart' show TestWidget;
 export 'chat_new_message_counter.dart' show ChatNewMessageCounter;
 export 'chat_room_name.dart' show ChatRoomName;
 export 'chat_room_icon.dart' show ChatRoomIcon;
+export 'user_display_name.dart' show UserDisplayName;

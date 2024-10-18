@@ -51,12 +51,6 @@ DatabaseReference databaseUserRef(String uid) {
   return UserService.instance.databaseUserRef(uid);
 }
 
-/// Database reference for the user of the uid
-DatabaseReference userRef(String uid) => databaseUserRef(uid);
-
-/// Database reference for the current user
-DatabaseReference get myRef => userRef(myUid);
-
 /// Returns the user's photo url reference
 DatabaseReference userPhotoUrlRef(String uid) =>
     databaseUserRef(uid).child(UserData.field.photoUrl);
@@ -1359,11 +1353,11 @@ class SitePreview extends StatelessWidget {
         if (data.url == null) {
           return;
         }
-// if (await canLaunchUrlString(data.url!)) {
-//   await launchUrlString(data.url!);
-// } else {
-//   throw 'Could not launch {$data.url}';
-// }
+        // if (await canLaunchUrlString(data.url!)) {
+        //   await launchUrlString(data.url!);
+        // } else {
+        //   throw 'Could not launch {$data.url}';
+        // }
         if (data.url == null) {
           return;
         }
@@ -1742,7 +1736,6 @@ class UserService {
         // TODO: improve the logic. Check if the blockedUsers has changed, then, update it.
         if (data.keys.contains('blockedUsers') == true) {
           myBlockedUsersRef.set(data['blockedUsers']);
-          return;
         }
 
         // Copy the 'display_name' into 'dispaly_name_lowercase' for the
