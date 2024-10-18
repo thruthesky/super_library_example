@@ -67,6 +67,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'SafeBottomAreaScreen',
           path: '/safeBottomAreaScreen',
           builder: (context, params) => SafeBottomAreaScreenWidget(),
+        ),
+        FFRoute(
+          name: 'CustomFunctionsScreen',
+          path: '/customFunctionsScreen',
+          builder: (context, params) => CustomFunctionsScreenWidget(),
+        ),
+        FFRoute(
+          name: 'CircularProgressIndicatorScreen',
+          path: '/circularProgressIndicatorScreen',
+          builder: (context, params) => CircularProgressIndicatorScreenWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
