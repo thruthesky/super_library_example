@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:common_library/custom_code/widgets/index.dart';
+import 'package:common_library/custom_code/actions/index.dart';
+import 'package:common_library/custom_code/widgets/index.dart' as common;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:super_example/components/chat_room_list_tile_widget.dart';
@@ -278,9 +279,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 20),
 
-                  CommonCircularProgressIndicator(),
+                  common.CircularProgressIndicator(),
 
                   const SizedBox(height: 20),
+
+                  FutureBuilder(
+                      future: packageInfo(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          return Column(
+                            children: [
+                              Text('Package Info: ${snapshot.data}'),
+                              const SizedBox(height: 20),
+                              if (snapshot.data['version'] != null)
+                                Text('Version: ${snapshot.data['version']}'),
+                              if (snapshot.data['buildNumber'] != null)
+                                Text(
+                                    'Build Number: ${snapshot.data['buildNumber']}'),
+                            ],
+                          );
+                        }
+                        return const CircularProgressIndicator();
+                      }),
 
                   ElevatedButton(
                     onPressed: () async {

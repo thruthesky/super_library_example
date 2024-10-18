@@ -46,7 +46,7 @@ class _CircularProgressIndicatorScreenWidgetState
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
           backgroundColor: FlutterFlowTheme.of(context).primary,
-          automaticallyImplyLeading: false,
+          automaticallyImplyLeading: true,
           title: Text(
             'CircularProgressIndicator',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
@@ -66,7 +66,7 @@ class _CircularProgressIndicatorScreenWidgetState
             padding: EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   'Unfortunately, there is no CircularProgressIndicator in Flutterflow. Use CommonCircularProgressIndicator to display an indicator.',
@@ -77,18 +77,26 @@ class _CircularProgressIndicatorScreenWidgetState
                 ),
                 Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
-                  child: custom_widgets.CommonCircularProgressIndicator(
+                  child: Container(
                     width: 60.0,
                     height: 60.0,
-                    adaptive: false,
+                    child: custom_widgets.CircularProgressIndicator(
+                      width: 60.0,
+                      height: 60.0,
+                      adaptive: true,
+                    ),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
-                  child: custom_widgets.CommonCircularProgressIndicator(
+                  child: Container(
                     width: 60.0,
                     height: 60.0,
-                    adaptive: true,
+                    child: custom_widgets.CircularProgressIndicator(
+                      width: 60.0,
+                      height: 60.0,
+                      adaptive: false,
+                    ),
                   ),
                 ),
               ],

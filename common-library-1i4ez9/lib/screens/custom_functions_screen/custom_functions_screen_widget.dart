@@ -45,7 +45,7 @@ class _CustomFunctionsScreenWidgetState
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
           backgroundColor: FlutterFlowTheme.of(context).primary,
-          automaticallyImplyLeading: false,
+          automaticallyImplyLeading: true,
           title: Text(
             'Custom Functions',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
@@ -77,8 +77,9 @@ class _CustomFunctionsScreenWidgetState
                 Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
                   child: FFButtonWidget(
-                    onPressed: () {
-                      print('Button pressed ...');
+                    onPressed: () async {
+                      await launchURL(
+                          'https://thruthesky.github.io/flutterflow_libraries/common_library/');
                     },
                     text: 'Open Common Library Document Site',
                     options: FFButtonOptions(
