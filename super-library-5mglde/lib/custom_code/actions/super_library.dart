@@ -66,6 +66,12 @@ String otherUid(roomId) => ChatService.instance.getOtherUid(roomId);
 DatabaseReference roomRef(String roomId) =>
     ChatService.instance.roomRef(roomId);
 
+/// Database reference for the user of the uid
+DatabaseReference userRef(String uid) => databaseUserRef(uid);
+
+/// Database reference for the current user
+DatabaseReference get myRef => userRef(myUid);
+
 /// EO Helpers -------------------------------------------------------------------------------------
 
 /// load site preview from the url

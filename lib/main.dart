@@ -272,6 +272,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   //   height: 60,
                   //   radius: 24,
                   // ),
+
+                  CircularProgressIndicator.adaptive(
+                    strokeWidth: 4,
+                  ),
+                  const SizedBox(height: 20),
+
+                  CommonCircularProgressIndicator(),
+
+                  const SizedBox(height: 20),
+
                   ElevatedButton(
                     onPressed: () async {
                       final String id = 'id${Random().nextInt(1000) + 9999}';

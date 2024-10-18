@@ -1,4 +1,10 @@
 {
+  "common_circular_progress_indicator.dart": {
+    "old_identifier_name": "CommonCircularProgressIndicator",
+    "new_identifier_name": "CommonCircularProgressIndicator",
+    "type": "W",
+    "is_deleted": false
+  },
   "linky_text.dart": {
     "old_identifier_name": "LinkyText",
     "new_identifier_name": "LinkyText",
