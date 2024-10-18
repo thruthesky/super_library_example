@@ -1,7 +1,7 @@
 {
   "common_circular_progress_indicator.dart": {
-    "old_identifier_name": "CommonCircularProgressIndicator",
-    "new_identifier_name": "CommonCircularProgressIndicator",
+    "old_identifier_name": "CircularProgressIndicator",
+    "new_identifier_name": "CircularProgressIndicator",
     "type": "W",
     "is_deleted": false
   },

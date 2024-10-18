@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-class CommonCircularProgressIndicator extends StatefulWidget {
-  const CommonCircularProgressIndicator({
+import 'package:flutter/material.dart' as md;
+
+class CircularProgressIndicator extends StatefulWidget {
+  const CircularProgressIndicator({
     super.key,
     this.width,
     this.height,
@@ -22,20 +24,19 @@ class CommonCircularProgressIndicator extends StatefulWidget {
   final double? strokeWidth;
 
   @override
-  State<CommonCircularProgressIndicator> createState() =>
-      _CommonCircularProgressIndicatorState();
+  State<CircularProgressIndicator> createState() =>
+      _CircularProgressIndicatorState();
 }
 
-class _CommonCircularProgressIndicatorState
-    extends State<CommonCircularProgressIndicator> {
+class _CircularProgressIndicatorState extends State<CircularProgressIndicator> {
   @override
   Widget build(BuildContext context) {
     if (widget.adaptive == true) {
-      return CircularProgressIndicator.adaptive(
+      return md.CircularProgressIndicator.adaptive(
         strokeWidth: widget.strokeWidth ?? 4,
       );
     } else {
-      return CircularProgressIndicator(
+      return md.CircularProgressIndicator(
         strokeWidth: widget.strokeWidth ?? 4,
       );
     }
